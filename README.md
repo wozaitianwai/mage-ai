@@ -108,6 +108,20 @@ To generate a wheel and source distribution from the repo, run:
 bash scripts/build_package.sh
 ```
 
+## Start from source on Windows
+
+Run the helper script to create a virtual environment (if needed), install dependencies, and launch Mage locally:
+
+```
+powershell -ExecutionPolicy Bypass -File scripts/start_windows.ps1 -ProjectName your_project
+```
+
+Optional flags:
+
+- `-Host` (default `localhost`)
+- `-Port` (default `6789`)
+- `-SkipInstall` to reuse existing dependencies
+
 
 <br />
 
