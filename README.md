@@ -19,6 +19,10 @@ When it’s time to scale, [Mage Pro](https://mage.ai) — our core platform —
 
 <br />
 
+**中文文档：**[README_zh.md](./README_zh.md)
+
+<br />
+
 ## What you can do with Mage OSS
 
 - Build pipelines locally with Python, SQL, or R in a modular notebook-style UI
