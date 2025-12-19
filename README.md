@@ -98,6 +98,16 @@ Looking for how-to guides, examples, or advanced configuration?
 
 Explore our full documentation at [docs.mage.ai](https://docs.mage.ai).
 
+<br />
+
+## Build the Python package
+
+To generate a wheel and source distribution from the repo, run:
+
+```
+bash scripts/build_package.sh
+```
+
 
 <br />
 
