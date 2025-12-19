@@ -191,3 +191,7 @@ package.json
 test.py
 test/
 test_data*
+
+# User requested ignore
+modle/
+test_project/
