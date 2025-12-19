@@ -11,8 +11,8 @@ module.exports = removeImports({
     esmExternals: true,
   },
   i18n: {
-    defaultLocale: 'en',
-    locales: ['en', 'zh'],
+    defaultLocale: 'zh',
+    locales: ['zh', 'en'],
   },
   images: {
     unoptimized: true,
