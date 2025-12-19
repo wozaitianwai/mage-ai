@@ -10,6 +10,10 @@ module.exports = removeImports({
   experimental: {
     esmExternals: true,
   },
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'zh'],
+  },
   images: {
     unoptimized: true,
   },
