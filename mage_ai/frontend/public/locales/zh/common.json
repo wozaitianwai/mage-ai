@@ -53,10 +53,7 @@
     "utc_counts_note": "计数以本地时间显示。",
     "view_more": "查看更多",
     "cancelled": "已取消",
-    "completed": "已完成",
-    "failed": "失败",
-    "initial": "初始",
-    "running": "运行中"
+    "initial": "初始"
   },
   "common": {
     "welcome": "欢迎使用 Mage AI",
@@ -248,6 +245,7 @@
     "actions": {
       "rename": "重命名管道",
       "edit_description": "编辑描述",
+      "edit_description_for": "编辑 {{name}} 的描述",
       "clone": "克隆管道",
       "download_folder": "下载 (保留目录结构)",
       "download_zip": "下载 (无目录结构)",
@@ -273,15 +271,28 @@
     },
     "tabs": {
       "recently_viewed": "最近浏览",
-      "all_pipelines": "所有管道"
+      "all_pipelines": "所有管道",
+      "all_pipelines_with_count": "所有管道 > {{count}}"
     },
     "status": {
+      "active": "已启用",
+      "inactive": "未启用",
       "no_schedules": "无调度"
+    },
+    "types": {
+      "execution_framework": "执行框架",
+      "integration": "数据集成",
+      "python": "标准",
+      "pyspark": "PySpark",
+      "streaming": "流式",
+      "invalid": "无效"
     }
   },
   "triggers": {
     "no_triggers": "暂无可用触发器",
     "saved_in_code": "此触发器保存在代码中。",
+    "save_triggers_automatically": "自动将触发器保存到代码",
+    "save_triggers_description": "每次在此流水线中创建或更新触发器时，自动将其持久化到代码中。",
     "headers": {
       "active": "启用",
       "name": "名称",
@@ -304,25 +315,23 @@
     "add_new_block": "添加一个新块以开始构建您的管道。"
   },
   "preferences": {
+    "pipeline_settings": "流水线设置",
+    "pipeline_settings_description": "应用于此项目中所有流水线的全局设置。",
+    "features": "功能",
+    "overridden": "已覆盖",
     "project_name": "项目名称",
     "project_uuid": "项目 UUID",
     "not_required": "不需要",
     "help_improve_mage": "帮助改进 Mage",
-    "contribute_usage": "请提供使用统计数据，以帮助为您和社区中的每个人改善开发人员体验。了解更多",
+    "contribute_usage": "贡献使用统计数据以帮助我们改进开发者体验。阅读更多内容请点击",
     "here": "这里",
-    "pipeline_settings": "管道设置",
-    "global_settings_description": "应用于此项目中所有管道的全局设置。",
-    "save_triggers_automatically": "自动在代码中保存触发器",
-    "save_triggers_description": "每次在此管道中创建或更新触发器时，都会自动将其持久化到代码中。",
-    "features": "功能",
     "openai": "OpenAI",
-    "api_key_hidden": "API 密钥：********",
+    "api_key_hidden": "API 密钥已隐藏",
     "edit": "编辑",
-    "api_key_disabled_demo": "演示中禁用了输入 API 密钥",
     "api_key": "API 密钥",
+    "api_key_disabled_demo": "API 密钥（演示模式下禁用）",
     "save_settings": "保存项目设置",
-    "cancel": "取消",
-    "overridden": "已覆盖"
+    "cancel": "取消"
   },
   "version_control": {
     "title": "版本控制",
@@ -336,7 +345,7 @@
     "setup": "设置",
     "git_init_directory": "Git 初始化目录",
     "initialize_git_directory": "初始化 Git 目录",
-    "enter_directory_hint": "输入您要初始化 git 的目录。当前项目目录已为您填写。如果您想使用它，请单击保存按钮。",
+    "enter_directory_hint": "输入您要初始化 git 的目录。当前项目目录已为您填写。如果您想使用它，请点击保存按钮。",
     "git_directory_label": "Git 目录",
     "save": "保存",
     "cancel": "取消",
@@ -403,7 +412,20 @@
       "branches": "分支",
       "commit": "提交",
       "push": "推送 & 拉取请求"
-    }
+    },
+    "files": "提交",
+    "push": "推送与拉取请求",
+    "remote_url_hint": "如果已在上方通过 GitHub 认证，请使用 https URL。",
+    "switch_branch_hint": "选择其他分支以切换",
+    "choose_remote": "选择远程",
+    "message_for_action": "{{action}} 的消息",
+    "remove_remote_confirm": "确定要删除远程 {{name}} 吗？",
+    "ref": "引用",
+    "refs_title": "引用 ({{count}})",
+    "remote_no_refs": "此远程没有引用。",
+    "all_branches": "所有分支",
+    "git_initialized_hint": "如果下方目录为空，将使用当前工作目录初始化 git。如果下方目录尚未初始化，Mage 会自动为您运行 git init。",
+    "next_tab": "下一步：{{tab}}"
   },
   "pipeline_runs": {
     "no_runs_available": "没有可用的运行",
@@ -721,25 +743,6 @@
     "save_settings": "保存流水线设置",
     "hide_all_blocks": "隐藏笔记本中的所有代码块",
     "output_block_logs": "在编辑流水线时运行代码块，将代码块消息输出到日志"
-  },
-  "preferences": {
-    "pipeline_settings": "流水线设置",
-    "pipeline_settings_description": "应用于此项目中所有流水线的全局设置。",
-    "features": "功能",
-    "overridden": "已覆盖",
-    "project_name": "项目名称",
-    "project_uuid": "项目 UUID",
-    "not_required": "不需要",
-    "help_improve_mage": "帮助改进 Mage",
-    "contribute_usage": "贡献使用统计数据以帮助我们改进开发者体验。阅读更多内容请点击",
-    "here": "这里",
-    "openai": "OpenAI",
-    "api_key_hidden": "API 密钥已隐藏",
-    "edit": "编辑",
-    "api_key": "API 密钥",
-    "api_key_disabled_demo": "API 密钥（演示模式下禁用）",
-    "save_settings": "保存项目设置",
-    "cancel": "取消"
   },
   "features": {
     "add_new_block_v2": "添加新代码块 v2",

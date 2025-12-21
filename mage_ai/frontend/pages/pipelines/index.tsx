@@ -1,5 +1,6 @@
 import NextLink from 'next/link';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MutateFunction, useMutation } from 'react-query';
 import { useRouter } from 'next/router';
 
@@ -16,7 +17,6 @@ import FlexContainer from '@oracle/components/FlexContainer';
 import InputModal from '@oracle/elements/Inputs/InputModal';
 import Link from '@oracle/elements/Link';
 import Paginate, { MAX_PAGES, ROW_LIMIT } from '@components/shared/Paginate';
-import Panel from '@oracle/components/Panel';
 import PipelineType, {
   FILTERABLE_PIPELINE_STATUSES,
   PipelineGroupingEnum,
@@ -24,7 +24,6 @@ import PipelineType, {
   PipelineStatusEnum,
   PipelineTypeEnum,
   PIPELINE_TYPE_INVALID,
-  PIPELINE_TYPE_LABEL_MAPPING,
 } from '@interfaces/PipelineType';
 import Preferences from '@components/settings/workspace/Preferences';
 import PrivateRoute from '@components/shared/PrivateRoute';
@@ -73,7 +72,6 @@ import { OBJECT_TYPE_PIPELINES } from '@interfaces/CustomTemplateType';
 import {
   PADDING_UNITS,
   UNIT,
-  UNITS_BETWEEN_SECTIONS,
   UNITS_BETWEEN_ITEMS_IN_SECTIONS,
 } from '@oracle/styles/units/spacing';
 import { ScheduleStatusEnum } from '@interfaces/PipelineScheduleType';
@@ -84,11 +82,9 @@ import {
 } from '@components/shared/Table/constants';
 import { TableContainerStyle } from '@components/shared/Table/index.style';
 import {
-  capitalize,
   capitalizeRemoveUnderscoreLower,
   isNumeric,
   randomNameGenerator,
-  removeUnderscore,
 } from '@utils/string';
 import { dateFormatLong, datetimeInLocalTimezone, utcStringToElapsedTime } from '@utils/date';
 import { displayErrorFromReadResponse, onSuccess } from '@api/utils/response';
@@ -104,20 +100,8 @@ import { useModal } from '@context/Modal';
 import { initiateDownload } from '@utils/downloads';
 import Setup from '@components/AI/Setup';
 
-const TAB_RECENT = {
-  Icon: Schedule,
-  label: () => 'Recently viewed',
-  uuid: 'recent',
-};
-const TAB_ALL = {
-  Icon: PipelineV3,
-  label: (opts) => opts?.count ? `All pipelines › ${opts?.count || 0}` : 'All pipelines',
-  uuid: 'all',
-};
-const TABS = [
-  TAB_ALL,
-  TAB_RECENT,
-];
+const TAB_ALL_UUID = 'all';
+const TAB_RECENT_UUID = 'recent';
 const QUERY_PARAM_TAB = 'tab';
 const NON_ARRAY_QUERY_KEYS = [
   PipelineQueryEnum.SEARCH,
@@ -134,6 +118,7 @@ const sharedOpenButtonProps = {
 
 function PipelineListPage() {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const refButtonTabs = useRef(null);
   const refTable = useRef(null);
   const refPaginate = useRef(null);
@@ -181,6 +166,25 @@ function PipelineListPage() {
     q,
   ]);
 
+  const tabs = useMemo(() => ([
+    {
+      Icon: PipelineV3,
+      label: (opts) => {
+        const count = opts?.count;
+
+        return count
+          ? t('pipelines.tabs.all_pipelines_with_count', { count })
+          : t('pipelines.tabs.all_pipelines');
+      },
+      uuid: TAB_ALL_UUID,
+    },
+    {
+      Icon: Schedule,
+      label: () => t('pipelines.tabs.recently_viewed'),
+      uuid: TAB_RECENT_UUID,
+    },
+  ]), [t]);
+
   useEffect(() => {
     setButtonTabsHeight(refButtonTabs?.current?.getBoundingClientRect().height);
   }, [
@@ -217,7 +221,7 @@ function PipelineListPage() {
       : fromHistoryDays,
     include_schedules: 1,
   }, {}, {
-    pauseFetch: !operationHistoryEnabled || !selectedTabUUID || TAB_RECENT.uuid !== selectedTabUUID,
+    pauseFetch: !operationHistoryEnabled || !selectedTabUUID || TAB_RECENT_UUID !== selectedTabUUID,
   });
 
   const filterPipelinesBySearchText = useCallback(
@@ -252,6 +256,33 @@ function PipelineListPage() {
       dataPipelinesFromHistory,
       filterPipelinesBySearchText,
     ]);
+
+  const pipelineStatusLabelMapping = useMemo(() => ({
+    [PipelineStatusEnum.ACTIVE]: t('pipelines.status.active', {
+      defaultValue: capitalizeRemoveUnderscoreLower(PipelineStatusEnum.ACTIVE),
+    }),
+    [PipelineStatusEnum.INACTIVE]: t('pipelines.status.inactive', {
+      defaultValue: capitalizeRemoveUnderscoreLower(PipelineStatusEnum.INACTIVE),
+    }),
+    [PipelineStatusEnum.NO_SCHEDULES]: t('pipelines.status.no_schedules'),
+  }), [t]);
+
+  const pipelineTypeLabelMapping = useMemo(() => ({
+    [PipelineTypeEnum.EXECUTION_FRAMEWORK]: t('pipelines.types.execution_framework', {
+      defaultValue: capitalizeRemoveUnderscoreLower(PipelineTypeEnum.EXECUTION_FRAMEWORK),
+    }),
+    [PipelineTypeEnum.INTEGRATION]: t('pipelines.types.integration', { defaultValue: 'Integration' }),
+    [PipelineTypeEnum.PYTHON]: t('pipelines.types.python', { defaultValue: 'Standard' }),
+    [PipelineTypeEnum.PYSPARK]: t('pipelines.types.pyspark', { defaultValue: 'PySpark' }),
+    [PipelineTypeEnum.STREAMING]: t('pipelines.types.streaming', { defaultValue: 'Streaming' }),
+    [PIPELINE_TYPE_INVALID]: t('pipelines.types.invalid', { defaultValue: 'Invalid' }),
+  }), [t]);
+
+  const groupByLabelMapping = useMemo(() => ({
+    [PipelineGroupingEnum.STATUS]: t('pipelines.headers.status'),
+    [PipelineGroupingEnum.TAG]: t('pipelines.headers.tags'),
+    [PipelineGroupingEnum.TYPE]: t('pipelines.headers.type'),
+  }), [t]);
 
   const sortableColumnIndexes = useMemo(() => [1, 2, 3, 4, 5, 6, 8, 9], []);
   const sortColumnIndexQuery = q?.[SortQueryEnum.SORT_COL_IDX];
@@ -321,7 +352,7 @@ function PipelineListPage() {
       } else {
         queryFinal[QUERY_PARAM_TAB] = get(
           LOCAL_STORAGE_KEY_PIPELINE_SELECTED_TAB_UUID,
-          TABS?.[0]?.uuid,
+          tabs?.[0]?.uuid || TAB_ALL_UUID,
         );
       }
     }
@@ -421,6 +452,7 @@ function PipelineListPage() {
     operationHistoryEnabled,
     query,
     selectedTabUUID,
+    tabs,
     sortableColumnIndexes,
     sortColumnIndexQuery,
     sortDirectionQuery,
@@ -588,14 +620,15 @@ function PipelineListPage() {
       }}
       textArea={!pipelineName}
       title={pipelineName
-        ? 'Rename pipeline'
-        : `Edit description for ${pipeline?.uuid}`
+        ? t('pipelines.actions.rename')
+        : t('pipelines.actions.edit_description_for', { name: pipeline?.uuid })
       }
       value={pipelineName ? pipelineName : pipelineDescription}
     />
   ), {}, [
     isLoadingUpdate,
     selectedPipeline,
+    t,
   ], {
     background: true,
     uuid: 'rename_pipeline_and_save',
@@ -731,18 +764,17 @@ function PipelineListPage() {
     <Toolbar
       addButtonProps={{
         isLoading: isLoadingCreate,
-        label: 'New',
+        label: t('pipelines.new'),
         menuItems: newPipelineButtonMenuItems,
       }}
       deleteRowProps={{
-        confirmationMessage: 'This is irreversible and will immediately delete everything associated \
-          with the pipeline, including its blocks, triggers, runs, logs, and history.',
+        confirmationMessage: t('pipelines.actions.delete_warning'),
         isLoading: isLoadingDelete,
-        item: 'pipeline',
+        item: t('common.pipeline'),
         onDelete: () => {
           if (typeof window !== 'undefined'
             && window.confirm(
-              `Are you sure you want to delete pipeline ${selectedPipeline?.uuid}?`,
+              t('pipelines.actions.delete_confirmation', { uuid: selectedPipeline?.uuid }),
             )
           ) {
             deletePipeline(selectedPipeline?.uuid);
@@ -751,16 +783,16 @@ function PipelineListPage() {
       }}
       extraActionButtonProps={{
         Icon: Clone,
-        confirmationDescription: 'Cloning the selected pipeline will create a new pipeline with the same \
-          configuration and code blocks. The blocks use the same block files as the original pipeline. \
-          Pipeline triggers, runs, backfills, and logs are not copied over to the new pipeline.',
-        confirmationMessage: `Do you want to clone the pipeline ${selectedPipeline?.uuid}?`,
+        confirmationDescription: t('pipelines.actions.clone_confirmation_description'),
+        confirmationMessage: t('pipelines.actions.clone_confirmation_title', {
+          uuid: selectedPipeline?.uuid,
+        }),
         isLoading: isLoadingClone,
         onClick: () => clonePipeline({
           pipeline: { clone_pipeline_uuid: selectedPipeline?.uuid },
         }),
         openConfirmationDialogue: true,
-        tooltip: 'Clone pipeline',
+        tooltip: t('pipelines.actions.clone'),
       }}
       filterOptions={{
         status: FILTERABLE_PIPELINE_STATUSES,
@@ -769,19 +801,19 @@ function PipelineListPage() {
       }}
       filterValueLabelMapping={{
         status: FILTERABLE_PIPELINE_STATUSES.reduce(
-          (acc, cv) => ({ ...acc, [cv]: removeUnderscore(capitalize(cv)) }), {},
+          (acc, cv) => ({ ...acc, [cv]: pipelineStatusLabelMapping[cv] }), {},
         ),
         tag: {
-          [PipelineQueryEnum.NO_TAGS]: 'No tags',
+          [PipelineQueryEnum.NO_TAGS]: t('pipelines.no_tags'),
           ...tags.reduce((acc, { uuid }) => ({
             ...acc,
             [uuid]: uuid,
           }), {}),
         },
-        type: PIPELINE_TYPE_LABEL_MAPPING,
+        type: pipelineTypeLabelMapping,
       }}
       groupButtonProps={{
-        groupByLabel: groupByQuery,
+        groupByLabel: groupByQuery ? groupByLabelMapping[groupByQuery] : null,
         menuItems: [
           {
             beforeIcon: groupByQuery === PipelineGroupingEnum.STATUS
@@ -791,7 +823,7 @@ function PipelineListPage() {
               />
               : <Circle muted size={UNIT * 1.5} />
             ,
-            label: () => capitalize(PipelineGroupingEnum.STATUS),
+            label: () => groupByLabelMapping[PipelineGroupingEnum.STATUS],
             onClick: () => {
               const val = groupByQuery === PipelineGroupingEnum.STATUS
                 ? null
@@ -817,7 +849,7 @@ function PipelineListPage() {
               />
               : <Circle muted size={UNIT * 1.5} />
             ,
-            label: () => capitalize(PipelineGroupingEnum.TAG),
+            label: () => groupByLabelMapping[PipelineGroupingEnum.TAG],
             onClick: () => {
               const val = groupByQuery === PipelineGroupingEnum.TAG
                 ? null
@@ -843,7 +875,7 @@ function PipelineListPage() {
               />
               : <Circle muted size={UNIT * 1.5} />
             ,
-            label: () => capitalize(PipelineGroupingEnum.TYPE),
+            label: () => groupByLabelMapping[PipelineGroupingEnum.TYPE],
             onClick: () => {
               const val = groupByQuery === PipelineGroupingEnum.TYPE
                 ? null
@@ -865,12 +897,12 @@ function PipelineListPage() {
       }}
       moreActionsMenuItems={[
         {
-          label: () => 'Rename pipeline',
+          label: () => t('pipelines.actions.rename'),
           onClick: () => showInputModal({ pipelineName: selectedPipeline?.name }),
           uuid: 'Pipelines/MoreActionsMenu/Rename',
         },
         {
-          label: () => 'Edit description',
+          label: () => t('pipelines.actions.edit_description'),
           onClick: () => showInputModal({
             pipeline: selectedPipeline,
             pipelineDescription: selectedPipeline?.description,
@@ -900,6 +932,7 @@ function PipelineListPage() {
       query={query}
       resetLimitOnFilterApply
       searchProps={{
+        placeholder: t('pipelines.search_placeholder'),
         onChange: setSearchText,
         value: searchText,
       }}
@@ -911,16 +944,20 @@ function PipelineListPage() {
     deletePipeline,
     fetchPipelines,
     groupByQuery,
+    groupByLabelMapping,
     isLoadingClone,
     isLoadingCreate,
     isLoadingDelete,
     newPipelineButtonMenuItems,
+    pipelineStatusLabelMapping,
+    pipelineTypeLabelMapping,
     query,
     searchText,
     selectedPipeline,
     setSearchText,
     showInputModal,
     tags,
+    t,
   ]);
 
   const buildRowGroupInfo = useCallback((pipelinesInner: PipelineType[]) => {
@@ -960,7 +997,7 @@ function PipelineListPage() {
     if (PipelineGroupingEnum.STATUS === groupByQuery) {
       Object.values(PipelineStatusEnum).forEach((val) => {
         arr.push(mapping[val]);
-        headers.push(capitalizeRemoveUnderscoreLower(val));
+        headers.push(pipelineStatusLabelMapping[val] || capitalizeRemoveUnderscoreLower(val));
       });
     } else if (PipelineGroupingEnum.TAG === groupByQuery) {
       sortByKey(Object.keys(mapping), uuid => uuid).forEach((val: string) => {
@@ -982,13 +1019,13 @@ function PipelineListPage() {
             </>
           )));
         } else {
-          headers.push('No tags');
+          headers.push(t('pipelines.no_tags'));
         }
       });
     } else if (PipelineGroupingEnum.TYPE === groupByQuery) {
       Object.values(PipelineTypeEnum).forEach((val) => {
         arr.push(mapping[val]);
-        headers.push(PIPELINE_TYPE_LABEL_MAPPING[val]);
+        headers.push(pipelineTypeLabelMapping[val]);
       });
     }
 
@@ -1008,6 +1045,9 @@ function PipelineListPage() {
     };
   }, [
     groupByQuery,
+    pipelineStatusLabelMapping,
+    pipelineTypeLabelMapping,
+    t,
   ]);
 
   const {
@@ -1039,38 +1079,47 @@ function PipelineListPage() {
           uuid: 'action',
         },
         {
-          uuid: capitalize(PipelineGroupingEnum.STATUS),
+          label: () => t('pipelines.headers.status'),
+          uuid: PipelineGroupingEnum.STATUS,
         },
         {
-          uuid: 'Name',
+          label: () => t('pipelines.headers.name'),
+          uuid: 'name',
         },
         {
-          uuid: 'Description',
+          label: () => t('pipelines.headers.description'),
+          uuid: 'description',
         },
         {
-          uuid: capitalize(PipelineGroupingEnum.TYPE),
+          label: () => t('pipelines.headers.type'),
+          uuid: PipelineGroupingEnum.TYPE,
         },
         {
           ...timezoneTooltipProps,
-          uuid: 'Updated at',
+          label: () => t('pipelines.headers.updated_at'),
+          uuid: 'updated_at',
         },
         {
           ...timezoneTooltipProps,
-          uuid: 'Created at',
+          label: () => t('pipelines.headers.created_at'),
+          uuid: 'created_at',
         },
         {
-          uuid: 'Tags',
+          label: () => t('pipelines.headers.tags'),
+          uuid: 'tags',
         },
         {
-          uuid: 'Blocks',
+          label: () => t('common.blocks'),
+          uuid: 'blocks',
         },
         {
-          uuid: 'Triggers',
+          label: () => t('pipeline.triggers'),
+          uuid: 'triggers',
         },
         {
           center: true,
           label: () => '',
-          uuid: 'Actions',
+          uuid: 'actions',
         },
       ]}
       isSelectedRow={(rowIndex: number) => pipelinesInner[rowIndex]?.uuid === selectedPipeline?.uuid}
@@ -1093,7 +1142,7 @@ function PipelineListPage() {
 
         return [
           {
-            label: () => 'Edit description',
+            label: () => t('pipelines.actions.edit_description'),
             onClick: () => showInputModal({
               pipeline: selectedPipeline,
               pipelineDescription: selectedPipeline?.description,
@@ -1101,7 +1150,7 @@ function PipelineListPage() {
             uuid: 'edit_description',
           },
           {
-            label: () => 'Rename',
+            label: () => t('pipelines.actions.rename'),
             onClick: () => showInputModal({
               pipeline: selectedPipeline,
               pipelineName: selectedPipeline?.name,
@@ -1109,7 +1158,7 @@ function PipelineListPage() {
             uuid: 'rename',
           },
           {
-            label: () => 'Clone',
+            label: () => t('pipelines.actions.clone'),
             onClick: () => clonePipeline({
               pipeline: {
                 clone_pipeline_uuid: selectedPipeline?.uuid,
@@ -1118,7 +1167,7 @@ function PipelineListPage() {
             uuid: 'clone',
           },
           {
-            label: () => 'Download (keep folder structure)',
+            label: () => t('pipelines.actions.download_folder'),
             onClick: () => {
               downloadPipeline({
                 filesOnly: false,
@@ -1128,7 +1177,7 @@ function PipelineListPage() {
             uuid: 'download_keep_folder_structure',
           },
           {
-            label: () => 'Download (without folder structure)',
+            label: () => t('pipelines.actions.download_zip'),
             onClick: () => {
               downloadPipeline({
                 filesOnly: true,
@@ -1138,7 +1187,7 @@ function PipelineListPage() {
             uuid: 'download_without_folder_structure',
           },
           {
-            label: () => 'Add/Remove tags',
+            label: () => t('pipelines.actions.add_remove_tags'),
             onClick: () => {
               router.push(
                 '/pipelines/[pipeline]/settings',
@@ -1148,7 +1197,7 @@ function PipelineListPage() {
             uuid: 'add_tags',
           },
           {
-            label: () => 'Create template',
+            label: () => t('pipelines.actions.create_template'),
             onClick: () => {
               router.push(
                 `/templates?object_type=${OBJECT_TYPE_PIPELINES}&new=1&pipeline_uuid=${selectedPipeline?.uuid}`,
@@ -1157,7 +1206,7 @@ function PipelineListPage() {
             uuid: 'create_custom_template',
           },
           {
-            label: () => 'Create global data product',
+            label: () => t('pipelines.actions.create_global_data_product'),
             onClick: () => {
               router.push(
                 `/global-data-products?object_type=${GlobalDataProductObjectTypeEnum.PIPELINE}&new=1&object_uuid=${selectedPipeline?.uuid}`,
@@ -1166,11 +1215,11 @@ function PipelineListPage() {
             uuid: 'create_global_data_product',
           },
           {
-            label: () => 'Delete',
+            label: () => t('pipelines.actions.delete'),
             onClick: () => {
               if (typeof window !== 'undefined'
                 && window.confirm(
-                  `Are you sure you want to delete pipeline ${selectedPipeline?.uuid}?`,
+                  t('pipelines.actions.delete_confirmation', { uuid: selectedPipeline?.uuid }),
                 )
               ) {
                 deletePipeline(selectedPipeline?.uuid);
@@ -1198,6 +1247,15 @@ function PipelineListPage() {
         const schedulesCount = schedules.length;
         const isActive = schedules.find(({ status }) => ScheduleStatusEnum.ACTIVE === status);
         const isInvalid = type as string === PIPELINE_TYPE_INVALID;
+        const statusLabel = isActive
+          ? pipelineStatusLabelMapping[PipelineStatusEnum.ACTIVE]
+          : schedulesCount >= 1
+            ? pipelineStatusLabelMapping[PipelineStatusEnum.INACTIVE]
+            : pipelineStatusLabelMapping[PipelineStatusEnum.NO_SCHEDULES];
+        const typeLabel = isInvalid
+          ? pipelineTypeLabelMapping[PIPELINE_TYPE_INVALID]
+          : pipelineTypeLabelMapping[type]
+            || (type ? capitalizeRemoveUnderscoreLower(type as string) : '');
 
         const tagsEl = (
           <div key={`pipeline_tags_${idx}`}>
@@ -1244,10 +1302,7 @@ function PipelineListPage() {
             monospace
             success={!!isActive}
           >
-            {isActive
-              ? ScheduleStatusEnum.ACTIVE
-              : schedulesCount >= 1 ? ScheduleStatusEnum.INACTIVE : 'no schedules'
-            }
+            {statusLabel}
           </Text>,
           <NextLink
             as={`/pipelines/${uuid}`}
@@ -1272,7 +1327,7 @@ function PipelineListPage() {
             danger={isInvalid}
             key={`pipeline_type_${idx}`}
           >
-            {isInvalid ? capitalize(PIPELINE_TYPE_INVALID) : PIPELINE_TYPE_LABEL_MAPPING[type]}
+            {typeLabel}
           </Text>,
           <Text
             key={`pipeline_updated_at_${idx}`}
@@ -1321,7 +1376,7 @@ function PipelineListPage() {
               onClick={() => {
                 downloadPipeline({ pipelineUUID: uuid });
               }}
-              title="Download (keep folder structure)"
+              title={t('pipelines.actions.download_folder')}
             >
               <Save default size={2 * UNIT} />
             </Button>
@@ -1334,7 +1389,7 @@ function PipelineListPage() {
                   `/pipelines/${uuid}`,
                 );
               }}
-              title="Detail"
+              title={t('common.detail')}
             >
               <Open default size={2 * UNIT} />
             </Button>
@@ -1347,7 +1402,7 @@ function PipelineListPage() {
                   `/pipelines/${uuid}/logs`,
                 );
               }}
-              title="Logs"
+              title={t('common.logs')}
             >
               <File default size={2 * UNIT} />
             </Button>
@@ -1366,6 +1421,8 @@ function PipelineListPage() {
     downloadPipeline,
     displayLocalTimezone,
     pipelinesEditing,
+    pipelineStatusLabelMapping,
+    pipelineTypeLabelMapping,
     router,
     selectedPipeline,
     setPipelinesEditing,
@@ -1374,6 +1431,7 @@ function PipelineListPage() {
     sortableColumnIndexes,
     sortedColumnInit,
     timezoneTooltipProps,
+    t,
     updatePipeline,
   ]);
 
@@ -1404,8 +1462,8 @@ function PipelineListPage() {
     useMemo(() => pipelinesFromHistory?.length || 0, [pipelinesFromHistory]);
 
   const showNoPipelinesForTab =
-    useMemo(() => ((!operationHistoryEnabled || TAB_ALL.uuid === selectedTabUUID) && !pipelinesCount)
-      || (operationHistoryEnabled && TAB_RECENT.uuid === selectedTabUUID && !pipelinesFromHistoryCount),
+    useMemo(() => ((!operationHistoryEnabled || TAB_ALL_UUID === selectedTabUUID) && !pipelinesCount)
+      || (operationHistoryEnabled && TAB_RECENT_UUID === selectedTabUUID && !pipelinesFromHistoryCount),
       [
         operationHistoryEnabled,
         pipelinesCount,
@@ -1419,7 +1477,7 @@ function PipelineListPage() {
     return (
       <FlexContainer alignItems="center">
         <Text muted small>
-          Per page
+          {t('pipelines.per_page')}
         </Text>
 
         <Spacing mr={1} />
@@ -1454,11 +1512,12 @@ function PipelineListPage() {
     );
   }, [
     query,
+    t,
   ]);
 
   const paginateMemo = useMemo(() => {
     let dataUse = data;
-    if (operationHistoryEnabled && TAB_RECENT.uuid === selectedTabUUID) {
+    if (operationHistoryEnabled && TAB_RECENT_UUID === selectedTabUUID) {
       dataUse = dataPipelinesFromHistory;
     }
     const count = dataUse?.metadata?.count || 0;
@@ -1500,7 +1559,7 @@ function PipelineListPage() {
           {limitMemo}
         </FlexContainer>
       )}
-      title="Pipelines"
+      title={t('sidebar.pipelines')}
       uuid="pipelines/index"
     >
       {operationHistoryEnabled && (
@@ -1518,7 +1577,7 @@ function PipelineListPage() {
             })}
             regularSizeText
             selectedTabUUID={selectedTabUUID}
-            tabs={TABS.map(({
+            tabs={tabs.map(({
               Icon,
               label,
               uuid,
@@ -1542,7 +1601,7 @@ function PipelineListPage() {
               <Spinner inverted large />
               :
               <Text bold default monospace muted>
-                No pipelines available
+                {t('pipelines.no_pipelines')}
               </Text>
             }
           </Spacing>
@@ -1555,12 +1614,12 @@ function PipelineListPage() {
         // 74 is the subheader height. 68 is the pagination bar height.
         maxHeight={`calc(100vh - ${HEADER_HEIGHT + 74 + (buttonTabsHeight || 44) + 68}px)`}
       >
-        {(!operationHistoryEnabled || TAB_ALL.uuid === selectedTabUUID)
+        {(!operationHistoryEnabled || TAB_ALL_UUID === selectedTabUUID)
           && pipelinesTableMemo
         }
 
         {operationHistoryEnabled
-          && TAB_RECENT.uuid === selectedTabUUID
+          && TAB_RECENT_UUID === selectedTabUUID
           && pipelinesFromHistoryTableMemo
         }
       </TableContainerStyle>

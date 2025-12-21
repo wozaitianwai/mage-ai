@@ -37,9 +37,11 @@ export const SECTION_ITEM_UUID_PROFILE = 'Profile';
 
 export const SECTIONS = ({ owner, roles, project_access }: UserType, opts?: {
   projectPlatformActivated?: boolean;
+  t?: any;
 }) => {
   const {
     projectPlatformActivated,
+    t,
   } = opts || {
     projectPlatformActivated: false,
   };
@@ -48,6 +50,7 @@ export const SECTIONS = ({ owner, roles, project_access }: UserType, opts?: {
   const workspaceItems = [
     {
       Icon: WorkspacesIcon,
+      label: () => t?.('settings_dashboard.preferences') || SECTION_ITEM_UUID_PREFERENCES,
       linkProps: {
         href: '/settings/workspace/preferences',
       },
@@ -55,6 +58,7 @@ export const SECTIONS = ({ owner, roles, project_access }: UserType, opts?: {
     },
     {
       Icon: Settings,
+      label: () => t?.('settings_dashboard.git_settings') || SECTION_ITEM_UUID_GIT_SETTINGS,
       linkProps: {
         href: '/settings/workspace/sync-data',
       },
@@ -64,6 +68,7 @@ export const SECTIONS = ({ owner, roles, project_access }: UserType, opts?: {
 
   const arr = [
     {
+      title: () => t?.('settings_dashboard.workspace') || SectionEnum.WORKSPACE,
       items: workspaceItems,
       uuid: SECTION_UUID_WORKSPACE,
     },
@@ -73,6 +78,7 @@ export const SECTIONS = ({ owner, roles, project_access }: UserType, opts?: {
     const items = [
       {
         Icon: WorkspacesUsersIcon,
+        label: () => t?.('settings_dashboard.users') || SectionItemEnum.USERS,
         linkProps: {
           href: '/settings/workspace/users',
         },
@@ -84,6 +90,7 @@ export const SECTIONS = ({ owner, roles, project_access }: UserType, opts?: {
       items.push(...[
         {
           Icon: VisibleEye,
+          label: () => t?.('settings_dashboard.roles') || SectionItemEnum.ROLES,
           linkProps: {
             href: '/settings/workspace/roles',
           },
@@ -91,6 +98,7 @@ export const SECTIONS = ({ owner, roles, project_access }: UserType, opts?: {
         },
         {
           Icon: Locked,
+          label: () => t?.('settings_dashboard.permissions') || SectionItemEnum.PERMISSIONS,
           linkProps: {
             href: '/settings/workspace/permissions',
           },
@@ -100,6 +108,7 @@ export const SECTIONS = ({ owner, roles, project_access }: UserType, opts?: {
     }
 
     arr.push({
+      title: () => t?.('settings_dashboard.user_management') || SectionEnum.USER_MANAGEMENT,
       items,
       uuid: SectionEnum.USER_MANAGEMENT,
     });
@@ -109,9 +118,11 @@ export const SECTIONS = ({ owner, roles, project_access }: UserType, opts?: {
     && (!REQUIRE_USER_AUTHENTICATION() || hasAdminPrivileges)
   ) {
     arr.push({
+      title: () => t?.('settings_dashboard.platform') || SectionEnum.PROJECT_PLATFORM,
       items: [
         {
           Icon: BlocksSeparated,
+          label: () => t?.('settings_dashboard.preferences') || SectionItemEnum.PREFERENCES,
           linkProps: {
             href: '/settings/platform/preferences',
           },
@@ -119,6 +130,7 @@ export const SECTIONS = ({ owner, roles, project_access }: UserType, opts?: {
         },
         {
           Icon: SettingsWithKnobs,
+          label: () => t?.('settings_dashboard.settings') || SectionItemEnum.SETTINGS,
           linkProps: {
             href: '/settings/platform/settings',
           },
@@ -135,9 +147,11 @@ export const SECTIONS = ({ owner, roles, project_access }: UserType, opts?: {
 
   return arr.concat([
     {
+      title: () => t?.('settings_dashboard.account') || SECTION_UUID_ACCOUNT,
       items: [
         {
           Icon: Sun,
+          label: () => t?.('settings_dashboard.profile') || SECTION_ITEM_UUID_PROFILE,
           linkProps: {
             href: '/settings/account/profile',
           },

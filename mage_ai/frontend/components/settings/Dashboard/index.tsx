@@ -6,6 +6,7 @@ import { BEFORE_WIDTH, BeforeStyle } from '@components/PipelineDetail/shared/ind
 import { BreadcrumbType } from '@components/shared/Header';
 import { SECTIONS } from './constants';
 import { UNIT } from '@oracle/styles/units/spacing';
+import { useTranslation } from 'react-i18next';
 
 type SettingsDashboardProps = {
   after?: any;
@@ -40,6 +41,7 @@ function SettingsDashboard({
   const {
     projectPlatformActivated,
   } = useProject();
+  const { t } = useTranslation('common');
 
   return (
     <Dashboard
@@ -61,6 +63,7 @@ function SettingsDashboard({
             }) => uuidWorkspaceSelected === uuidWorkspace && uuidItemSelected === uuid}
             sections={SECTIONS(user, {
               projectPlatformActivated,
+              t,
             })}
           />
         </BeforeStyle>
@@ -69,7 +72,7 @@ function SettingsDashboard({
       breadcrumbs={breadcrumbs}
       hideAfterCompletely={hideAfterCompletely}
       setAfterHidden={setAfterHidden}
-      title={title || 'Settings'}
+      title={title || t('sidebar.settings')}
       uuid={`${title || 'settings'}/index`}
     >
       {children}

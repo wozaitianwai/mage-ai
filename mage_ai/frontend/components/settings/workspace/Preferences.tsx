@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import Divider from '@oracle/elements/Divider';
@@ -51,6 +52,7 @@ function Preferences({
   });
   const [projectAttributes, setProjectAttributes] = useState<ProjectType>(null);
   const [editingOpenAIKey, setEditingOpenAIKey] = useState<boolean>(false);
+  const { t } = useTranslation('common');
 
   const {
     fetchProjects,
@@ -124,7 +126,7 @@ function Preferences({
         <Spacing p={PADDING_UNITS}>
           <Spacing mb={1}>
             <Headline level={5}>
-              Project name
+              {t('preferences.project_name')}
             </Headline>
           </Spacing>
 
@@ -138,12 +140,12 @@ function Preferences({
         <Spacing p={PADDING_UNITS}>
           <Spacing mb={1}>
             <Headline level={5}>
-              Project UUID
+              {t('preferences.project_uuid')}
             </Headline>
           </Spacing>
 
           <Text default={!!projectUUID} monospace muted={!projectUUID}>
-            {projectUUID || 'Not required'}
+            {projectUUID || t('preferences.not_required')}
           </Text>
         </Spacing>
 
@@ -157,17 +159,18 @@ function Preferences({
             <Flex flexDirection="column">
               <Spacing mb={1}>
                 <Headline level={5}>
-                  Help improve Mage
+                  {t('preferences.help_improve_mage')}
                 </Headline>
               </Spacing>
 
               <Text default>
-                Please contribute usage statistics to help improve the developer experience
-                for you and everyone in the community. Learn more <Link
+                {t('preferences.contribute_usage')}
+                &nbsp;
+                <Link
                   href="https://docs.mage.ai/contributing/statistics/overview"
                   openNewWindow
                 >
-                  here
+                  {t('preferences.here')}
                 </Link>.
               </Text>
             </Flex>
@@ -211,12 +214,12 @@ function Preferences({
       <Spacing mt={UNITS_BETWEEN_SECTIONS} />
 
       <SetupSection
-        description="Global settings that are applied to all pipelines in this project."
-        title="Pipeline settings"
+        description={t('preferences.pipeline_settings_description')}
+        title={t('preferences.pipeline_settings')}
       >
         <SetupSectionRow
-          description="Every time a trigger is created or updated in this pipeline, automatically persist it in code."
-          title="Save triggers in code automatically"
+          description={t('triggers.save_triggers_description')}
+          title={t('triggers.save_triggers_automatically')}
           toggleSwitch={{
             checked: !!projectAttributes?.pipelines?.settings?.triggers?.save_in_code_automatically,
             onCheck: (valFunc: (val: boolean) => boolean) => setProjectAttributes(prev => ({
@@ -244,14 +247,14 @@ function Preferences({
         <Spacing p={PADDING_UNITS}>
           <Spacing mb={1}>
             <Headline level={5}>
-              Features&nbsp;
+              {t('preferences.features')}&nbsp;
               <Link
                 bold
                 href="https://docs.mage.ai/development/project/features"
                 largeSm
                 openNewWindow
               >
-                (docs)
+                ({t('preferences.here')})
               </Link>
             </Headline>
           </Spacing>
@@ -294,9 +297,9 @@ function Preferences({
 
                     <Spacing mr={PADDING_UNITS} />
 
-                    <Flex>
+                  <Flex>
                       <Text default={!v} monospace>
-                        {capitalizeRemoveUnderscoreLower(k)}
+                        {t(`features.${k}`, capitalizeRemoveUnderscoreLower(k))}
                       </Text>
 
                       {k === FeatureUUIDEnum.LOCAL_TIMEZONE &&
@@ -311,7 +314,7 @@ function Preferences({
 
                   {overrideFromRootProject && (
                     <Text monospace muted small>
-                      overridden
+                      {t('preferences.overridden')}
                     </Text>
                   )}
                 </FlexContainer>
@@ -327,7 +330,7 @@ function Preferences({
         <Spacing p={PADDING_UNITS}>
           <Spacing mb={1}>
             <Headline level={5}>
-              OpenAI
+              {t('preferences.openai')}
             </Headline>
           </Spacing>
 
@@ -335,13 +338,13 @@ function Preferences({
             ?
               <FlexContainer {...JUSTIFY_SPACE_BETWEEN_PROPS} >
                 <Text default monospace>
-                  API key: ********
+                  {t('preferences.api_key_hidden')}
                 </Text>
                 <Button
                   iconOnly
                   onClick={() => setEditingOpenAIKey(true)}
                   secondary
-                  title="Edit"
+                  title={t('preferences.edit')}
                 >
                   <Edit size={ICON_SIZE_SMALL} />
                 </Button>
@@ -349,7 +352,10 @@ function Preferences({
             :
               <TextInput
                 disabled={isDemoApp}
-                label={isDemoApp ? 'Entering API key is disabled on demo' : 'API key'}
+                label={isDemoApp
+                  ? t('preferences.api_key_disabled_demo')
+                  : t('preferences.api_key')
+                }
                 monospace
                 onChange={e => setProjectAttributes(prev => ({
                   ...prev,
@@ -385,7 +391,7 @@ function Preferences({
           }}
           primary
         >
-          Save project settings
+          {t('preferences.save_settings')}
         </Button>
 
         {onCancel && (
@@ -396,7 +402,7 @@ function Preferences({
               onClick={onCancel}
               secondary
             >
-              {cancelButtonText || 'Cancel'}
+              {cancelButtonText || t('preferences.cancel')}
             </Button>
           </>
         )}

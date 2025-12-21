@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import BitbucketWithText from '@oracle/icons/custom/BitbucketWithText';
 import Button from '@oracle/elements/Button';
@@ -46,6 +47,7 @@ function Provider({
   showError,
 }: ProviderProps) {
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   const [updateOauth, { isLoading: isLoadingUpdateOauth }] = useMutation(
     api.oauths.useUpdate(provider),
@@ -81,7 +83,7 @@ function Provider({
             })}
             warning
           >
-            Reset
+            {t('version_control.reset')}
           </Button>
         ) : (
           <Button
@@ -95,7 +97,7 @@ function Provider({
             }}
             primary
           >
-            Authenticate
+            {t('version_control.authenticate')}
           </Button>
         )}
       </Flex>
@@ -108,6 +110,7 @@ function Authentication({
   isLoadingCreateOauth,
   showError,
 }: AuthenticationProps) {
+  const { t } = useTranslation('common');
   const { data: dataOauths, mutate: fetchOauths } = api.oauths.list({
     type: 'git',
     redirect_uri: typeof window !== 'undefined' ? encodeURIComponent(window.location.href) : '',
@@ -145,7 +148,7 @@ function Authentication({
   return (
     <>
       <Headline>
-        Authentication
+        {t('version_control.authentication')}
       </Headline>
 
       <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
@@ -154,11 +157,11 @@ function Authentication({
             <Button
               disabled
             >
-              Using access token from Git Settings
+              {t('version_control.using_access_token')}
             </Button>
             <Spacing mt={1}>
               <Text muted>
-                Some features may not work unless you authenticate with a Git client.
+                {t('version_control.some_features_may_not_work')}
               </Text>
             </Spacing>
           </Spacing>
@@ -167,8 +170,7 @@ function Authentication({
         <Spacing mb={UNITS_BETWEEN_SECTIONS}>
           <Spacing mb={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
             <Text muted>
-              Authenticating with the apps below will allow you to easily pull, push, and create
-              pull requests.
+              {t('version_control.auth_explanation')}
             </Text>
           </Spacing>
           <Spacing mb={UNITS_BETWEEN_ITEMS_IN_SECTIONS} style={{ maxWidth: '600px' }}>

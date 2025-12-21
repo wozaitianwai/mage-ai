@@ -2,6 +2,7 @@ import NextLink from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import Accordion from '@oracle/components/Accordion';
 import AccordionPanel from '@oracle/components/Accordion/AccordionPanel';
@@ -70,6 +71,7 @@ function Remote({
   showError,
 }: RemoteProps) {
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   const { project } = useProject();
 
@@ -280,7 +282,7 @@ function Remote({
               if (typeof window !== 'undefined'
                 && typeof location !== 'undefined'
                 && window.confirm(
-                  `Are you sure you want to remove remote ${name}?`,
+                  t('version_control.remove_remote_confirm', { name }),
                 )
               ) {
                 setRemoteNameActive(name);
@@ -311,12 +313,12 @@ function Remote({
         <AccordionPanel
           noPaddingContent
           smallTitle
-          title={`Refs (${refs?.length})`}
+            title={t('version_control.refs_title', { count: refs?.length || 0 })}
         >
           {refs?.length === 0 && (
             <Spacing p={PADDING_UNITS}>
               <Text muted>
-                This remote has no refs.
+                {t('version_control.remote_no_refs')}
               </Text>
             </Spacing>
           )}
@@ -326,16 +328,16 @@ function Remote({
               columnFlex={[1, 1, 1]}
               columns={[
                 {
-                  uuid: 'Ref',
+                  uuid: t('version_control.ref'),
                 },
                 {
-                  uuid: 'Author',
+                  uuid: t('version_control.author'),
                 },
                 {
-                  uuid: 'Date',
+                  uuid: t('version_control.date'),
                 },
                 {
-                  uuid: 'Message',
+                  uuid: t('version_control.message'),
                 },
               ]}
               rows={refs.map(({
@@ -376,32 +378,26 @@ function Remote({
     <>
       <Spacing mb={UNITS_BETWEEN_SECTIONS}>
         <Headline>
-          Setup
+          {t('version_control.setup')}
         </Headline>
 
         <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
           <Spacing mb={1}>
             <Text bold large>
-              {gitInitialized ? 'Git init directory' : 'Initialize Git directory'}
+              {gitInitialized
+                ? t('version_control.git_init_directory')
+                : t('version_control.initialize_git_directory')}
             </Text>
 
             {!gitInitialized && (
               <Text muted>
-                Enter the directory you want to initialize git in.
-                <br />
-                The current project directoy is filled in for you.
-                If you want to use that, click the save button.
+                {t('version_control.enter_directory_hint')}
               </Text>
             )}
 
             {gitInitialized && (
               <Text muted>
-                If the directory below is blank,
-                then the current working directory will be used
-                to initialize git.
-                <br />
-                If git hasn’t been initialized in the directory below,
-                Mage will automatically run git init for you.
+                {t('version_control.git_initialized_hint')}
               </Text>
             )}
           </Spacing>
@@ -410,7 +406,7 @@ function Remote({
             <TextInput
               disabled={gitInitialized && !editRepoPathActive}
               fullWidth
-              label="Git directory"
+              label={t('version_control.git_directory')}
               maxWidth={400}
               monospace
               onChange={e => setRepoPath(e.target.value)}
@@ -437,7 +433,7 @@ function Remote({
                   primary
                   small
                 >
-                  Save
+                  {t('preferences.save_settings')}
                 </Button>
 
                 {gitInitialized && (
@@ -450,7 +446,7 @@ function Remote({
                       sameColorAsText
                       small
                     >
-                      Cancel
+                      {t('preferences.cancel')}
                     </Link>
                   </>
                 )}
@@ -486,7 +482,7 @@ function Remote({
         <>
           <Spacing mb={UNITS_BETWEEN_SECTIONS}>
             <Headline>
-              Remotes{!loading && remotes ? ` (${remotes?.length})` : ''}
+              {t('version_control.remotes')}{!loading && remotes ? ` (${remotes?.length})` : ''}
             </Headline>
 
             {loading && (
@@ -499,7 +495,7 @@ function Remote({
             <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
               <FlexContainer alignItems="flex-start">
                 <TextInput
-                  label="New remote name"
+                  label={t('version_control.new_remote_name')}
                   monospace
                   onChange={e => setRemoteNameNew(e?.target?.value)}
                   value={remoteNameNew || ''}
@@ -509,7 +505,7 @@ function Remote({
 
                 <FlexContainer flexDirection="column">
                   <TextInput
-                    label="Remote URL"
+                    label={t('version_control.remote_url')}
                     monospace
                     onChange={e => setRemoteURLNew(e?.target?.value)}
                     value={remoteURLNew || ''}
@@ -517,9 +513,7 @@ function Remote({
 
                   <Spacing mt={1}>
                     <Text muted small>
-                      Use the https URL if you
-                      <br />
-                      authenticated with GitHub above.
+                      {t('version_control.remote_url_hint')}
                     </Text>
                   </Spacing>
                 </FlexContainer>
@@ -544,7 +538,7 @@ function Remote({
                   }}
                   primary
                 >
-                  Create new remote
+                  {t('version_control.create_new_remote')}
                 </Button>
               </FlexContainer>
             </Spacing>
@@ -552,15 +546,15 @@ function Remote({
 
           <Spacing mb={UNITS_BETWEEN_SECTIONS}>
             <Headline>
-              Actions
+              {t('version_control.actions')}
             </Headline>
 
             <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
               <Spacing mb={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
                 <Spacing mb={1}>
-                  <Text bold muted>
-                    Current branch
-                  </Text>
+                <Text bold muted>
+                  {t('version_control.current_branch')}
+                </Text>
                 </Spacing>
 
                 {branch?.name && (
@@ -574,21 +568,19 @@ function Remote({
                     <NextLink
                       href={`/version-control?tab=${TAB_BRANCHES.uuid}`}
                       passHref
-                    >
-                      <Link
-                        small
-                      >
-                        Switch branch
-                      </Link>
-                    </NextLink>
-                  </FlexContainer>
-                )}
+                  >
+                    <Link small>
+                      {t('version_control.switch_branch')}
+                    </Link>
+                  </NextLink>
+                </FlexContainer>
+              )}
               </Spacing>
 
               <FlexContainer>
                 <Select
                   onChange={(e) => setActionName(e.target.value)}
-                  placeholder="Action"
+                  placeholder={t('version_control.action')}
                   value={actionName || ''}
                 >
                   <option value={ACTION_FETCH}>
@@ -612,7 +604,7 @@ function Remote({
                   beforeIconSize={UNIT * 1.5}
                   monospace
                   onChange={e => setActionRemoteName(e.target.value)}
-                  placeholder="Remote"
+                  placeholder={t('version_control.remote')}
                   value={actionRemoteName || ''}
                 >
                   {remotes?.map(({ name }) => (
@@ -631,7 +623,7 @@ function Remote({
                       onChange={e => setActionBranchName(e.target.value)}
                       value={actionBranchName || ''}
                     >
-                      <option value="">All branches</option>
+                      <option value="">{t('version_control.all_branches')}</option>
                       {branches?.map(({ name }) => (
                         <option key={name} value={name}>
                           {name}
@@ -644,7 +636,7 @@ function Remote({
                 {ADDITIONAL_ARGUMENTS[actionName] && (
                   <Spacing ml={1}>
                     <Select
-                      label="Additional argument"
+                      label={t('version_control.additional_argument')}
                       monospace
                       onChange={e => setActionArgument(e.target.value)}
                       value={actionArgument || ''}
@@ -775,7 +767,7 @@ function Remote({
                 sameColorAsText
                 secondary
               >
-                Next: {TAB_BRANCHES.uuid}
+                {t('version_control.next_tab', { tab: t('version_control.branches') })}
               </Button>
             </FlexContainer>
           </Spacing>

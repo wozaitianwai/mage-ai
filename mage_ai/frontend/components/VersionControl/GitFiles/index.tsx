@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import Accordion from '@oracle/components/Accordion';
 import AccordionPanel from '@oracle/components/Accordion/AccordionPanel';
@@ -53,6 +54,7 @@ function GitFiles({
   stagedFiles,
   untrackedFiles,
 }: GitFilesProps) {
+  const { t } = useTranslation('common');
   const refCommitMessageTextArea = useRef(null);
 
   const [commitMessage, setCommitMessage] = useState<string>('');
@@ -165,7 +167,9 @@ function GitFiles({
             <Spacing mr={1} />
 
             <Text bold>
-              {atLeast1File && allFilesSelected ? 'Unselect all' : 'Select all'}
+              {atLeast1File && allFilesSelected
+                ? t('version_control.unselect_all')
+                : t('version_control.select_all')}
             </Text>
           </FlexContainer>
         </Link>
@@ -274,7 +278,7 @@ function GitFiles({
         <FlexContainer>
           <Flex flex={1} flexDirection="column">
             <Headline>
-              Not staged {unstagedFilePaths?.length >= 1 && `(${unstagedFilePaths?.length})`}
+              {t('version_control.not_staged')} {unstagedFilePaths?.length >= 1 && `(${unstagedFilePaths?.length})`}
             </Headline>
 
             <Spacing my={PADDING_UNITS}>
@@ -302,7 +306,7 @@ function GitFiles({
                   }}
                   primary
                 >
-                  Add files
+                  {t('version_control.add_files')}
                 </Button>
 
                 <Spacing mr={1} />
@@ -316,7 +320,7 @@ function GitFiles({
                     if (typeof window !== 'undefined'
                       && typeof location !== 'undefined'
                       && window.confirm(
-                        'Are you sure you want to undo all changes in the selected files?',
+                        t('version_control.are_you_sure_undo_changes'),
                       )
                     ) {
                       // @ts-ignore
@@ -329,7 +333,7 @@ function GitFiles({
                     }
                   }}
                 >
-                  Checkout files
+                  {t('version_control.checkout_files')}
                 </Button>
               </FlexContainer>
             </Spacing>
@@ -350,7 +354,7 @@ function GitFiles({
 
           <Flex flex={1} flexDirection="column">
             <Headline>
-              Staged files {stagedFilePaths?.length >= 1 && `(${stagedFilePaths?.length})`}
+              {t('version_control.staged_files')} {stagedFilePaths?.length >= 1 && `(${stagedFilePaths?.length})`}
             </Headline>
 
             <Spacing my={PADDING_UNITS}>
@@ -374,7 +378,7 @@ function GitFiles({
                   }}
                   secondary
                 >
-                  Reset files
+                  {t('version_control.reset_files')}
                 </Button>
               </FlexContainer>
             </Spacing>
@@ -401,7 +405,9 @@ function GitFiles({
           <Accordion>
             <AccordionPanel
               noPaddingContent
-              title={stagedFilesCount >= 1 ? `Staged files (${stagedFilesCount})` : 'No staged files'}
+              title={stagedFilesCount >= 1
+                ? `${t('version_control.staged_files')} (${stagedFilesCount})`
+                : t('version_control.no_staged_files')}
             >
               {stagedFilePaths?.map((filePath: string) => (
                 <Spacing key={filePath} my={1} px={PADDING_UNITS}>
@@ -420,7 +426,7 @@ function GitFiles({
 
                     {modifiedFiles?.[filePath] && (
                       <Text warning>
-                        Modified after staging
+                        {t('version_control.modified_after_staging')}
                       </Text>
                     )}
                   </FlexContainer>
@@ -432,7 +438,7 @@ function GitFiles({
 
         <TextArea
           // disabled={stagedFilesCount === 0}
-          label="Commit message"
+          label={t('version_control.commit_message')}
           monospace
           onChange={e => setCommitMessage(e.target.value)}
           ref={refCommitMessageTextArea}
@@ -455,15 +461,18 @@ function GitFiles({
               }}
               primary
             >
-              Commit {pluralize('file', stagedFilesCount, true)} with message
+              {t('version_control.commit_files_with_message', {
+                count: stagedFilesCount,
+                file: pluralize('file', stagedFilesCount, true),
+              })}
             </Button>
 
             {stagedFilesCount === 0 && (
               <>
                 <Spacing mr={1} />
                 <Text danger small>
-                  Please stage at least 1 file before committing.
-                </Text>
+                {t('version_control.please_stage_files')}
+              </Text>
               </>
             )}
           </FlexContainer>
