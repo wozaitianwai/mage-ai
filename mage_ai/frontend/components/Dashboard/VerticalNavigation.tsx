@@ -1,5 +1,6 @@
 import NextLink from 'next/link';
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/router';
 
 import ClientOnly from '@hocs/ClientOnly';
@@ -43,16 +44,18 @@ const DEFAULT_NAV_ITEMS = ({
   featureEnabled,
   project,
   projectPlatformActivated,
+  t,
 }: {
   featureEnabled: (featureUUID: FeatureUUIDEnum) => boolean;
   project?: ProjectType;
   projectPlatformActivated?: boolean;
+  t?: any;
 }) => {
   let miscItems = [
     {
       Icon: DocumentIcon,
       id: 'files',
-      label: () => 'Files',
+      label: () => t?.('sidebar.files') || 'Files',
       linkProps: {
         href: '/files',
       },
@@ -60,7 +63,7 @@ const DEFAULT_NAV_ITEMS = ({
     {
       Icon: TemplateShapes,
       id: 'templates',
-      label: () => 'Templates',
+      label: () => t?.('sidebar.templates') || 'Templates',
       linkProps: {
         href: '/templates',
       },
@@ -68,7 +71,7 @@ const DEFAULT_NAV_ITEMS = ({
     {
       Icon: BranchAlt,
       id: 'version-control',
-      label: () => 'Version control',
+      label: () => t?.('sidebar.version_control') || 'Version control',
       linkProps: {
         href: '/version-control',
       },
@@ -76,7 +79,7 @@ const DEFAULT_NAV_ITEMS = ({
     {
       Icon: Terminal,
       id: 'terminal',
-      label: () => 'Terminal',
+      label: () => t?.('sidebar.terminal') || 'Terminal',
       linkProps: {
         href: '/terminal',
       },
@@ -84,7 +87,7 @@ const DEFAULT_NAV_ITEMS = ({
     {
       Icon: Rocket,
       id: 'deployments',
-      label: () => 'Deploy',
+      label: () => t?.('sidebar.deploy') || 'Deploy',
       linkProps: {
         href: 'https://www.mage.ai/deploy?ref=oss',
         target: '_blank',
@@ -94,7 +97,7 @@ const DEFAULT_NAV_ITEMS = ({
     {
       Icon: Settings,
       id: 'settings',
-      label: () => 'Settings',
+      label: () => t?.('sidebar.settings') || 'Settings',
       linkProps: {
         href: '/settings',
       },
@@ -108,7 +111,7 @@ const DEFAULT_NAV_ITEMS = ({
         {
           Icon: NavDashboard,
           id: 'overview',
-          label: () => 'Overview',
+          label: () => t?.('sidebar.overview') || 'Overview',
           linkProps: {
             href: '/overview',
           },
@@ -116,7 +119,7 @@ const DEFAULT_NAV_ITEMS = ({
         {
           Icon: PipelineV3,
           id: 'pipelines',
-          label: () => 'Pipelines',
+          label: () => t?.('sidebar.pipelines') || 'Pipelines',
           linkProps: {
             href: '/pipelines',
           },
@@ -124,7 +127,7 @@ const DEFAULT_NAV_ITEMS = ({
         {
           Icon: Lightning,
           id: 'triggers',
-          label: () => 'Triggers',
+          label: () => t?.('sidebar.triggers') || 'Triggers',
           linkProps: {
             href: '/triggers',
           },
@@ -132,7 +135,7 @@ const DEFAULT_NAV_ITEMS = ({
         {
           Icon: Schedule,
           id: 'pipeline-runs',
-          label: () => 'Pipeline runs',
+          label: () => t?.('sidebar.pipeline_runs') || 'Pipeline runs',
           linkProps: {
             href: '/pipeline-runs',
           },
@@ -140,7 +143,7 @@ const DEFAULT_NAV_ITEMS = ({
         {
           Icon: HexagonAll,
           id: 'global-data-products',
-          label: () => 'Global data products',
+          label: () => t?.('sidebar.global_data_products') || 'Global data products',
           linkProps: {
             href: '/global-data-products',
           },
@@ -182,6 +185,7 @@ function VerticalNavigation({
   showMore,
   visible,
 }: VerticalNavigationProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const { pathname } = router;
 
@@ -194,8 +198,12 @@ function VerticalNavigation({
     featureEnabled,
     project,
     projectPlatformActivated,
+    t,
   }), [
+    featureEnabled,
     project,
+    projectPlatformActivated,
+    t,
   ]);
 
   const buildItem = useCallback((item, idx: number) => {

@@ -3,17 +3,30 @@ from typing import Any
 
 
 def is_model_sklearn(data: Any) -> bool:
+    if data is None:
+        return False
+
     if inspect.isclass(data):
         return False
 
     try:
         from sklearn.base import BaseEstimator, is_classifier, is_regressor
 
-        return (
-            is_classifier(data) or is_regressor(data) or isinstance(data, BaseEstimator)
-        )
-    except ImportError as err:
-        print(f"Error importing sklearn: {err}")
+        # is_classifier / is_regressor expect a proper sklearn estimator; calling them on
+        # arbitrary objects (or None) can raise when __sklearn_tags__ is missing.
+        if not isinstance(data, BaseEstimator):
+            return False
+
+        # If it's a sklearn estimator, treat it as a model even if the helper checks fail.
+        try:
+            return is_classifier(data) or is_regressor(data) or True
+        except Exception as err:
+            print(f"Error checking sklearn model: {err}")
+            return True
+    except Exception as err:
+        # Logging instead of raising keeps serialization resilient when objects
+        # aren't valid sklearn estimators (e.g. None or partial mocks).
+        print(f"Error checking sklearn model: {err}")
         return False
 
 

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CanvasRef } from 'reaflow';
 
 import ApiReloader from '@components/ApiReloader';
@@ -240,6 +241,7 @@ function Sidekick({
   updateWidget,
   widgets,
 }: SidekickProps) {
+  const { t } = useTranslation('common');
   const {
     height: heightWindow,
   } = useWindowSize();
@@ -551,7 +553,7 @@ function Sidekick({
         <Spacing mb={3} mt={2} mx={2}>
           <FlexContainer justifyContent="space-between">
             <Text bold danger>
-              Errors
+              {t('sidekick.errors')}
             </Text>
             <Button
               basic
@@ -695,8 +697,8 @@ function Sidekick({
                 monospace
               >
                 {!selectedBlock
-                  ? 'Select a block for insights'
-                  : (!hasData && 'No data or insights available')
+                  ? t('sidekick.select_block_for_insights')
+                  : (!hasData && t('sidekick.no_data_or_insights'))
                 }
               </Text>
             </FlexContainer>
@@ -717,10 +719,9 @@ function Sidekick({
               <Spacing px={1}>
                 <FlexContainer flexDirection="row">
                   <Text center default>
-                    Add a chart by clicking the chart icon
-                    &nbsp;<ChartsIcon size={UNIT * 1.5} />&nbsp;in
-                    <br />
-                    the top right corner of a block (if applicable).
+                    {t('sidekick.add_chart_instruction_1')}
+                    &nbsp;<ChartsIcon size={UNIT * 1.5} />&nbsp;
+                    {t('sidekick.add_chart_instruction_2')}
                   </Text>
                 </FlexContainer>
               </Spacing>
@@ -751,10 +752,10 @@ function Sidekick({
               <Spacing px={1}>
                 <FlexContainer flexDirection="row">
                   <Text center default>
-                    Please select a block and then click the settings icon
+                    {t('sidekick.select_block_settings_instruction_1')}
                     &nbsp;<SettingsWithKnobs size={UNIT * 1.5} />&nbsp;
                     <br />
-                    in the top right corner of a block (if applicable).
+                    {t('sidekick.select_block_settings_instruction_2')}
                   </Text>
                 </FlexContainer>
               </Spacing>

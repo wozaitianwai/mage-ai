@@ -86,11 +86,11 @@ function ToggleMenu({
         {children}
       </div>
       <ContainerStyle
-        compact={compact}
-        display={open}
-        top={top - 5}
+        $compact={compact}
+        $display={open}
+        $top={top - 5}
       >
-        <MainStyle compact={compact}>
+        <MainStyle $compact={compact}>
           <Flex flex="1">
             <BeforeStyle>
               {optionKeys.map(optionKey => (

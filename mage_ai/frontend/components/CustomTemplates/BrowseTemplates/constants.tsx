@@ -67,9 +67,10 @@ export const BLOCK_TYPE_ICON_MAPPING = {
   [BlockTypeEnum.TRANSFORMER]: FrameBoxSelection,
 };
 
-export const NAV_LINKS: NavLinkType[] = [
+export const NAV_LINKS = (t: any): NavLinkType[] => [
   {
     Icon: TemplateShapes,
+    label: () => t ? t('templates.nav.all_templates') : 'All templates',
     uuid: 'All templates',
   },
 ].concat([
@@ -130,7 +131,7 @@ export const NAV_LINKS: NavLinkType[] = [
   filterTemplates: (customTemplates: CustomTemplateType[]) => customTemplates?.filter(({
     block_type: blockType,
   }) => blockType === uuid),
-  label: () => BLOCK_TYPE_NAME_MAPPING[uuid],
+  label: () => t ? t(`block_type.${uuid}`) : BLOCK_TYPE_NAME_MAPPING[uuid],
   selectedBackgroundColor: theme => getColorsForBlockType(uuid, {
       theme,
   }).accent,
@@ -138,9 +139,10 @@ export const NAV_LINKS: NavLinkType[] = [
   ...rest,
 })));
 
-export const NAV_LINKS_PIPELINES: NavLinkType[] = [
+export const NAV_LINKS_PIPELINES = (t: any): NavLinkType[] => [
   {
     Icon: TemplateShapes,
+    label: () => t ? t('templates.nav.all_templates') : 'All templates',
     uuid: 'All templates',
   },
 ].concat([
@@ -163,7 +165,7 @@ export const NAV_LINKS_PIPELINES: NavLinkType[] = [
   filterTemplates: (customTemplates: CustomTemplateType[]) => customTemplates?.filter(
     ct => ct?.pipeline?.type === uuid,
   ),
-  label: () => PIPELINE_TYPE_LABEL_MAPPING[uuid],
+  label: () => t ? t(`pipeline_type.${uuid}`) : PIPELINE_TYPE_LABEL_MAPPING[uuid],
   uuid,
   ...rest,
 })));

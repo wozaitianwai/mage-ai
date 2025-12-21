@@ -3,6 +3,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ThemeContext } from 'styled-components';
 import { useRouter } from 'next/router';
 
@@ -82,15 +83,31 @@ function BrowseTemplates({
 }: BrowseTemplatesProps) {
   const router = useRouter();
   const themeContext = useContext(ThemeContext);
+  const { t } = useTranslation('common');
   const { height, width } = useWindowSize();
 
-  const tabs = useMemo(() => tabsProp || NAV_TABS, [tabsProp]);
+  const tabs = useMemo(() => (tabsProp || NAV_TABS).map(tab => ({
+    ...tab,
+    label: tab?.label || (() => {
+      if (tab?.uuid === NAV_TAB_BLOCKS.uuid) {
+        return t('templates.tabs.blocks');
+      }
+
+      if (tab?.uuid === NAV_TAB_PIPELINES.uuid) {
+        return t('templates.tabs.pipelines');
+      }
+
+      return tab?.uuid;
+    }),
+  })), [tabsProp, t]);
+  const navLinks = useMemo(() => NAV_LINKS(t), [t]);
+  const navLinksPipelines = useMemo(() => NAV_LINKS_PIPELINES(t), [t]);
 
   const [addingNewTemplate, setAddingNewTemplate] =
     useState<boolean>(showAddingNewTemplates || false);
   const [selectedLink, setSelectedLink] = useState<NavLinkType>(defaultLinkUUID
-    ? NAV_LINKS.find(({ uuid }) => uuid === defaultLinkUUID)
-    : NAV_LINKS[0],
+    ? navLinks.find(({ uuid }) => uuid === defaultLinkUUID)
+    : navLinks[0],
   );
   const [selectedTab, setSelectedTab] = useState<TabType>(defaultTab
     ? tabs.find(({ uuid }) => uuid === defaultTab?.uuid)
@@ -141,7 +158,7 @@ function BrowseTemplates({
     selectedLink,
   ]);
 
-  const linksPipelines = useMemo(() => NAV_LINKS_PIPELINES.map((navLink: NavLinkType) => {
+  const linksPipelines = useMemo(() => navLinksPipelines.map((navLink: NavLinkType) => {
     const {
       Icon,
       label,
@@ -178,6 +195,7 @@ function BrowseTemplates({
       </NavLinkStyle>
     );
   }), [
+    navLinksPipelines,
     selectedLink,
     themeContext,
   ]);
@@ -225,7 +243,7 @@ function BrowseTemplates({
             muted={!description}
             textOverflowLines={2}
           >
-            {description || 'No description'}
+            {description || t('templates.no_description')}
           </Text>
         </CardDescriptionStyle>
 
@@ -242,6 +260,7 @@ function BrowseTemplates({
     customTemplates,
     onClickCustomTemplate,
     router,
+    t,
   ]);
 
   const cardsPipelines = useMemo(() => customPipelineTemplates?.map((customTemplate: CustomTemplateType) => {
@@ -287,7 +306,7 @@ function BrowseTemplates({
             muted={!description}
             textOverflowLines={2}
           >
-            {description || 'No description'}
+            {description || t('templates.no_description')}
           </Text>
         </CardDescriptionStyle>
 
@@ -304,6 +323,7 @@ function BrowseTemplates({
     customPipelineTemplates,
     onClickCustomTemplate,
     router,
+    t,
   ]);
 
   const breadcrumbsEl = useMemo(() => {
@@ -316,19 +336,19 @@ function BrowseTemplates({
     if (addingNewTemplate) {
       breadcrumbs.push(...[
         {
-          label: () => 'Templates',
+          label: () => t('templates.title'),
           onClick: () => {
             setAddingNewTemplate(false);
           },
         },
         {
           bold: true,
-          label: () => 'New custom template',
+          label: () => t('templates.new_custom_template'),
         },
       ]);
     } else {
       breadcrumbs.push({
-        label: () => 'Templates',
+        label: () => t('templates.title'),
       });
     }
 
@@ -342,6 +362,7 @@ function BrowseTemplates({
   }, [
     addingNewTemplate,
     showBreadcrumbs,
+    t,
   ]);
 
   // 36 is the height of breadcrumbs
@@ -359,7 +380,7 @@ function BrowseTemplates({
         <PipelineTemplateDetail
           onMutateSuccess={fetchCustomPipelineTemplates}
           pipelineUUID={pipelineUUID}
-          templateAttributes={selectedLink && selectedLink?.uuid !== NAV_LINKS?.[0].uuid
+          templateAttributes={selectedLink && selectedLink?.uuid !== navLinks?.[0].uuid
             ? {
               pipeline_type: selectedLink?.uuid as PipelineTypeEnum,
             }
@@ -380,7 +401,7 @@ function BrowseTemplates({
             : null
           }
           onMutateSuccess={fetchCustomTemplates}
-          templateAttributes={selectedLink && selectedLink?.uuid !== NAV_LINKS?.[0].uuid
+          templateAttributes={selectedLink && selectedLink?.uuid !== navLinks?.[0].uuid
             ? { block_type: selectedLink?.uuid as BlockTypeEnum }
             : null
           }
@@ -433,7 +454,7 @@ function BrowseTemplates({
         >
           {NAV_TAB_BLOCKS.uuid === selectedTab?.uuid && (
             <BlockNavigation
-              navLinks={NAV_LINKS}
+              navLinks={navLinks}
               selectedLink={selectedLink}
               setSelectedLink={setSelectedLink}
             />
@@ -452,7 +473,7 @@ function BrowseTemplates({
               }}
               primary
             >
-              New block template
+              {t('templates.new_block_template')}
             </Button>
           </SubheaderStyle>
         )}
@@ -468,13 +489,13 @@ function BrowseTemplates({
             {dataCustomTemplates && !cardsBlocks?.length && (
               <Spacing p={2}>
                 <Text>
-                  There are currently no templates matching your search.
+                  {t('templates.no_templates_matching')}
                 </Text>
 
                 <br />
 
                 <Text>
-                  Add a new template by clicking the button above.
+                  {t('templates.add_template_instruction')}
                 </Text>
               </Spacing>
             )}
@@ -498,14 +519,13 @@ function BrowseTemplates({
             {dataCustomPipelineTemplates && !cardsPipelines?.length && (
               <Spacing p={2}>
                 <Text>
-                  There are currently no templates matching your search.
+                  {t('templates.no_templates_matching')}
                 </Text>
 
                 <br />
 
                 <Text>
-                  Add a new template by right-clicking a pipeline row from the
-                  Pipelines page and selecting &#34;Create template&#34;.
+                  {t('templates.add_pipeline_template_instruction')}
                 </Text>
               </Spacing>
             )}

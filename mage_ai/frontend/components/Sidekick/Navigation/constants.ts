@@ -15,6 +15,7 @@ export function buildNavigationItems({
   project,
   secrets,
   setActiveSidekickView,
+  t,
   variables,
 }: {
   activeView: ViewKeyEnum;
@@ -27,6 +28,7 @@ export function buildNavigationItems({
     newView: ViewKeyEnum,
     pushHistory?: boolean,
   ) => void;
+  t?: any;
   variables?: {
     [key: string]: any;
   }[];
@@ -36,6 +38,7 @@ export function buildNavigationItems({
   return SIDEKICK_VIEWS({
     pipeline,
     project,
+    t,
   }).map(({
     buildLabel,
     key,

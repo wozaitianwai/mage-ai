@@ -42,6 +42,8 @@ def has_to_dict(obj) -> bool:
 def encode_complex(obj):
     from mage_ai.shared.models import BaseDataClass
 
+    if obj is None:
+        return obj
     if isinstance(obj, set):
         return list(obj)
     elif isinstance(obj, BaseModel):

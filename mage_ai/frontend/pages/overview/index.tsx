@@ -2,6 +2,7 @@ import { MutateFunction, useMutation } from 'react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import moment from 'moment';
+import { useTranslation } from 'react-i18next';
 
 import AIControlPanel from '@components/AI/ControlPanel';
 import AddButton from '@components/shared/AddButton';
@@ -96,6 +97,7 @@ const SHARED_FETCH_OPTIONS = {
 };
 
 function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
+  const { t } = useTranslation('common');
   const abortRef = useRef(null);
   const mountedRef = useRef(false);
   const refSubheader = useRef(null);
@@ -104,17 +106,53 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
   const router = useRouter();
   const newPipelineButtonMenuRef = useRef(null);
 
-  const allTabs = useMemo(() => TIME_PERIOD_TABS, []);
-  const [selectedTab, setSelectedTabState] = useState<TabType>(
+  const timePeriodTabs = useMemo(
+    () =>
+      TIME_PERIOD_TABS.map(tab => ({
+        ...tab,
+        label: () => {
+          if (TimePeriodEnum.TODAY === tab.uuid) {
+            return t('header.today');
+          }
+          if (TimePeriodEnum.WEEK === tab.uuid) {
+            return t('header.last_7_days');
+          }
+          if (TimePeriodEnum.MONTH === tab.uuid) {
+            return t('header.last_30_days');
+          }
+
+          return tab?.label ? tab.label() : tab.uuid;
+        },
+      })),
+    [t],
+  );
+
+  const allTabs = useMemo(() => timePeriodTabs, [timePeriodTabs]);
+  const [selectedTab, setSelectedTabState] = useState<TabType>(() =>
     allTabs.find(
       ({ uuid }) => uuid === (tab ? tab : get(LOCAL_STORAGE_KEY_OVERVIEW_TAB_SELECTED)?.uuid),
-    ) || TAB_TODAY,
+    ) || timePeriodTabs.find(({ uuid }) => uuid === TimePeriodEnum.TODAY),
   );
 
   const [addButtonMenuOpen, setAddButtonMenuOpen] = useState<boolean>(false);
   const [errors, setErrors] = useState<ErrorsType>(null);
 
   const timePeriod = selectedTab?.uuid;
+  const timePeriodLabel = useMemo(() => {
+    if (TimePeriodEnum.TODAY === timePeriod) {
+      return t('header.today');
+    }
+
+    if (TimePeriodEnum.WEEK === timePeriod) {
+      return t('header.last_7_days');
+    }
+
+    if (TimePeriodEnum.MONTH === timePeriod) {
+      return t('header.last_30_days');
+    }
+
+    return capitalize(TIME_PERIOD_DISPLAY_MAPPING[timePeriod]) || timePeriod;
+  }, [t, timePeriod]);
 
   const startDateString = useMemo(
     () => getStartDateStringFromPeriod(timePeriod, { isoString: true }),
@@ -414,13 +452,13 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
         addButtonMenuOpen={addButtonMenuOpen}
         addButtonMenuRef={newPipelineButtonMenuRef}
         isLoading={isLoadingCreatePipeline}
-        label="New pipeline"
+        label={t('header.new_pipeline')}
         menuItems={newPipelineButtonMenuItems}
         onClick={() => setAddButtonMenuOpen(prevOpenState => !prevOpenState)}
         onClickCallback={() => setAddButtonMenuOpen(false)}
       />
     ),
-    [addButtonMenuOpen, isLoadingCreatePipeline, newPipelineButtonMenuItems],
+    [addButtonMenuOpen, isLoadingCreatePipeline, newPipelineButtonMenuItems, t],
   );
 
   const utcTooltipEl = useMemo(
@@ -429,33 +467,33 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
         <Spacing ml="4px">
           <Tooltip
             {...SHARED_UTC_TOOLTIP_PROPS}
-            label="Please note that these counts are based on UTC time."
+            label={t('dashboard.utc_counts_note')}
           />
         </Spacing>
       ) : null,
-    [displayLocalTimezone],
+    [displayLocalTimezone, t],
   );
 
   const pageBlockLayoutTemplate = useMemo(() => {
-    const name0 = 'Pipelines';
+    const name0 = t('dashboard.pipelines');
     const uuid0 = cleanName(`${name0}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name1 = 'Trigger active status';
+    const name1 = t('dashboard.trigger_active_status');
     const uuid1 = cleanName(`${name1}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name4 = 'Pipeline run status';
+    const name4 = t('dashboard.pipeline_run_status');
     const uuid4 = cleanName(`${name4}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name5 = 'Pipeline runs daily';
+    const name5 = t('dashboard.pipeline_runs_daily');
     const uuid5 = cleanName(`${name5}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name6 = 'Completed pipeline runs daily';
+    const name6 = t('dashboard.pipeline_runs_completed_daily');
     const uuid6 = cleanName(`${name6}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name7 = 'Failed pipeline runs daily';
+    const name7 = t('dashboard.pipeline_runs_failed_daily');
     const uuid7 = cleanName(`${name7}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name8 = 'Running pipelines';
+    const name8 = t('dashboard.running_pipelines');
     const uuid8 = cleanName(`${name8}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
     const dataSourcePipelineSchedules = {
@@ -630,10 +668,15 @@ def d(df):
         ],
       ],
     };
-  }, []);
+  }, [t]);
 
   return (
-    <Dashboard errors={errors} setErrors={setErrors} title="Overview" uuid="overview/index">
+    <Dashboard
+      errors={errors}
+      setErrors={setErrors}
+      title={t('sidebar.overview')}
+      uuid="overview/index"
+    >
       <PageSectionHeader backgroundColor={dark.background.panel} ref={refSubheader}>
         <Spacing py={2}>
           <FlexContainer alignItems="center">
@@ -663,10 +706,7 @@ def d(df):
         <>
           <Spacing mx={3} my={2}>
             <Headline level={4}>
-              {timePeriod === TimePeriodEnum.TODAY &&
-                `${capitalize(TimePeriodEnum.TODAY)} (UTC): ${selectedDateRange}`}
-              {timePeriod !== TimePeriodEnum.TODAY &&
-                `${capitalize(TIME_PERIOD_DISPLAY_MAPPING[timePeriod])} (UTC): ${selectedDateRange}`}
+              {`${timePeriodLabel || capitalize(timePeriod)} (UTC): ${selectedDateRange}`}
             </Headline>
 
             <Spacing mt={2}>
@@ -683,8 +723,8 @@ def d(df):
               <Spacing ml={2}>
                 <FlexContainer alignItems="center">
                   <Text bold large>
-                    {isValidatingMonitorStats ? '--' : formatNumber(totalPipelineRunCount)} total
-                    pipeline runs
+                    {isValidatingMonitorStats ? '--' : formatNumber(totalPipelineRunCount)}{' '}
+                    {t('dashboard.total_pipeline_runs')}
                   </Text>
                   {utcTooltipEl}
                 </FlexContainer>

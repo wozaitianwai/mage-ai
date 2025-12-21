@@ -15,6 +15,7 @@ import FlyoutMenu, { FlyoutMenuItemType } from '@oracle/components/FlyoutMenu';
 import GitActions from '@components/VersionControl/GitActions';
 import GradientLogoIcon from '@oracle/icons/GradientLogo';
 import KeyboardShortcutButton from '@oracle/elements/Button/KeyboardShortcutButton';
+import LanguageSwitcher from '@components/LanguageSwitcher';
 import LaunchKeyboardShortcutText from '@components/CommandCenter/LaunchKeyboardShortcutText';
 import Loading, { LoadingStyleEnum } from '@oracle/components/Loading';
 import Link from '@oracle/elements/Link';
@@ -514,6 +515,10 @@ function Header({
                 disabled={hideActions}
                 projectName={project?.name}
               />
+            </Spacing>
+
+            <Spacing ml={1}>
+              <LanguageSwitcher />
             </Spacing>
 
             <Spacing ml={1}>

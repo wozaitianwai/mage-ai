@@ -13,6 +13,7 @@ import '@styles/globals.css';
 import '@styles/scss/main.scss';
 import '@styles/scss/themes/dark.scss';
 import '@styles/scss/themes/light.scss';
+import '@utils/i18n';
 import AuthToken from '@api/utils/AuthToken';
 import CommandCenter from '@components/CommandCenter';
 import Head from '@oracle/elements/Head';
