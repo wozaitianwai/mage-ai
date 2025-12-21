@@ -730,6 +730,7 @@ function PipelineListPage() {
   const newPipelineButtonMenuItems = useMemo(() => getNewPipelineButtonMenuItems(
     createPipeline,
     {
+      t,
       showAIModal: () => {
         if (!project?.openai_api_key) {
           showConfigureProjectModal({
@@ -753,6 +754,7 @@ function PipelineListPage() {
     showConfigureProjectModal,
     showCreatePipelineModal,
     showImportPipelineModal,
+    t,
   ]);
 
   const { data: dataTags } = api.tags.list();

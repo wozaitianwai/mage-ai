@@ -23,10 +23,11 @@ export const getNewPipelineButtonMenuItems = (
     showImportPipelineModal?: () => void;
   },
 ) => {
+  const t = opts?.t || ((key: string) => key);
   const arr = [
     {
       beforeIcon: <BatchPipeline />,
-      label: () => 'Standard (batch)',
+      label: () => t('pipelines.new_menu.standard'),
       onClick: () => {
         if (opts?.showCreatePipelineModal) {
           opts?.showCreatePipelineModal?.({ pipelineType: PipelineTypeEnum.PYTHON });
@@ -42,7 +43,7 @@ export const getNewPipelineButtonMenuItems = (
     },
     {
       beforeIcon: <IntegrationPipeline />,
-      label: () => 'Data integration',
+      label: () => t('pipelines.new_menu.integration'),
       onClick: () => {
         if (opts?.showCreatePipelineModal) {
           opts?.showCreatePipelineModal?.({ pipelineType: PipelineTypeEnum.INTEGRATION });
@@ -59,7 +60,7 @@ export const getNewPipelineButtonMenuItems = (
     },
     {
       beforeIcon: <StreamingPipeline size={ICON_SIZE} />,
-      label: () => 'Streaming',
+      label: () => t('pipelines.new_menu.streaming'),
       onClick: () => {
         if (opts?.showCreatePipelineModal) {
           opts?.showCreatePipelineModal?.({ pipelineType: PipelineTypeEnum.STREAMING });
@@ -79,7 +80,7 @@ export const getNewPipelineButtonMenuItems = (
   if (opts?.showBrowseTemplates) {
     arr.push({
       beforeIcon: <TemplateShapes />,
-      label: () => 'From a template',
+      label: () => t('pipelines.new_menu.template'),
       onClick: () => opts?.showBrowseTemplates?.(),
       uuid: 'Pipelines/NewPipelineMenu/custom_template',
     });
@@ -88,7 +89,7 @@ export const getNewPipelineButtonMenuItems = (
   if (opts?.showImportPipelineModal) {
     arr.push({
       beforeIcon: <Upload />,
-      label: () => 'Import pipeline zip',
+      label: () => t('pipelines.new_menu.import_zip'),
       onClick: () => opts?.showImportPipelineModal?.(),
       uuid: 'Pipelines/NewPipelineMenu/upload',
     });
@@ -97,7 +98,7 @@ export const getNewPipelineButtonMenuItems = (
   if (opts?.showAIModal) {
     arr.push({
       beforeIcon: <AISparkle />,
-      label: () => 'Using AI (beta)',
+      label: () => t('pipelines.new_menu.ai_beta'),
       onClick: () => opts?.showAIModal?.(),
       uuid: 'Pipelines/NewPipelineMenu/AI_modal',
     });

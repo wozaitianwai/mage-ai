@@ -234,7 +234,7 @@ function SyncData() {
     > = setSync;
     let settings: SyncType | UserGitSettingsType = sync;
 
-    if (selectedTab?.uuid === TAB_GIT_INTEGRATION.uuid && requireUserAuthentication) {
+    if (selectedTab?.uuid === TAB_GIT_INTEGRATION_UUID && requireUserAuthentication) {
       updateSettings = setUserGitSettings;
       settings = userGitSettings;
     }
@@ -370,6 +370,8 @@ function SyncData() {
   }, [
     additionalGitFields,
     deleteSecret,
+    fieldDescriptionMapping,
+    fieldLabelMapping,
     requireUserAuthentication,
     selectedTab,
     setUserGitSettings,
@@ -662,23 +664,20 @@ function SyncData() {
         {showSyncOperations && (
           <Spacing mt={UNITS_BETWEEN_SECTIONS}>
             <Headline>
-              Synchronize code from remote repository
+              {t('sync_data.sync_operations_title')}
             </Headline>
 
             <Spacing mt={1}>
               <Text>
-                Running the sync from this page will
-                run a one time sync with the remote repository.
-                <br />
-                This may <Text bold danger inline>overwrite</Text> your
-                existing data, so make sure you’ve committed or backed up your current changes.
+                {t('sync_data.sync_run_description')}{' '}
+                <Text bold danger inline>{t('sync_data.overwrite')}</Text>{' '}
+                {t('sync_data.sync_run_warning')}
               </Text>
               <Spacing mt={2} />
               <Text>
-                Reset will tell Mage to try to clone your repository from remote. This will
-                also <Text bold danger inline>overwrite</Text> all your local changes and 
-                reset any settings you may have configured for your local Git repo. This may be
-                helpful if you are having issues syncing your repository.
+                {t('sync_data.sync_reset_description_prefix')}{' '}
+                <Text bold danger inline>{t('sync_data.overwrite')}</Text>{' '}
+                {t('sync_data.sync_reset_description_suffix')}
               </Text>
             </Spacing>
 
@@ -694,7 +693,7 @@ function SyncData() {
                   })}
                   warning
                 >
-                  Synchronize code
+                  {t('sync_data.sync_button')}
                 </Button>
                 <Spacing ml={2}/>
                 <Button
@@ -707,7 +706,7 @@ function SyncData() {
                     },
                   })}
                 >
-                  Reset repository
+                  {t('sync_data.reset_button')}
                 </Button>
               </FlexContainer>
             </Spacing>

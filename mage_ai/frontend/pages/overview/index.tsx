@@ -420,6 +420,7 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
   const newPipelineButtonMenuItems = useMemo(
     () =>
       getNewPipelineButtonMenuItems(createPipeline, {
+        t,
         showAIModal: () => {
           if (!project?.openai_api_key) {
             showConfigureProjectModal({
@@ -443,6 +444,7 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
       showConfigureProjectModal,
       showCreatePipelineModal,
       showImportPipelineModal,
+      t,
     ],
   );
 
