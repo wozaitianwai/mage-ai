@@ -5,6 +5,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { toast } from 'react-toastify';
@@ -32,7 +33,6 @@ import {
   BLOCK_TYPE_NAME_MAPPING,
   BlockLanguageEnum,
   BlockTypeEnum,
-  LANGUAGE_DISPLAY_MAPPING,
 } from '@interfaces/BlockType';
 import {
   ButtonsStyle,
@@ -90,6 +90,7 @@ function TemplateDetail({
 }: TemplateDetailProps) {
   const { height } = useWindowSize();
   const router = useRouter();
+  const { t } = useTranslation('common');
   const [showError] = useError(null, {}, [], {
     uuid: 'CustomTemplates/TemplateDetail',
   });
@@ -97,9 +98,23 @@ function TemplateDetail({
   const [codeBlockKey, setCodeBlockKey] = useState<number>(Number(new Date()));
   const [isRedirecting, setIsRedirecting] = useState<boolean>(false);
   const [ready, setReady] = useState<boolean>(false);
+  const tabs = useMemo(() => NAV_TABS.map(tab => ({
+    ...tab,
+    label: tab?.label || (() => {
+      if (tab?.uuid === NAV_TAB_DEFINE.uuid) {
+        return t('templates.tabs.define');
+      }
+
+      if (tab?.uuid === NAV_TAB_DOCUMENT.uuid) {
+        return t('templates.tabs.document');
+      }
+
+      return tab?.uuid;
+    }),
+  })), [t]);
   const [selectedTab, setSelectedTab] = useState<TabType>(defaultTab
-    ? NAV_TABS.find(({ uuid }) => uuid === defaultTab?.uuid)
-    : NAV_TABS[0],
+    ? tabs.find(({ uuid }) => uuid === defaultTab?.uuid)
+    : tabs[0],
   );
   const [touched, setTouched] = useState<boolean>(false);
   const [templateAttributes, setTemplateAttributesState] =
@@ -197,7 +212,7 @@ function TemplateDetail({
             setTouched(false);
 
             toast.success(
-              'Template successfully saved.',
+              t('templates.toast_template_saved'),
               {
                 position: toast.POSITION.BOTTOM_RIGHT,
                 toastId: 'custom_block_template',
@@ -519,7 +534,7 @@ function TemplateDetail({
     (event, keyMapping) => {
       if (touched && onlyKeysPresent([KEY_CODE_META, KEY_CODE_R], keyMapping)) {
         event.preventDefault();
-        const warning = 'You have changes that are unsaved. Click cancel and save your changes before reloading page.';
+        const warning = t('templates.unsaved_changes_reload_warning');
         if (typeof window !== 'undefined' && typeof location !== 'undefined' && window.confirm(warning)) {
           location.reload();
         }
@@ -532,6 +547,7 @@ function TemplateDetail({
     },
     [
       saveCustomTemplate,
+      t,
       touched,
     ],
   );
@@ -543,7 +559,7 @@ function TemplateDetail({
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     shouldWarn: !isRedirecting && touched,
-    warningMessage: 'You have unsaved changes. Are you sure you want to leave?',
+    warningMessage: t('templates.unsaved_changes_leave_warning'),
   });
 
   return (
@@ -561,7 +577,7 @@ function TemplateDetail({
                 setSelectedTab(tab);
               }}
               selectedTabUUID={selectedTab?.uuid}
-              tabs={isNewCustomTemplate ? NAV_TABS.slice(0, 1) : NAV_TABS}
+              tabs={isNewCustomTemplate ? tabs.slice(0, 1) : tabs}
             />
           </TabsStyle>
 
@@ -574,13 +590,10 @@ function TemplateDetail({
                 <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
                   <Spacing mb={1}>
                     <Text bold>
-                      Template UUID
+                      {t('templates.uuid_label')}
                     </Text>
                     <Text muted small>
-                      Unique identifier for custom template.
-                      The UUID will also determine where the custom template file is stored in the
-                      project.
-                      You can use nested folder names in the template’s UUID.
+                      {t('templates.uuid_description')}
                     </Text>
                   </Spacing>
 
@@ -591,7 +604,7 @@ function TemplateDetail({
                       ...prev,
                       template_uuid: e.target.value,
                     }))}
-                    placeholder="e.g. some_template_name"
+                    placeholder={t('templates.uuid_placeholder')}
                     primary
                     setContentOnMount
                     value={templateAttributes?.template_uuid || ''}
@@ -600,7 +613,7 @@ function TemplateDetail({
 
                 <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
                   <Select
-                    label="Block type"
+                    label={t('templates.block_type_label')}
                     // @ts-ignore
                     onChange={e => setTemplateAttributes(prev => ({
                       ...prev,
@@ -614,7 +627,7 @@ function TemplateDetail({
                   >
                     {Object.values(BlockTypeEnum).map((v: string) => (
                       <option key={v} value={v}>
-                        {BLOCK_TYPE_NAME_MAPPING[v]}
+                        {t(`block_type.${v}`, { defaultValue: BLOCK_TYPE_NAME_MAPPING[v] || v })}
                       </option>
                     ))}
                   </Select>
@@ -623,7 +636,7 @@ function TemplateDetail({
                 {!isMarkdown && (
                   <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
                     <Select
-                      label="Language"
+                      label={t('language')}
                       // @ts-ignore
                       onChange={e => setTemplateAttributes(prev => ({
                         ...prev,
@@ -634,7 +647,7 @@ function TemplateDetail({
                     >
                       {Object.values(BlockLanguageEnum).map((v: string) => (
                         <option key={v} value={v}>
-                          {LANGUAGE_DISPLAY_MAPPING[v]}
+                          {t(v, { defaultValue: v })}
                         </option>
                       ))}
                     </Select>
@@ -648,37 +661,39 @@ function TemplateDetail({
                 <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
                   <Spacing mb={1}>
                     <Text bold>
-                      Name
+                      {t('common.name')}
                     </Text>
                     <Text muted small>
-                      A human readable name for your template.
+                      {t('templates.name_description')}
                     </Text>
                   </Spacing>
 
-                  <TextInput
-                    // @ts-ignore
-                    onChange={e => setTemplateAttributes(prev => ({
-                      ...prev,
-                      name: e.target.value,
-                    }))}
-                    primary
-                    setContentOnMount
-                    value={templateAttributes?.name || ''}
-                  />
+                <TextInput
+                  // @ts-ignore
+                  onChange={e => setTemplateAttributes(prev => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))}
+                  placeholder={t('templates.name_placeholder')}
+                  primary
+                  setContentOnMount
+                  value={templateAttributes?.name || ''}
+                />
                 </Spacing>
 
                 <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
-                  <TextArea
-                    label="Description"
-                    // @ts-ignore
-                    onChange={e => setTemplateAttributes(prev => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))}
-                    primary
-                    setContentOnMount
-                    value={templateAttributes?.description || ''}
-                  />
+                <TextArea
+                  label={t('common.description')}
+                  // @ts-ignore
+                  onChange={e => setTemplateAttributes(prev => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))}
+                  placeholder={t('templates.description_placeholder')}
+                  primary
+                  setContentOnMount
+                  value={templateAttributes?.description || ''}
+                />
                 </Spacing>
               </>
             )}
@@ -694,8 +709,8 @@ function TemplateDetail({
                   onClick={() => saveCustomTemplate()}
                   primary
                 >
-                  {!isNewCustomTemplate && 'Save template'}
-                  {isNewCustomTemplate && 'Create new template'}
+                  {!isNewCustomTemplate && t('templates.save_template')}
+                  {isNewCustomTemplate && t('templates.create_new_template')}
                 </Button>
 
                 {onCancel && (
@@ -706,7 +721,7 @@ function TemplateDetail({
                       onClick={onCancel}
                       secondary
                     >
-                      Cancel
+                      {t('preferences.cancel')}
                     </Button>
                   </>
                 )}

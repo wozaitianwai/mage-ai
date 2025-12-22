@@ -87,7 +87,7 @@ function BackfillDetail({
   setErrors,
   variables,
 }: BackfillDetailProps) {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation();
   const router = useRouter();
   const isViewerRole = isViewer(router?.basePath);
   const displayLocalTimezone = shouldDisplayLocalTimezone();

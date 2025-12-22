@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import Accordion from '@oracle/components/Accordion';
 import AccordionPanel from '@oracle/components/Accordion/AccordionPanel';
@@ -29,7 +30,6 @@ import {
   UNITS_BETWEEN_ITEMS_IN_SECTIONS,
   UNITS_BETWEEN_SECTIONS,
 } from '@oracle/styles/units/spacing';
-import { capitalizeRemoveUnderscoreLower } from '@utils/string';
 import { onSuccess } from '@api/utils/response';
 
 const EMPTY_PULL_REQUEST = {
@@ -76,6 +76,7 @@ function Commit({
   setRepositoryName,
   showError,
 }: CommitProps) {
+  const { t } = useTranslation('common');
   const [actionBranchName, setActionBranchName] = useState<string>(branch?.name || '');
   const [actionError, setActionError] = useState<string>(null);
   const [actionProgress, setActionProgress] = useState<string>(null);
@@ -131,16 +132,20 @@ function Commit({
       columnFlex={[null, null, null, null]}
       columns={[
         {
+          label: () => t('version_control.title_label'),
           uuid: 'Title',
         },
         {
+          label: () => t('version_control.author'),
           uuid: 'Author',
         },
         {
+          label: () => t('version_control.created'),
           uuid: 'Created',
         },
         {
-          uuid: 'Last modified',
+          label: () => t('version_control.last_modified'),
+          uuid: 'last_modified',
         },
       ]}
       onClickRow={(rowIndex: number) => {
@@ -174,12 +179,12 @@ function Commit({
           {createdAt}
         </Text>,
         <Text default key="lastModified" monospace small>
-          {lastModified || '-'}
+          {lastModified || t('common.not_applicable')}
         </Text>,
       ])}
       uuid="pull-requests"
     />
-  ), [pullRequests]);
+  ), [pullRequests, t]);
 
   const { data: dataGitBranches } = api.git_custom_branches.list({
     remote_url: repositoryUrl,
@@ -227,7 +232,7 @@ function Commit({
       <Spacing mb={UNITS_BETWEEN_SECTIONS}>
         <Spacing mb={1}>
           <Headline>
-            {capitalizeRemoveUnderscoreLower(ACTION_PUSH)}
+            {t('version_control.push_action')}
           </Headline>
         </Spacing>
 
@@ -236,7 +241,7 @@ function Commit({
             <div>
               <Spacing mb={1}>
                 <Text bold muted>
-                  Remote
+                  {t('version_control.remote')}
                 </Text>
               </Spacing>
 
@@ -247,7 +252,7 @@ function Commit({
                   beforeIconSize={UNIT * 1.5}
                   monospace
                   onChange={e => setActionRemoteName(e.target.value)}
-                  placeholder="Choose remote"
+                  placeholder={t('version_control.choose_remote')}
                   value={actionRemoteName || ''}
                 >
                   {remotes?.map(({ name }) => (
@@ -264,7 +269,7 @@ function Commit({
             <div>
               <Spacing mb={1}>
                 <Text bold muted>
-                  Branch
+                  {t('version_control.branch')}
                 </Text>
               </Spacing>
 
@@ -273,7 +278,7 @@ function Commit({
                 beforeIconSize={UNIT * 1.5}
                 monospace
                 onChange={e => setActionBranchName(e.target.value)}
-                placeholder="Choose branch"
+                placeholder={t('version_control.choose_branch')}
                 value={actionBranchName || ''}
               >
                 <option value="" />
@@ -306,7 +311,7 @@ function Commit({
               }}
               primary
             >
-              {capitalizeRemoveUnderscoreLower(ACTION_PUSH)} {actionRemoteName} {actionRemoteName && actionBranchName}
+              {t('version_control.push_action')} {actionRemoteName} {actionRemoteName && actionBranchName}
             </Button>
           </Spacing>
 
@@ -328,7 +333,7 @@ function Commit({
       <Spacing mb={UNITS_BETWEEN_SECTIONS}>
         <Spacing mb={1}>
           <Headline>
-            Create pull request
+            {t('version_control.create_pull_request')}
           </Headline>
         </Spacing>
 
@@ -343,14 +348,14 @@ function Commit({
                 <div>
                   <Spacing mb={1}>
                     <Text bold muted>
-                      Repository
+                      {t('version_control.repository')}
                     </Text>
                   </Spacing>
 
                   <Select
                     monospace
                     onChange={e => setRepositoryName(e.target.value)}
-                    placeholder="Choose repository"
+                    placeholder={t('version_control.choose_repository')}
                     value={repositoryName || ''}
                   >
                     {repositories?.map(({
@@ -368,7 +373,7 @@ function Commit({
                 <div>
                   <Spacing mb={1}>
                     <Text bold muted>
-                      Base branch
+                      {t('version_control.base_branch')}
                     </Text>
                   </Spacing>
 
@@ -384,7 +389,7 @@ function Commit({
                         ...prev,
                         base_branch: e.target.value,
                       }))}
-                      placeholder="Choose branch"
+                      placeholder={t('version_control.choose_branch')}
                       value={pullRequest?.base_branch || ''}
                     >
                       {branchesForRepository?.map(({ name }) => (
@@ -401,7 +406,7 @@ function Commit({
                 <div>
                   <Spacing mb={1}>
                     <Text bold muted>
-                      Compare branch
+                      {t('version_control.compare_branch')}
                     </Text>
                   </Spacing>
 
@@ -417,7 +422,7 @@ function Commit({
                         ...prev,
                         compare_branch: e.target.value,
                       }))}
-                      placeholder="Choose branch"
+                      placeholder={t('version_control.choose_branch')}
                       value={pullRequest?.compare_branch || ''}
                     >
                       {!branchesForRepository?.length && pullRequest?.compare_branch && (
@@ -437,7 +442,7 @@ function Commit({
 
               <Spacing mt={1}>
                 <TextInput
-                  label="Title"
+                  label={t('version_control.title_label')}
                   monospace
                   // @ts-ignore
                   onChange={e => setPullRequest(prev => ({
@@ -450,7 +455,7 @@ function Commit({
 
               <Spacing mt={1}>
                 <TextArea
-                  label="Description"
+                  label={t('version_control.description_label')}
                   monospace
                   // @ts-ignore
                   onChange={e => setPullRequest(prev => ({
@@ -482,7 +487,7 @@ function Commit({
                   }}
                   primary
                 >
-                  Create new pull request
+                  {t('version_control.create_pull_request')}
                 </Button>
               </Spacing>
             </>
@@ -493,12 +498,15 @@ function Commit({
           <Accordion visibleMapping={{ 0: !repositoryName }}>
             <AccordionPanel
               noPaddingContent
-              title={dataPullRequests ? `Pull requests (${pullRequests?.length})` : 'Pull requests'}
+              title={dataPullRequests
+                ? `${t('version_control.pull_requests')} (${pullRequests?.length})`
+                : t('version_control.pull_requests')
+              }
             >
               {!repositoryName && (
                 <Spacing p={PADDING_UNITS}>
                   <Text muted>
-                    Please select a repository to view open pull requests.
+                    {t('version_control.please_select_repository')}
                   </Text>
                 </Spacing>
               )}
@@ -533,7 +541,7 @@ function Commit({
             noHoverUnderline
             sameColorAsText
           >
-            {TAB_FILES.uuid}
+            {t('version_control.tabs.commit')}
           </Button>
         </FlexContainer>
       </Spacing>

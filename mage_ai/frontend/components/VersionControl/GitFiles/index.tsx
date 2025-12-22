@@ -211,7 +211,7 @@ function GitFiles({
         ))}
       </>
     );
-  }, []);
+  }, [t]);
 
   const noFilesASelected: boolean = useMemo(() => isEmptyObject(selectedFilesA), [selectedFilesA]);
 
@@ -244,12 +244,15 @@ function GitFiles({
       columnFlex={[1, 1, 1]}
       columns={[
         {
+          label: () => t('version_control.author'),
           uuid: 'Author',
         },
         {
+          label: () => t('version_control.date'),
           uuid: 'Date',
         },
         {
+          label: () => t('version_control.message'),
           uuid: 'Message',
         },
       ]}
@@ -270,7 +273,7 @@ function GitFiles({
       ])}
       uuid="git-branch-logs"
     />
-  ), [logs]);
+  ), [logs, t]);
 
   return (
     <>
@@ -397,7 +400,7 @@ function GitFiles({
       <Spacing mb={UNITS_BETWEEN_SECTIONS}>
         <Spacing mb={1}>
           <Headline>
-            Commit
+            {t('version_control.commit')}
           </Headline>
         </Spacing>
 
@@ -483,7 +486,7 @@ function GitFiles({
         <Accordion>
           <AccordionPanel
             noPaddingContent
-            title="Logs"
+            title={t('version_control.logs')}
           >
             {!dataBranch && (
               <Spacing p={PADDING_UNITS}>
@@ -510,7 +513,7 @@ function GitFiles({
             noHoverUnderline
             sameColorAsText
           >
-            {TAB_BRANCHES.uuid}
+            {t('version_control.tabs.branches')}
           </Button>
 
           <Spacing mr={1} />
@@ -528,7 +531,7 @@ function GitFiles({
             sameColorAsText
             secondary={!noFilesASelected}
           >
-            Next: {TAB_PUSH.uuid}
+            {t('version_control.next_tab', { tab: t('version_control.tabs.push') })}
           </Button>
         </FlexContainer>
       </Spacing>

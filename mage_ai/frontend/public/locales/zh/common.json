@@ -66,6 +66,7 @@
     "detail": "详情",
     "save": "保存",
     "cancel": "取消",
+    "leave": "离开",
     "create": "创建",
     "add": "添加",
     "remove": "移除",
@@ -539,6 +540,12 @@
     "sidekick": {
       "dependency_tree": "依赖树"
     },
+    "edit": {
+      "stale_pipeline_title": "你的管道可能已过期。",
+      "stale_pipeline_subtitle": "该管道可能在另一个标签页中打开。在此处保存更改可能会覆盖另一个标签页中对此管道所做的更改。请谨慎操作。",
+      "delete_block_dependencies_title": "你的块存在依赖关系",
+      "delete_block_dependencies_subtitle": "删除该块存在风险。你的块可能被下游依赖。你仍可删除该块，并从下游块中移除对此块的依赖。"
+    },
     "triggers": {
       "title": "{{name}} 触发器",
       "run_once": "运行一次",
@@ -796,6 +803,7 @@
     "choose_action": "选择操作",
     "message_for": "{{action}} 的消息",
     "push_pull_requests": "推送 & 拉取请求",
+    "push_action": "推送",
     "branch": "分支",
     "create_pull_request": "创建拉取请求",
     "repository": "仓库",
@@ -907,6 +915,13 @@
     "uuid_placeholder": "例如：some_template_name",
     "block_type_label": "代码块类型",
     "name_description": "您的模板的可读名称。",
+    "name_placeholder": "模板名称...",
+    "description_placeholder": "模板描述...",
+    "toast_template_saved": "模板已成功保存。",
+    "unsaved_changes_leave_warning": "您有未保存的更改。确定要离开吗？",
+    "unsaved_changes_reload_warning": "您有未保存的更改。请点击取消并先保存更改，然后再重新加载页面。",
+    "pipeline_template_based_on_prefix": "此管道模板将基于管道",
+    "pipeline_template_based_on_suffix": "。",
     "generate_block_using_ai": "使用 AI 生成代码块 (beta)",
     "tabs": {
       "blocks": "代码块",

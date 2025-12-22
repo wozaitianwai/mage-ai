@@ -66,6 +66,7 @@
     "detail": "Detail",
     "save": "Save",
     "cancel": "Cancel",
+    "leave": "Leave",
     "create": "Create",
     "add": "Add",
     "remove": "Remove",
@@ -539,6 +540,12 @@
     "sidekick": {
       "dependency_tree": "Dependency tree"
     },
+    "edit": {
+      "stale_pipeline_title": "Your pipeline may be stale.",
+      "stale_pipeline_subtitle": "This pipeline may be open on another tab. Saving changes here could overwrite any changes made to this pipeline on a separate tab. Proceed with caution.",
+      "delete_block_dependencies_title": "Your block has dependencies",
+      "delete_block_dependencies_subtitle": "Deleting this block is dangerous. Your block may have downstream dependencies that depend on this block. You can delete this block anyway and remove it as a dependency from downstream blocks."
+    },
     "triggers": {
       "title": "{{name}} triggers",
       "run_once": "Run@once",
@@ -804,6 +811,7 @@
     "message_for_action": "Message for {{action}}",
     "message_for": "Message for {{action}}",
     "push_pull_requests": "Push & Pull Requests",
+    "push_action": "Push",
     "branch": "Branch",
     "create_pull_request": "Create pull request",
     "repository": "Repository",
@@ -907,6 +915,13 @@
     "uuid_placeholder": "e.g. some_template_name",
     "block_type_label": "Block type",
     "name_description": "A human readable name for your template.",
+    "name_placeholder": "Template name...",
+    "description_placeholder": "Template description...",
+    "toast_template_saved": "Template successfully saved.",
+    "unsaved_changes_leave_warning": "You have unsaved changes. Are you sure you want to leave?",
+    "unsaved_changes_reload_warning": "You have changes that are unsaved. Click cancel and save your changes before reloading page.",
+    "pipeline_template_based_on_prefix": "This pipeline template will be based off the pipeline",
+    "pipeline_template_based_on_suffix": ".",
     "generate_block_using_ai": "Generate block using AI (beta)",
     "tabs": {
       "blocks": "Blocks",

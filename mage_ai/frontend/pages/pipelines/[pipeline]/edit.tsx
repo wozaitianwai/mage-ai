@@ -567,10 +567,9 @@ function PipelineDetailPage({
       neutral
       onClick={hideStalePipelineMessageModal}
       subtitle={
-        'This pipeline may be open on another tab. Saving changes here could overwrite'
-        + ' any changes made to this pipeline on a separate tab. Proceed with caution.'
+        t('pipeline_detail.edit.stale_pipeline_subtitle')
       }
-      title="Your pipeline may be stale."
+      title={t('pipeline_detail.edit.stale_pipeline_title')}
       width={UNIT * 34}
     />
   ), {}, [], {
@@ -1853,11 +1852,9 @@ function PipelineDetailPage({
       onCancel={hideDeleteConfirmation}
       onClick={() => deleteBlockFile(block)}
       subtitle={
-        'Deleting this block is dangerous. Your block may have downstream ' +
-        'dependencies that depend on this block. You can delete this block anyway ' +
-        'and remove it as a dependency from downstream blocks.'
+        t('pipeline_detail.edit.delete_block_dependencies_subtitle')
       }
-      title="Your block has dependencies"
+      title={t('pipeline_detail.edit.delete_block_dependencies_title')}
       width={UNIT * 34}
     />
   ));

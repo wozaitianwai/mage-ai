@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import ButtonTabs, { TabType } from '@oracle/components/Tabs/ButtonTabs';
@@ -24,9 +25,7 @@ import { HEADER_HEIGHT } from '@components/shared/Header/index.style';
 import {
   NAV_TABS,
   NAV_TAB_DEFINE,
-  NAV_TAB_BLOCKS,
   NAV_TAB_DOCUMENT,
-  NAV_TAB_TRIGGERS,
 } from './constants';
 import { PADDING_UNITS } from '@oracle/styles/units/spacing';
 import {
@@ -66,6 +65,7 @@ function PipelineTemplateDetail({
   const heightOffset = HEADER_HEIGHT;
 
   const router = useRouter();
+  const { t } = useTranslation('common');
   const [showError] = useError(null, {}, [], {
     uuid: 'CustomTemplates/PipelineTemplateDetail',
   });
@@ -102,9 +102,23 @@ function PipelineTemplateDetail({
     templateUUID,
   ]);
 
+  const tabs = useMemo(() => NAV_TABS.map(tab => ({
+    ...tab,
+    label: tab?.label || (() => {
+      if (tab?.uuid === NAV_TAB_DEFINE.uuid) {
+        return t('templates.tabs.define');
+      }
+
+      if (tab?.uuid === NAV_TAB_DOCUMENT.uuid) {
+        return t('templates.tabs.document');
+      }
+
+      return tab?.uuid;
+    }),
+  })), [t]);
   const [selectedTab, setSelectedTab] = useState<TabType>(defaultTab
-    ? NAV_TABS.find(({ uuid }) => uuid === defaultTab?.uuid)
-    : NAV_TABS[0],
+    ? tabs.find(({ uuid }) => uuid === defaultTab?.uuid)
+    : tabs[0],
   );
 
   const buttonDisabled = useMemo(() => {
@@ -181,7 +195,7 @@ function PipelineTemplateDetail({
               setTouched(false);
 
               toast.success(
-                'Template successfully saved.',
+                t('templates.toast_template_saved'),
                 {
                   position: toast.POSITION.BOTTOM_RIGHT,
                   toastId: 'custom_pipeline_template',
@@ -239,7 +253,7 @@ function PipelineTemplateDetail({
             setSelectedTab(tab);
           }}
           selectedTabUUID={selectedTab?.uuid}
-          tabs={NAV_TABS}
+          tabs={tabs}
         />
       </TabsStyle>
 
@@ -252,7 +266,7 @@ function PipelineTemplateDetail({
             {pipelineUUID && (
               <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
                 <Text default>
-                  This pipeline template will be based off the pipeline <NextLink
+                  {t('templates.pipeline_template_based_on_prefix')}{' '}<NextLink
                     as={`/pipelines/${pipelineUUID}`}
                     href={'/pipelines/[pipeline]'}
                     passHref
@@ -266,7 +280,7 @@ function PipelineTemplateDetail({
                     >
                       {pipelineUUID}
                     </Link>
-                  </NextLink>.
+                  </NextLink>{t('templates.pipeline_template_based_on_suffix')}
                 </Text>
               </Spacing>
             )}
@@ -274,13 +288,10 @@ function PipelineTemplateDetail({
             <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
               <Spacing mb={1}>
                 <Text bold>
-                  Template UUID
+                  {t('templates.uuid_label')}
                 </Text>
                 <Text muted small>
-                  Unique identifier for custom template.
-                  The UUID will also determine where the custom template file is stored in the
-                  project.
-                  You can use nested folder names in the template’s UUID.
+                  {t('templates.uuid_description')}
                 </Text>
               </Spacing>
 
@@ -291,7 +302,7 @@ function PipelineTemplateDetail({
                   ...prev,
                   template_uuid: e.target.value,
                 }))}
-                placeholder="e.g. some_template_name"
+                placeholder={t('templates.uuid_placeholder')}
                 primary
                 setContentOnMount
                 value={templateAttributes?.template_uuid || ''}
@@ -305,10 +316,10 @@ function PipelineTemplateDetail({
             <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
               <Spacing mb={1}>
                 <Text bold>
-                  Name
+                  {t('common.name')}
                 </Text>
                 <Text muted small>
-                  A human readable name for your template.
+                  {t('templates.name_description')}
                 </Text>
               </Spacing>
 
@@ -318,6 +329,7 @@ function PipelineTemplateDetail({
                   ...prev,
                   name: e.target.value,
                 }))}
+                placeholder={t('templates.name_placeholder')}
                 primary
                 setContentOnMount
                 value={templateAttributes?.name || ''}
@@ -326,12 +338,13 @@ function PipelineTemplateDetail({
 
             <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
               <TextArea
-                label="Description"
+                label={t('common.description')}
                 // @ts-ignore
                 onChange={e => setTemplateAttributes(prev => ({
                   ...prev,
                   description: e.target.value,
                 }))}
+                placeholder={t('templates.description_placeholder')}
                 primary
                 setContentOnMount
                 value={templateAttributes?.description || ''}
@@ -351,8 +364,8 @@ function PipelineTemplateDetail({
               onClick={() => saveCustomTemplate()}
               primary
             >
-              {!isNewCustomTemplate && 'Save template'}
-              {isNewCustomTemplate && 'Create new template'}
+              {!isNewCustomTemplate && t('templates.save_template')}
+              {isNewCustomTemplate && t('templates.create_new_template')}
             </Button>
           </FlexContainer>
         </Spacing>
@@ -372,7 +385,7 @@ function PipelineTemplateDetail({
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     shouldWarn: !isRedirecting && touched,
-    warningMessage: 'You have unsaved changes. Are you sure you want to leave?',
+    warningMessage: t('templates.unsaved_changes_leave_warning'),
   });
 
   return (

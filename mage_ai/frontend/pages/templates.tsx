@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import BrowseTemplates from '@components/CustomTemplates/BrowseTemplates';
 import Dashboard from '@components/Dashboard';
@@ -8,6 +9,7 @@ import { OBJECT_TYPE_PIPELINES } from '@interfaces/CustomTemplateType';
 import { queryFromUrl } from '@utils/url';
 
 function Templates() {
+  const { t } = useTranslation('common');
   const [isNew, setIsNew] = useState<boolean>(false);
   const [objectType, setObjectType] = useState<string>(null);
   const [pipelineUUID, setPipelineUUID] = useState<string>(null);
@@ -32,7 +34,7 @@ function Templates() {
   }, [q]);
 
   const keys = useMemo(() => {
-    const arr = [isNew ? 'New' : 'Browse'];
+    const arr = [isNew ? 'new' : 'browse'];
 
     if (objectType) {
       arr.push(objectType);
@@ -58,19 +60,19 @@ function Templates() {
       breadcrumbs={isNew
         ? [
           {
-            label: () => 'Templates',
+            label: () => t('templates.title'),
             linkProps: {
               href: isPipeline ? `/templates?object_type=${OBJECT_TYPE_PIPELINES}` : '/templates',
             },
           },
           {
             bold: true,
-            label: () => 'New',
+            label: () => t('templates.new'),
           },
         ]
         : null
       }
-      title="Templates"
+      title={t('templates.title')}
       uuid="Templates/index"
     >
       <BrowseTemplates
