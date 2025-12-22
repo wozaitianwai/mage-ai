@@ -374,6 +374,154 @@
     "save_button": "保存仓库设置"
   },
   "triggers": {
+    "edit": {
+      "active_toggle": "创建后立即激活触发器",
+      "bookmark_values": "覆盖书签值",
+      "active_toggle": "启用",
+      "buttons": {
+        "back_customize": "返回：自定义",
+        "back_settings": "返回：设置",
+        "cancel": "取消",
+        "cancel_and_go_back": "取消并返回",
+        "create_trigger": "创建触发器",
+        "next_customize": "下一步：自定义",
+        "next_review": "下一步：检查",
+        "save_changes": "保存更改",
+        "save_trigger": "保存触发器"
+      },
+      "cron_expression": {
+        "help": "[分] [时] [日] [月] [周]",
+        "invalid": "Cron 表达式无效。请检查 cron 语法。",
+        "label": "Cron 表达式",
+        "placeholder": "* * * * *",
+        "timezone_note": "如果启用了显示本地时区设置，仅当分钟和小时值为不带特殊字符（如逗号、连字符或斜杠）的单个数值时，上方的本地 cron 表达式才会匹配您的本地时区。您仍可以使用带有特殊字符的 cron 表达式来表示分钟/小时值，但这将基于 UTC 时间。",
+        "timezone_note_title": "注意："
+      },
+      "run_settings": {
+        "create_initial_run": "如果开始日期在当前执行周期之前，则创建初始管道运行",
+        "keep_running": "即使块失败也继续运行管道",
+        "skip_if_previous_running": "如果上一次运行仍在进行中，则跳过运行",
+        "status_cancelled": "已取消",
+        "status_failed": "失败",
+        "timeout": "超时（秒）",
+        "timeout_label": "超时",
+        "timeout_status": "超时运行的状态（默认：失败）",
+        "timeout_status_placeholder": "超时状态"
+      },
+      "runtime_variables": {
+        "add_link": "点击这里",
+        "add_text": "为该管道添加变量。",
+        "add_variable": "添加运行时变量",
+        "key_placeholder": "新变量 UUID",
+        "none": "此管道没有运行时变量。",
+        "title": "运行时变量",
+        "value_placeholder": "变量值"
+      },
+      "sla": {
+        "configure": "配置触发器 SLA",
+        "label": "SLA",
+        "time_placeholder": "时间",
+        "unit_placeholder": "选择时间单位",
+        "unit_day": "天",
+        "unit_hour": "小时",
+        "unit_minute": "分钟",
+        "unit_second": "秒"
+      },
+      "curl_command": "示例 cURL 命令",
+      "customize": "自定义",
+      "endpoint": {
+        "description": "向以下端点发送 <1>POST</1> 请求：",
+        "show_alternative": "显示在 header 中传递 token 的替代端点",
+        "title": "端点"
+      },
+      "events": {
+        "add_event_matcher": "添加事件匹配器",
+        "aws_events": "AWS 事件",
+        "aws_events_help": "为了检索所有可能触发管道的 AWS 事件，您需要设置 3 个环境变量（<1>更多信息</1>）：",
+        "description": "添加 1 个或多个触发此管道运行的事件。如果添加多个事件，只要接收到任一事件，此管道就会触发。",
+        "name_placeholder": "事件名称",
+        "provider_placeholder": "事件提供方",
+        "title": "事件"
+      },
+      "frequency": {
+        "custom": "自定义",
+        "custom_help": "如果您没看到所需的频率选项，请选择 <1>custom</1> 并输入 CRON 语法。",
+        "label": "频率",
+        "placeholder": "选择运行频率",
+        "required": "此项必填"
+      },
+      "headers": {
+        "description": "您需要在请求中包含以下 header 以进行服务器身份验证。",
+        "title": "Header"
+      },
+      "payload": {
+        "description": "您可以选择在请求负载中包含运行时变量。这些运行时变量可在每个管道代码块中访问。",
+        "title": "负载"
+      },
+      "pipeline_complete_by": "管道完成时间",
+      "run_settings": {
+        "create_initial_run": "如果开始日期早于当前执行周期，则创建初始管道运行",
+        "keep_running": "即使代码块失败也继续运行管道",
+        "skip_if_previous_running": "如果上一次运行仍在进行中，则跳过本次运行",
+        "sla_configure": "配置触发器 SLA",
+        "sla_label": "SLA",
+        "sla_time_placeholder": "时间",
+        "sla_unit_placeholder": "选择时间单位",
+        "sla_unit_day": "天",
+        "sla_unit_hour": "小时",
+        "sla_unit_minute": "分钟",
+        "sla_unit_second": "秒",
+        "status_cancelled": "已取消",
+        "status_failed": "失败",
+        "timeout": "为该触发器的每次运行设置超时（可选）",
+        "timeout_label": "超时（秒）",
+        "timeout_status": "超时运行的状态（默认：失败）",
+        "timeout_status_placeholder": "超时状态",
+        "title": "运行设置"
+      },
+      "runtime_average": "平均运行时长",
+      "runtime_variables": {
+        "add_link": "点击这里",
+        "add_text": "为该管道添加变量。",
+        "add_variable": "添加运行时变量",
+        "column_variable": "变量",
+        "column_value": "值",
+        "key_placeholder": "新变量 UUID",
+        "none": "此管道没有运行时变量。",
+        "title": "运行时变量",
+        "value_placeholder": "变量值"
+      },
+      "save_in_code": "此触发器将自动持久化到代码中。<1/>要更改此行为，请更新 <3>管道设置</3> 或 <5>项目设置</5>。",
+      "settings": "设置",
+      "start_date_and_time": {
+        "label": "开始日期和时间",
+        "placeholder": "YYYY-MM-DD HH:MM",
+        "required": "此项必填"
+      },
+      "tags": {
+        "description": "添加或移除此触发器的标签。",
+        "title": "标签"
+      },
+      "title_edit": "编辑 {{name}}",
+    "title_new": "新建触发器",
+    "triggers_breadcrumb": "触发器",
+    "trigger_description": {
+        "label": "触发器描述",
+        "placeholder": "描述"
+      },
+      "trigger_name": {
+        "label": "触发器名称",
+        "placeholder": "为此触发器命名",
+        "required": "此项必填"
+      },
+      "trigger_type": {
+        "api_description": "当您进行 API 调用时运行此管道。",
+        "description": "您希望如何触发此管道？",
+        "label": "触发器类型",
+        "required": "此项必填",
+        "schedule_description": "此管道将按间隔连续运行或仅运行一次。"
+      }
+    },
     "title": "触发器",
     "sort_by": "排序方式：",
     "select_column": "选择列",

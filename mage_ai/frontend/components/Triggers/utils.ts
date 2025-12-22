@@ -52,6 +52,7 @@ export function createBlockStatus(blockRuns: BlockRunType[]) {
 }
 
 export const getTriggerTypes = (
+  t: any,
   isStreamingPipeline?: boolean,
 ): {
   description: () => string;
@@ -60,13 +61,13 @@ export const getTriggerTypes = (
 }[] => {
   const triggerTypes = [
     {
-      description: () => 'This pipeline will run continuously on an interval or just once.',
-      label: () => 'Schedule',
+      description: () => t('triggers.edit.trigger_type.schedule_description'),
+      label: () => t('trigger.schedule'),
       uuid: ScheduleTypeEnum.TIME,
     },
     {
-      description: () => 'Run this pipeline when you make an API call.',
-      label: () => 'API',
+      description: () => t('triggers.edit.trigger_type.api_description'),
+      label: () => t('trigger.api'),
       uuid: ScheduleTypeEnum.API,
     },
   ];

@@ -374,6 +374,91 @@
     "save_button": "Save repository settings"
   },
   "triggers": {
+    "edit": {
+      "active_toggle": "Set trigger to be active immediately after creating",
+      "bookmark_values": "Override bookmark values",
+      "active_toggle": "Active",
+      "buttons": {
+        "back_customize": "Back: Customize",
+        "back_settings": "Back: Settings",
+        "cancel": "Cancel",
+        "cancel_and_go_back": "Cancel and go back",
+        "create_trigger": "Create trigger",
+        "next_customize": "Next: Customize",
+        "next_review": "Next: Review",
+        "save_changes": "Save changes",
+        "save_trigger": "Save trigger"
+      },
+      "cron_expression": {
+        "help": "[minute] [hour] [day(month)] [month] [day(week)]",
+        "invalid": "Invalid cron expression. Please check the cron syntax.",
+        "label": "Cron expression",
+        "placeholder": "* * * * *",
+        "timezone_note": "If you have the display_local_timezone setting enabled, the local cron expression above will match your local timezone only if the minute and hour values are single values without any special characters, such as the comma, hyphen, or slash. You can still use cron expressions with special characters for the minute/hour values, but it will be based in UTC time.",
+        "timezone_note_title": "Note:"
+      },
+      "run_settings": {
+        "create_initial_run": "Create initial pipeline run if start date is before current execution period",
+        "keep_running": "Keep running pipeline even if blocks fail",
+        "skip_if_previous_running": "Skip run if previous run still in progress",
+        "sla_configure": "Configure trigger SLA",
+        "sla_label": "SLA",
+        "sla_time_placeholder": "Time",
+        "sla_unit_placeholder": "Select time unit",
+        "sla_unit_day": "day(s)",
+        "sla_unit_hour": "hour(s)",
+        "sla_unit_minute": "minute(s)",
+        "sla_unit_second": "second(s)",
+        "status_cancelled": "Cancelled",
+        "status_failed": "Failed",
+        "timeout": "Set a timeout for each run of this trigger (optional)",
+        "timeout_label": "Timeout (in seconds)",
+        "timeout_status": "Status for runs that exceed the timeout (default: failed)",
+        "timeout_status_placeholder": "Timeout status",
+        "title": "Run settings"
+      },
+      "runtime_variables": {
+        "add_link": "Click here",
+        "add_text": "to add variables to this pipeline.",
+        "add_variable": "Add runtime variable",
+        "column_variable": "Variable",
+        "column_value": "Value",
+        "key_placeholder": "New variable UUID",
+        "none": "This pipeline has no runtime variables.",
+        "title": "Runtime variables",
+        "value_placeholder": "Variable value"
+      },
+      "save_in_code": "This trigger will automatically be persisted in code.<1/>To change this behavior, update the <3>pipeline’s settings</3> or <5>project settings</5>.",
+      "settings": "Settings",
+      "start_date_and_time": {
+        "label": "Start date and time",
+        "placeholder": "YYYY-MM-DD HH:MM",
+        "required": "This is required"
+      },
+      "tags": {
+        "description": "Add or remove tags from this trigger.",
+        "title": "Tags"
+      },
+      "title_edit": "Edit {{name}}",
+    "title_new": "New trigger",
+    "triggers_breadcrumb": "Triggers",
+    "trigger_description": {
+        "label": "Trigger description",
+        "placeholder": "Description"
+      },
+      "trigger_name": {
+        "label": "Trigger name",
+        "placeholder": "Name this trigger",
+        "required": "This is required"
+      },
+      "trigger_type": {
+        "api_description": "Run this pipeline when you make an API call.",
+        "description": "How would you like this pipeline to be triggered?",
+        "label": "Trigger type",
+        "required": "This is required",
+        "schedule_description": "This pipeline will run continuously on an interval or just once."
+      }
+    },
     "title": "Triggers",
     "sort_by": "Sort by:",
     "select_column": "Select column",
