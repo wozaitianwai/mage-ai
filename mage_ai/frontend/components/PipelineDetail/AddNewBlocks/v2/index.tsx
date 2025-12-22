@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import AutocompleteDropdown from '@components/AutocompleteDropdown';
 import BlockActionObjectType, { ObjectType } from '@interfaces/BlockActionObjectType';
@@ -83,6 +84,7 @@ function AddNewBlocksV2({
   showConfigureProjectModal,
   showGlobalDataProducts,
 }: AddNewBlocksV2Props) {
+  const { t } = useTranslation('common');
   const timeoutRef = useRef(null);
   const refTextInputInit = useRef(null);
   const refTextInput =
@@ -304,7 +306,7 @@ function AddNewBlocksV2({
                   onFocus={() => setFocused(true)}
                   paddingHorizontal={0}
                   paddingVertical={0}
-                  placeholder="Search for a block..."
+                  placeholder={t('block_browser.search_placeholder')}
                   ref={refTextInput}
                   value={inputValue || ''}
                 />

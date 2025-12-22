@@ -70,7 +70,7 @@ export default function({
 
   const rows = selectedRun && [
     [t?.('pipeline_detail.runs.sidekick.run_id') || 'Run ID', selectedRun?.id],
-    [t?.('sidekick.variables') || 'Variables', (
+    [t?.('sidekick.variables.label') || 'Variables', (
       <CodeBlock
         key="variable_value"
         language="json"

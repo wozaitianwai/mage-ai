@@ -1,5 +1,6 @@
 import NextLink from 'next/link';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import BlockType from '@interfaces/BlockType';
 import Breadcrumbs from '@components/Breadcrumbs';
@@ -48,10 +49,12 @@ function SidekickHeader({
 }: SidekickHeaderProps) {
   const pipelineUUID = pipeline?.uuid;
   const query = queryFromUrl();
+  const { t } = useTranslation('common');
   const globalVars = getFormattedVariables(variables, (block) => block.uuid === GLOBAL_VARIABLES_UUID);
 
   const sidekickView = SIDEKICK_VIEWS_BY_KEY({
     project,
+    t,
   })[activeView];
   let sidekickLabel = sidekickView?.buildLabel?.({
     pipeline,
@@ -62,7 +65,8 @@ function SidekickHeader({
   if (ViewKeyEnum.BLOCK_SETTINGS === activeView && selectedBlock?.uuid) {
     sidekickLabel = (
       <>
-        Block settings for <Text
+        {t('sidekick.block_settings_for')}{' '}
+        <Text
           bold
           color={getColorsForBlockType(selectedBlock?.type).accent}
           inline
@@ -98,7 +102,7 @@ function SidekickHeader({
     if (selectedBlock?.uuid) {
       breadcrumbs.push(...[
         {
-          label: () => 'All interactions',
+          label: () => t('sidekick.all_interactions'),
           monospace: false,
           onClick: () => setSelectedBlock(null),
         },
@@ -111,7 +115,7 @@ function SidekickHeader({
     } else {
       breadcrumbs.push({
         bold: true,
-        label: () => 'Interactions',
+        label: () => t('sidekick.interactions'),
         monospace: false,
       });
     }

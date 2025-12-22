@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { useMutation } from 'react-query';
 
@@ -80,6 +81,7 @@ function GlobalVariables({
   variables,
   width,
 }: GlobalVariablesProps) {
+  const { t } = useTranslation('common');
   const [showNewVariable, setShowNewVariable] = useState<boolean>(false);
   const [newVariableName, setNewVariableName] = useState<string>();
   const [newVariableValue, setNewVariableValue] = useState<string>();
@@ -193,7 +195,7 @@ function GlobalVariables({
                 onClick={() => {
                   navigator.clipboard.writeText(newVariableName);
                   toast.success(
-                    'Successfully copied to clipboard.',
+                    t('sync_data.copy_success'),
                     {
                       position: toast.POSITION.BOTTOM_RIGHT,
                       toastId: newVariableName,
@@ -220,7 +222,7 @@ function GlobalVariables({
                 }}
                 onKeyDown={handleKeyDown}
                 paddingHorizontal={0}
-                placeholder="variable"
+                placeholder={t('sidekick.variables.placeholder_name')}
                 small
                 value={newVariableName}
               />
@@ -239,7 +241,7 @@ function GlobalVariables({
                 }}
                 onKeyDown={handleKeyDown}
                 paddingHorizontal={0}
-                placeholder="enter value"
+                placeholder={t('sidekick.variables.placeholder_value')}
                 small
                 value={newVariableValue}
               />
@@ -302,7 +304,7 @@ ${BUILD_CODE_SNIPPET_PREVIEW(pipelineUUID, selectedBlock?.uuid, uuid)}`;
       <Spacing mb={PADDING_UNITS}>
         <FlexContainer alignItems="center">
           <Headline level={4} monospace>
-            Global Variables
+            {t('sidekick.variables.title')}
           </Headline>
           <Spacing ml={2} />
           <KeyboardShortcutButton
@@ -312,18 +314,14 @@ ${BUILD_CODE_SNIPPET_PREVIEW(pipelineUUID, selectedBlock?.uuid, uuid)}`;
             onClick={() => setShowNewVariable(value => !value)}
             uuid="Sidekick/GlobalVariables/addNewVariable"
           >
-            New
+            {t('common.new')}
           </KeyboardShortcutButton>
         </FlexContainer>
       </Spacing>
 
       <Spacing mb={PADDING_UNITS}>
         <Text muted>
-          Press <Text bold default inline monospace>
-            Enter
-          </Text> or <Text bold default inline monospace>
-            Return
-          </Text> to save changes.
+          {t('sidekick.variables.save_instruction')}
         </Text>
       </Spacing>
 
@@ -333,23 +331,21 @@ ${BUILD_CODE_SNIPPET_PREVIEW(pipelineUUID, selectedBlock?.uuid, uuid)}`;
 
       <Spacing mb={PADDING_UNITS}>
         <Text>
-          Global variables will be passed into all non-scratchpad blocks as keyword arguments
-          (Python), interpolated variables (SQL), or vector elements (R). To load a global
-          variable, use the following syntax:
+          {t('sidekick.variables.description')}
         </Text>
       </Spacing>
 
       <Spacing mb={PADDING_UNITS}>
         <Text bold large>
-          For Python (
+          {t('sidekick.variables.for_python')}{' '}
           <Link
             href="https://docs.mage.ai/production/configuring-production-settings/runtime-variable"
             large
             openNewWindow
             primary
           >
-            docs
-          </Link>):
+            {t('common.documentation')}
+          </Link>)
         </Text>
         <CodeBlock
           language="python"
@@ -360,15 +356,15 @@ ${BUILD_CODE_SNIPPET_PREVIEW(pipelineUUID, selectedBlock?.uuid, uuid)}`;
 
       <Spacing mb={PADDING_UNITS}>
         <Text bold large>
-          For SQL (
+          {t('sidekick.variables.for_sql')}{' '}
           <Link
             href="https://docs.mage.ai/guides/sql-blocks#variables"
             large
             openNewWindow
             primary
           >
-            docs
-          </Link>):
+            {t('common.documentation')}
+          </Link>)
         </Text>
         <CodeBlock
           language="sql"
@@ -379,15 +375,15 @@ ${BUILD_CODE_SNIPPET_PREVIEW(pipelineUUID, selectedBlock?.uuid, uuid)}`;
 
       <Spacing mb={PADDING_UNITS}>
         <Text bold large>
-          For R (
+          {t('sidekick.variables.for_r')}{' '}
           <Link
             href="https://docs.mage.ai/guides/r-blocks#runtime-variables"
             large
             openNewWindow
             primary
           >
-            docs
-          </Link>):
+            {t('common.documentation')}
+          </Link>)
         </Text>
         <CodeBlock
           language="r"
@@ -398,11 +394,11 @@ ${BUILD_CODE_SNIPPET_PREVIEW(pipelineUUID, selectedBlock?.uuid, uuid)}`;
 
       <Spacing mb={PADDING_UNITS}>
         <Headline level={4} monospace>
-          Trigger Runtime Variables
+          {t('sidekick.variables.trigger_runtime_variables')}
         </Headline>
         <Spacing mb={PADDING_UNITS} />
         <Text>
-          Depending on what kind of trigger you use for this pipeline, some default runtime variables will be provided.
+          {t('sidekick.variables.trigger_runtime_description')}
         </Text>
       </Spacing>
 
@@ -431,7 +427,7 @@ ${BUILD_CODE_SNIPPET_PREVIEW(pipelineUUID, selectedBlock?.uuid, uuid)}`;
         <>
           <Spacing my={2} >
             <Headline level={4} monospace>
-              Block Output Variables
+              {t('sidekick.variables.block_output_variables')}
             </Headline>
           </Spacing>
 
@@ -441,22 +437,15 @@ ${BUILD_CODE_SNIPPET_PREVIEW(pipelineUUID, selectedBlock?.uuid, uuid)}`;
 
           <Spacing mb={PADDING_UNITS}>
             <Text>
-              Output variables can be used in any <Text
-                bold
-                inline
-                monospace
-                warning
-              >
-                {BlockTypeEnum.SCRATCHPAD}
-              </Text> block. They are for scratchpad blocks, specifically.
-              To get upstream block outputs inside of other blocks, use
-              the positional arguments.
+              {t('sidekick.variables.block_output_description', {
+                scratchpad: BlockTypeEnum.SCRATCHPAD,
+              })}
             </Text>
           </Spacing>
 
           <Spacing mb={PADDING_UNITS}>
             <Text>
-              To load the variable in a scratchpad block, use the following syntax:
+              {t('sidekick.variables.block_output_usage')}
             </Text>
           </Spacing>
 

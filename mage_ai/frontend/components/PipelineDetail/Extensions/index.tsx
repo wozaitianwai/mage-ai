@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useTranslation } from 'react-i18next';
 
 import DBT from './DBT';
 import ExtensionOptionType, { ExtensionTypeEnum } from '@interfaces/ExtensionOptionType';
@@ -28,6 +29,7 @@ function Extensions({
   pipeline,
   ...props
 }: ExtensionsProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
 
   const { data } = api.extension_options.list();
@@ -86,20 +88,18 @@ function Extensions({
         {!selectedExtensionUUID && (
           <Spacing mb={PADDING_UNITS}>
             <Text default>
-              Power up your pipeline with extensions.
-              Learn more about <Link
+              {t('sidekick.power_ups_page.intro')}{' '}
+              {t('sidekick.power_ups_page.learn_more_prefix')}{' '}<Link
                 href="https://docs.mage.ai/design/blocks/extension"
                 openNewWindow
               >
-                extension blocks
+                {t('sidekick.power_ups_page.extension_blocks_link')}
               </Link>.
             </Text>
 
             <Spacing mt={1}>
               <Text default>
-                Click on a power up below to add and configure it for the <Text inline monospace>
-                  {pipeline?.uuid}
-                </Text> pipeline.
+                {t('sidekick.power_ups_page.click_to_configure', { pipeline: pipeline?.uuid })}
               </Text>
             </Spacing>
           </Spacing>

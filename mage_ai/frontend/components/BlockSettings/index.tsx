@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import BlockType, {
   BLOCK_TYPES_WITH_VARIABLES,
@@ -116,6 +117,7 @@ function BlockSettings({
   showDataIntegrationModal,
   showUpdateBlockModal,
 }: BlockSettingsProps) {
+  const { t } = useTranslation('common');
   const refExecutorTypeSelect = useRef(null);
   const refExecutorTypeTextInput = useRef(null);
 
@@ -241,6 +243,30 @@ function BlockSettings({
     [blockDetails],
   );
   const blockPipelinesCount = blockPipelines?.length || 1;
+  const blockSettingsDocumentationLabel = useMemo(() => (
+    <Link
+      href="https://docs.mage.ai/production/configuring-production-settings/compute-resource#2-set-executor-type-and-customize-the-compute-resource-of-the-mage-executor"
+      openNewWindow
+    >
+      {t('common.documentation')}
+    </Link>
+  ), [t]);
+  const retryConfigurationDocumentationLabel = useMemo(() => (
+    <Link
+      href="https://docs.mage.ai/orchestration/pipeline-runs/retrying-block-runs"
+      openNewWindow
+    >
+      {t('common.documentation')}
+    </Link>
+  ), [t]);
+  const blockVariablesDocumentationLabel = useMemo(() => (
+    <Link
+      href="https://docs.mage.ai/development/variables/block-variables"
+      openNewWindow
+    >
+      {t('common.documentation')}
+    </Link>
+  ), [t]);
 
   const [updateBlock, { isLoading: isLoadingUpdateBlock }]: any = useMutation(
     api.blocks.pipelines.useUpdate(pipelineUUID, encodeURIComponent(blockUUID)),
@@ -284,10 +310,10 @@ function BlockSettings({
             columnFlex={[null, 1]}
             columns={[
               {
-                uuid: 'Name',
+                uuid: t('common.name'),
               },
               {
-                uuid: 'Project path',
+                uuid: t('pipeline_detail.block_settings.project_path'),
               },
             ]}
             rows={blockPipelines.map(
@@ -302,7 +328,7 @@ function BlockSettings({
                   nameEl = (
                     <Text key="name" monospace muted>
                       {pipelineName || pipelineUUID}
-                      {isCurrentProject && ' (current)'}
+                      {isCurrentProject && ` ${t('pipeline_detail.block_settings.current_suffix')}`}
                     </Text>
                   );
                 } else {
@@ -331,7 +357,13 @@ function BlockSettings({
           />
         </TableContainerStyle>
       ),
-    [blockPipelines, blockPipelinesCount, pipeline, project?.settings],
+    [
+      blockPipelines,
+      blockPipelinesCount,
+      pipeline,
+      project?.settings,
+      t,
+    ],
   );
 
   const isUsingPipelineRetryConfig: boolean = useMemo(
@@ -386,15 +418,16 @@ function BlockSettings({
                   <DiamondShared fill={YELLOW} size={ICON_SIZE_LARGE} />
                   <Spacing pr={2} />
                   <Text bold large lineHeight={UNIT * 3} warning>
-                    Shared by {blockPipelinesCount} pipelines
+                    {t('pipeline_detail.block_settings.shared_by_pipelines', {
+                      count: blockPipelinesCount,
+                    })}
                   </Text>
                 </Flex>
                 {!isDbtBlock && pipeline?.type !== PipelineTypeEnum.INTEGRATION && (
                   <Tooltip
                     appearBefore
                     block
-                    label="Duplicates block so it is no longer shared with any other
-                      pipelines (detaches other pipeline associations)"
+                    label={t('pipeline_detail.block_settings.detach_tooltip')}
                     lightBackground
                     maxWidth={UNIT * 30}
                     size={null}
@@ -428,7 +461,7 @@ function BlockSettings({
                       }
                       padding={null}
                     >
-                      Detach
+                      {t('pipeline_detail.block_settings.detach')}
                     </Button>
                   </Tooltip>
                 )}
@@ -442,9 +475,9 @@ function BlockSettings({
             <RowStyle noBorder>
               <FlexContainer {...JUSTIFY_SPACE_BETWEEN_PROPS}>
                 <Flex>
-                  <Text bold default>
-                    Name
-                  </Text>
+                    <Text bold default>
+                      {t('common.name')}
+                    </Text>
                 </Flex>
 
                 <Spacing mr={1} />
@@ -464,7 +497,7 @@ function BlockSettings({
                 <FlexContainer {...JUSTIFY_SPACE_BETWEEN_PROPS}>
                   <Flex>
                     <Text bold default>
-                      Color
+                      {t('common.color')}
                     </Text>
                   </Flex>
 
@@ -492,7 +525,7 @@ function BlockSettings({
           <Spacing mt={PADDING_UNITS}>
             <Checkbox
               checked={!!blockAttributes?.configuration?.disable_output_preview}
-              label="Disable output preview on page load"
+              label={t('pipeline_detail.block_settings.disable_output_preview_on_load')}
               onClick={() =>
                 setBlockAttributes((prev) => ({
                   ...prev,
@@ -571,23 +604,18 @@ function BlockSettings({
         )}*/}
 
         <Spacing mb={UNITS_BETWEEN_SECTIONS} px={PADDING_UNITS}>
-          <Headline level={5}>Executor type</Headline>
+          <Headline level={5}>{t('pipeline_detail.block_settings.executor_type')}</Headline>
 
           <Text muted>
-            For more information on this setting, please read the{' '}
-            <Link
-              href="https://docs.mage.ai/production/configuring-production-settings/compute-resource#2-set-executor-type-and-customize-the-compute-resource-of-the-mage-executor"
-              openNewWindow
-            >
-              documentation
-            </Link>
-            .
+            {t('pipeline_detail.block_settings.more_info_prefix')}{' '}
+            {blockSettingsDocumentationLabel}
+            {t('pipeline_detail.block_settings.more_info_suffix')}
           </Text>
 
           <Spacing mt={1}>
             {!editCustomExecutorType && (
               <Select
-                label="Executor type"
+                label={t('pipeline_detail.block_settings.executor_type')}
                 // @ts-ignore
                 onChange={(e) =>
                   setBlockAttributes((prev) => ({
@@ -608,7 +636,7 @@ function BlockSettings({
             )}
             {editCustomExecutorType && (
               <TextInput
-                label="Executor type"
+                label={t('pipeline_detail.block_settings.executor_type')}
                 monospace
                 // @ts-ignore
                 onChange={(e) =>
@@ -644,38 +672,32 @@ function BlockSettings({
                 small
               >
                 {editCustomExecutorType
-                  ? 'Select a preset executor type'
-                  : 'Enter a custom executor type'}
+                  ? t('pipeline_detail.block_settings.select_preset_executor_type')
+                  : t('pipeline_detail.block_settings.enter_custom_executor_type')}
               </Link>
             </Spacing>
           </Spacing>
         </Spacing>
 
         <Spacing mb={UNITS_BETWEEN_SECTIONS} px={PADDING_UNITS}>
-          <Headline level={5}>Retry configuration</Headline>
+          <Headline level={5}>{t('pipeline_detail.block_settings.retry_configuration')}</Headline>
 
           <Text muted>
             {isUsingPipelineRetryConfig && (
               <>
-                This block is currently using the retry configuration from the pipeline. You can
-                override the pipeline’s retry configuration for this block.
+                {t('pipeline_detail.block_settings.retry_config_pipeline_override')}
                 <br />
               </>
             )}
-            For more information on this setting, please read the{' '}
-            <Link
-              href="https://docs.mage.ai/orchestration/pipeline-runs/retrying-block-runs"
-              openNewWindow
-            >
-              documentation
-            </Link>
-            .
+            {t('pipeline_detail.block_settings.more_info_prefix')}{' '}
+            {retryConfigurationDocumentationLabel}
+            {t('pipeline_detail.block_settings.more_info_suffix')}
           </Text>
 
           <Spacing mt={1}>
             <FlexContainer>
               <TextInput
-                label="Retries"
+                label={t('pipeline_detail.block_settings.retries')}
                 monospace
                 onChange={(e) =>
                   setBlockAttributes((prev) => ({
@@ -705,7 +727,7 @@ function BlockSettings({
               <Spacing mr={1} />
 
               <TextInput
-                label="Delay"
+                label={t('pipeline_detail.block_settings.delay')}
                 monospace
                 onChange={(e) =>
                   setBlockAttributes((prev) => ({
@@ -735,7 +757,7 @@ function BlockSettings({
               <Spacing mr={1} />
 
               <TextInput
-                label="Max delay"
+                label={t('pipeline_detail.block_settings.max_delay')}
                 monospace
                 onChange={(e) =>
                   setBlockAttributes((prev) => ({
@@ -771,7 +793,7 @@ function BlockSettings({
                     ? !!pipelineRetryConfig?.exponential_backoff
                     : !!blockRetryConfig?.exponential_backoff
                 }
-                label="Exponential backoff"
+                label={t('pipeline_detail.block_settings.exponential_backoff')}
                 onClick={() =>
                   setBlockAttributes((prev) => ({
                     ...prev,
@@ -792,10 +814,10 @@ function BlockSettings({
 
         {showBlockRunTimeout && (
           <Spacing mb={UNITS_BETWEEN_SECTIONS} px={PADDING_UNITS}>
-            <Headline level={5}>Block run timeout</Headline>
+            <Headline level={5}>{t('pipeline_detail.block_settings.block_run_timeout')}</Headline>
             <Spacing mb={1} />
             <TextInput
-              label="Time in seconds"
+              label={t('pipeline_detail.block_settings.time_in_seconds')}
               monospace
               onChange={(e) =>
                 setBlockAttributes((prev) => ({
@@ -810,20 +832,19 @@ function BlockSettings({
             />
             <Spacing mb={1} />
             <Text muted small>
-              The block timeout will only be applied when the block is run through a trigger. If a
-              block times out, the block run will be set to a failed state.
+              {t('pipeline_detail.block_settings.block_run_timeout_help')}
             </Text>
           </Spacing>
         )}
 
         {isDbtBlock && (
           <Spacing mb={UNITS_BETWEEN_SECTIONS} px={PADDING_UNITS}>
-            <Headline level={5}>dbt settings</Headline>
+            <Headline level={5}>{t('pipeline_detail.block_settings.dbt_settings')}</Headline>
 
             <Spacing mt={1}>
               <Checkbox
                 checked={!!blockAttributes?.configuration?.dbt?.disable_tests}
-                label="Disable automatically running dbt tests"
+                label={t('pipeline_detail.block_settings.disable_dbt_tests')}
                 onClick={() =>
                   setBlockAttributes((prev) => ({
                     ...prev,
@@ -845,7 +866,7 @@ function BlockSettings({
           BlockLanguageEnum.PYTHON === language && (
             <Spacing mb={UNITS_BETWEEN_SECTIONS} px={PADDING_UNITS}>
               <FlexContainer alignItems="center">
-                <Headline level={5}>Block variables</Headline>
+              <Headline level={5}>{t('pipeline_detail.block_settings.block_variables')}</Headline>
                 <Spacing ml={2} />
                 <KeyboardShortcutButton
                   Icon={Add}
@@ -857,40 +878,25 @@ function BlockSettings({
                   smallIcon
                   uuid="Sidekick/BlockSettings/addNewBlockVariable"
                 >
-                  New
+                  {t('common.new')}
                 </KeyboardShortcutButton>
               </FlexContainer>
 
               <Spacing mb={PADDING_UNITS} mt={1}>
                 <Text muted>
-                  Press
-                  <Text {...SHARED_EMPHASIZED_TEXT_PROPS}> Enter</Text> or
-                  <Text {...SHARED_EMPHASIZED_TEXT_PROPS}> Return</Text> on a row to add or update a
-                  variable. These variables are only accessible in this block&nbsp;
-                  <Text {...SHARED_EMPHASIZED_TEXT_PROPS} bold={false}>
-                    &#40;{blockUUID}&#41;.
-                  </Text>
-                  <Text inline muted>
-                    {' '}
-                    Refer to the
-                    <Link
-                      href="https://docs.mage.ai/development/variables/block-variables"
-                      openNewWindow
-                    >
-                      {' '}
-                      documentation
-                    </Link>{' '}
-                    for more details.
-                  </Text>
+                  {t('pipeline_detail.block_settings.block_variables_instruction', {
+                    block_uuid: blockUUID,
+                  })}
+                  {blockVariablesDocumentationLabel}
+                  {t('pipeline_detail.block_settings.more_details_suffix')}
                 </Text>
                 <Text muted>
                   <Text bold inline warning>
-                    Note:{' '}
+                    {t('pipeline_detail.block_settings.note_label')}{' '}
                   </Text>
-                  Click the
-                  <Text {...SHARED_EMPHASIZED_TEXT_PROPS}> Update block settings</Text> button below
-                  to save changes. If you do not, any new or updated block variables will not be
-                  persisted.
+                  {t('pipeline_detail.block_settings.update_block_settings_note', {
+                    button_label: t('pipeline_detail.block_settings.update_block_settings_button'),
+                  })}
                 </Text>
               </Spacing>
 
@@ -940,7 +946,7 @@ function BlockSettings({
         {BlockTypeEnum.GLOBAL_DATA_PRODUCT === blockType && (
           <Spacing mb={UNITS_BETWEEN_SECTIONS}>
             <Spacing px={PADDING_UNITS}>
-              <Headline level={5}>Override global data product settings</Headline>
+            <Headline level={5}>{t('pipeline_detail.block_settings.override_global_data_product_settings')}</Headline>
             </Spacing>
 
             <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
@@ -989,7 +995,7 @@ function BlockSettings({
             }
             primary
           >
-            Update block settings
+            {t('pipeline_detail.block_settings.update_block_settings_button')}
           </Button>
         </Spacing>
       </Spacing>
@@ -1004,11 +1010,13 @@ function BlockSettings({
         {dataBlock && (
           <>
             <Spacing p={PADDING_UNITS}>
-              <Headline level={5}>Pipelines using this block ({blockPipelinesCount})</Headline>
+              <Headline level={5}>
+                {t('pipeline_detail.block_settings.pipelines_using_block', {
+                  count: blockPipelinesCount,
+                })}
+              </Headline>
               <Text default>
-                A shared block is available to and reused by multiple pipelines. It enables you to
-                write code once and have it easily accessible anywhere in the workspace. As a
-                result, any code changes will affect all pipelines sharing the block.
+                {t('pipeline_detail.block_settings.shared_block_description')}
               </Text>
             </Spacing>
 

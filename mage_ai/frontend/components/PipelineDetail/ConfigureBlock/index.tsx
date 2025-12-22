@@ -1,6 +1,7 @@
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMutation } from 'react-query';
 
 import BlockCubeGradient from '@oracle/icons/custom/BlockCubeGradient';
@@ -71,6 +72,7 @@ function ConfigureBlock({
   onSave,
   pipeline,
 }: ConfigureBlockProps) {
+  const { t } = useTranslation('common');
   const [showError] = useError(null, {}, [], {
     uuid: 'ConfigureBlock',
   });
@@ -111,11 +113,11 @@ function ConfigureBlock({
       if (event.key === KEY_ESCAPE) {
         onClose();
       } else if (event.key === KEY_ENTER) {
-        const buttonText = event.target.innerText;
-        if (!buttonText.startsWith('Save and')
-          && buttonText !== 'Cancel'
-          && !blockNameStartsWithNumber
-        ) {
+        const target = event.target as HTMLElement;
+        if (target?.closest?.('button')) {
+          return;
+        }
+        if (!blockNameStartsWithNumber) {
           handleOnSave();
         }
       }
@@ -257,12 +259,14 @@ function ConfigureBlock({
       blockType = customTemplate?.block_type;
     }
 
-    let tt = BLOCK_TYPE_NAME_MAPPING[blockType];
+    let tt = t(`block_type.${blockType}`, {
+      defaultValue: BLOCK_TYPE_NAME_MAPPING[blockType],
+    });
     if (isIntegrationPipeline) {
       if (BlockTypeEnum.DATA_LOADER === blockType) {
-        tt = 'Source';
+        tt = t('pipeline_detail.configure_block.integration_source');
       } else if (BlockTypeEnum.DATA_EXPORTER === blockType) {
-        tt = 'Destination';
+        tt = t('pipeline_detail.configure_block.integration_destination');
       }
     }
 
@@ -272,6 +276,29 @@ function ConfigureBlock({
     blockAttributes,
     customTemplate,
     isIntegrationPipeline,
+    t,
+  ]);
+
+  const languageLabels = useMemo(() => ({
+    [BlockLanguageEnum.PYTHON]: t('common.python'),
+    [BlockLanguageEnum.SQL]: t('common.sql'),
+    [BlockLanguageEnum.R]: t('common.r'),
+    [BlockLanguageEnum.YAML]: t('common.yaml'),
+  }), [t]);
+
+  const saveActionLabel = useMemo(() => {
+    if (isUpdatingBlock) {
+      return t('pipeline_detail.configure_block.save_and_update');
+    }
+    if (isReplacingBlock) {
+      return t('pipeline_detail.configure_block.save_and_replace');
+    }
+
+    return t('pipeline_detail.configure_block.save_and_add');
+  }, [
+    isReplacingBlock,
+    isUpdatingBlock,
+    t,
   ]);
 
   return (
@@ -280,7 +307,7 @@ function ConfigureBlock({
         {isGenerateBlock && isLoadingCreateLLM && (
           <FlexContainer alignItems="center" justifyContent="space-between">
             <Text>
-              Generating block using AI...
+              {t('pipeline_detail.configure_block.generating_block_using_ai')}
             </Text>
 
             <Spinner inverted />
@@ -311,7 +338,7 @@ function ConfigureBlock({
           <Spacing py={1}>
             <Spacing mb={1}>
               <Text default>
-                Block generated using AI
+                {t('pipeline_detail.configure_block.block_generated_using_ai')}
               </Text>
             </Spacing>
 
@@ -327,7 +354,7 @@ function ConfigureBlock({
           <Spacing py={1}>
             <Spacing mb={1}>
               <Text default>
-                Template
+                {t('pipeline_detail.configure_block.template_label')}
               </Text>
             </Spacing>
 
@@ -346,14 +373,10 @@ function ConfigureBlock({
 
           <Flex flex="6">
             <Text bold warning>
-              {isUpdatingBlock &&
-                `Renaming this block will affect ${sharedPipelinesCount} pipelines.`
-                + ' The renamed block may need to be re-added to the shared pipeline(s).'
-              }
-              {isReplacingBlock &&
-                'This will create a copy of the selected block and replace the existing'
-                + ' one so it is no longer shared with any other pipelines.'
-              }
+              {isUpdatingBlock && t('pipeline_detail.configure_block.rename_block_warning', {
+                count: sharedPipelinesCount,
+              })}
+              {isReplacingBlock && t('pipeline_detail.configure_block.replace_block_warning')}
             </Text>
           </Flex>
         </RowStyle>
@@ -362,7 +385,7 @@ function ConfigureBlock({
       <RowStyle columnFlex>
         <FlexContainer {...JUSTIFY_SPACE_BETWEEN_PROPS} fullWidth>
           <Text default>
-            Name
+            {t('common.name')}
           </Text>
 
           <TextInput
@@ -376,7 +399,7 @@ function ConfigureBlock({
               name: e.target.value,
             }))}
             paddingVertical={UNIT}
-            placeholder="Block name..."
+            placeholder={t('pipeline_detail.configure_block.name_placeholder')}
             ref={refTextInput}
             value={blockAttributes?.name || ''}
           />
@@ -384,14 +407,14 @@ function ConfigureBlock({
 
         {blockNameStartsWithNumber && (
           <Text bold warning>
-            Note: Numbers are not allowed as the first character of a block name.
+            {t('pipeline_detail.configure_block.name_starts_with_number_warning')}
           </Text>
         )}
       </RowStyle>
 
       <RowStyle>
         <Text default>
-          Type
+          {t('common.type')}
         </Text>
 
         <Spacing mr={PADDING_UNITS} py={1}>
@@ -410,7 +433,7 @@ function ConfigureBlock({
       {!isMarkdown && (isCustomBlock || customTemplate || blockAttributes?.language) && (
         <RowStyle paddingVerticalAddition={3}>
           <Text default>
-            Language
+            {t('common.language')}
           </Text>
 
           <FlexContainer alignItems="center">
@@ -456,7 +479,7 @@ function ConfigureBlock({
                     }
                     selected={selected}
                   >
-                    {LANGUAGE_DISPLAY_MAPPING[v]}
+                    {languageLabels[v] || LANGUAGE_DISPLAY_MAPPING[v]}
                   </Button>
                 </Spacing>,
               );
@@ -479,7 +502,7 @@ function ConfigureBlock({
       {(isCustomBlock || customTemplate?.color || blockAttributes?.color) && (
         <RowStyle>
           <Text default>
-            Color
+            {t('common.color')}
           </Text>
 
           {isCustomBlock && (
@@ -582,13 +605,7 @@ function ConfigureBlock({
             tabIndex={0}
             uuid="ConfigureBlock/SaveAndAddBlock"
           >
-            Save and&nbsp;
-            {isUpdatingBlock
-              ? 'update'
-              : (isReplacingBlock
-                ? 'replace'
-                : 'add')
-            }
+            {saveActionLabel}
           </KeyboardShortcutButton>
 
           <Spacing ml={1}>
@@ -596,7 +613,7 @@ function ConfigureBlock({
               onClick={onClose}
               tabIndex={0}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
           </Spacing>
         </FlexContainer>

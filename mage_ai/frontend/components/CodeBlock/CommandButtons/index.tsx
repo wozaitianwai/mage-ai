@@ -1,6 +1,7 @@
 import { useContext, useMemo, useRef, useState } from 'react';
 import { ThemeContext } from 'styled-components';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import AddChartMenu from './AddChartMenu';
 import BlockType, {
@@ -134,6 +135,7 @@ function CommandButtons({
   setOutputCollapsed,
   showConfigureProjectModal,
 }: CommandButtonsProps) {
+  const { t } = useTranslation('common');
   const [showError] = useError(null, {}, [], {
     uuid: `CommandButtons/${block?.uuid}`,
   });
@@ -525,7 +527,7 @@ function CommandButtons({
               <Tooltip
                 appearBefore
                 default
-                label="Add chart"
+                label={t('pipeline_detail.code_block.add_chart')}
                 size={UNIT * 2.25}
                 widthFitContent
               >

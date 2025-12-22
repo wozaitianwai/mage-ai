@@ -3,6 +3,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import { ThemeContext } from 'styled-components';
 import { useDrag, useDrop } from 'react-dnd';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import AddNewBlocks from '@components/PipelineDetail/AddNewBlocks';
 import AutocompleteItemType from '@interfaces/AutocompleteItemType';
@@ -401,6 +402,7 @@ function CodeBlock(
   }: CodeBlockProps,
   ref,
 ) {
+  const { t } = useTranslation('common');
   const themeContext = useContext(ThemeContext);
   const refColumn1 = useRef(null);
   const refColumn2 = useRef(null);
@@ -2506,9 +2508,11 @@ df = get_variable('${pipelineUUID}', '${blockUUID}', 'output_0')`;
                                       small
                                       underline={numberOfParentBlocks === 0}
                                     >
-                                      {numberOfParentBlocks === 0 && 'Edit parents'}
+                                      {numberOfParentBlocks === 0 && t('pipeline_detail.code_block.edit_parents')}
                                       {numberOfParentBlocks >= 1 &&
-                                        pluralize('parent', numberOfParentBlocks)}
+                                        t('pipeline_detail.code_block.parent_count', {
+                                          count: numberOfParentBlocks,
+                                        })}
                                     </Text>
                                   </FlexContainer>
                                 </Button>
@@ -2522,7 +2526,9 @@ df = get_variable('${pipelineUUID}', '${blockUUID}', 'output_0')`;
 
                             <Tooltip
                               block
-                              label={`This block is used in ${blockPipelinesLength} pipelines.`}
+                              label={t('pipeline_detail.code_block.block_used_in_pipelines', {
+                                count: blockPipelinesLength,
+                              })}
                               size={null}
                               widthFitContent
                             >
@@ -2537,7 +2543,9 @@ df = get_variable('${pipelineUUID}', '${blockUUID}', 'output_0')`;
                                   preventDefault
                                   small
                                 >
-                                  {blockPipelinesLength} pipelines
+                                  {t('pipeline_detail.code_block.pipelines_count', {
+                                    count: blockPipelinesLength,
+                                  })}
                                 </Link>
                               </FlexContainer>
                             </Tooltip>

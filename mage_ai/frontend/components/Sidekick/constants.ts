@@ -106,10 +106,10 @@ export function SIDEKICK_VIEWS(opts?: {
         variables,
       }) => {
         if (variables?.length >= 1) {
-          return `${t('sidekick.variables')} (${variables.length})`;
+          return `${t('sidekick.variables.label')} (${variables.length})`;
         }
 
-        return t('sidekick.variables');
+        return t('sidekick.variables.label');
       },
       key: ViewKeyEnum.VARIABLES,
     },
@@ -118,10 +118,10 @@ export function SIDEKICK_VIEWS(opts?: {
         secrets,
       }) => {
         if (secrets?.length >= 1) {
-          return `${t('sidekick.secrets')} (${secrets.length})`;
+          return `${t('sidekick.secrets.label')} (${secrets.length})`;
         }
 
-        return t('sidekick.secrets');
+        return t('sidekick.secrets.label');
       },
       key: ViewKeyEnum.SECRETS,
     },
@@ -132,7 +132,7 @@ export function SIDEKICK_VIEWS(opts?: {
       {
         buildLabel: ({
           pipeline,
-        }) => t('sidekick.addon_blocks'),
+        }) => t('sidekick.addon_blocks.label'),
         key: ViewKeyEnum.ADDON_BLOCKS,
       },
       {
@@ -146,10 +146,10 @@ export function SIDEKICK_VIEWS(opts?: {
           });
 
           if (extensionsCount >= 1) {
-            return `${t('sidekick.power_ups')} (${extensionsCount})`;
+            return `${t('sidekick.power_ups.label')} (${extensionsCount})`;
           }
 
-          return t('sidekick.power_ups');
+          return t('sidekick.power_ups.label');
         },
         key: ViewKeyEnum.EXTENSIONS,
       },
@@ -184,6 +184,7 @@ export function SIDEKICK_VIEWS(opts?: {
 export function SIDEKICK_VIEWS_BY_KEY(opts?: {
   pipeline?: PipelineType;
   project?: ProjectType;
+  t?: any;
 }) {
   return indexBy(SIDEKICK_VIEWS(opts), ({ key }) => key)
 };

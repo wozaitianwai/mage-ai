@@ -3459,6 +3459,7 @@ function PipelineDetailPage({
           project,
           secrets,
           setActiveSidekickView,
+          t,
           variables: globalVariables,
         })}
         afterOverflow={ViewKeyEnum.DATA === activeSidekickView ? 'hidden' : null}

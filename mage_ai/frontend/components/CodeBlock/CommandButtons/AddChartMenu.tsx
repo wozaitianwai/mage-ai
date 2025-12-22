@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import BlockType, { BlockLanguageEnum, BlockTypeEnum, StatusTypeEnum } from '@interfaces/BlockType';
 import FlyoutMenu from '@oracle/components/FlyoutMenu';
@@ -44,6 +45,7 @@ function AddChartMenu({
   runBlock,
   topOffset,
 }: AddChartMenuProps) {
+  const { t } = useTranslation('common');
   const chartMenuItems = useMemo(() => CHART_TYPES.map((chartType: string) => {
     const widget = {
       configuration: {
@@ -143,7 +145,7 @@ function AddChartMenu({
   const items = [
     {
       isGroupingTitle: true,
-      label: () => 'Custom charts',
+      label: () => t('pipeline_detail.code_block.custom_charts'),
       uuid: 'custom_charts',
     },
     ...chartMenuItems,
@@ -153,7 +155,7 @@ function AddChartMenu({
     items.push(...[
       {
         isGroupingTitle: true,
-        label: () => 'Templates',
+        label: () => t('templates.title'),
         uuid: 'chart_templates',
       },
       ...chartTemplateMenuItems,

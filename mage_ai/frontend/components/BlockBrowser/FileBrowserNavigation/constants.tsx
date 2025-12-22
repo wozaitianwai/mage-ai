@@ -24,20 +24,22 @@ export const NAV_LINKS = (t: any) => [
   uuid,
 }) => uuid in ALL_BLOCK_TYPES));
 
-export const TABS_MAPPING = {
+export const TABS_MAPPING = (t?: any) => ({
   [FileContextTab.FILES]: {
     Icon: FolderOutline,
+    label: () => t ? t('block_browser.tabs.all_files') : 'All files',
     uuid: FileContextTab.FILES,
   },
   [FileContextTab.BLOCKS]: {
     Icon: BatchSquaresStacked,
+    label: () => t ? t('block_browser.tabs.current_blocks') : 'Current blocks',
     uuid: FileContextTab.BLOCKS,
   },
-};
+});
 
-export function getTabs() {
+export function getTabs(t?: any) {
   return [
-    TABS_MAPPING[FileContextTab.FILES],
-    TABS_MAPPING[FileContextTab.BLOCKS],
+    TABS_MAPPING(t)[FileContextTab.FILES],
+    TABS_MAPPING(t)[FileContextTab.BLOCKS],
   ];
 }

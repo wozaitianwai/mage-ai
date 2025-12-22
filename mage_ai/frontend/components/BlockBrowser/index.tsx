@@ -269,7 +269,7 @@ function Browser({
 
   useEffect(() => {
     if (defaultBlockType) {
-      setSelectedTabState(TABS_MAPPING[FileContextTab.BLOCKS]);
+      setSelectedTabState(TABS_MAPPING(t)[FileContextTab.BLOCKS]);
       setSelectedLinks([
         NAV_LINKS(t)?.find(({
           uuid,

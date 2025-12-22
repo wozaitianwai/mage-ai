@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Accordion from '@oracle/components/Accordion';
 import AccordionPanel, {
@@ -57,6 +58,7 @@ function InteractionSettings({
   removeBlockInteraction,
   updateInteraction: updateInteractionProp,
 }: InteractionSettingsProps) {
+  const { t } = useTranslation('common');
   const containerRef = useRef(null);
   const refMostRecentlyAddedInput = useRef(null);
   const refMostRecentlyAddedVariable = useRef(null);
@@ -231,7 +233,7 @@ function InteractionSettings({
               <Flex flex={1} flexDirection="column">
                 <Spacing mb={1}>
                   <Text bold default>
-                    Type
+                    {t('sidekick.interaction_settings.type')}
                   </Text>
                 </Spacing>
 
@@ -239,7 +241,7 @@ function InteractionSettings({
                   onChange={e => updateInteractionInputs(inputUUID, {
                     type: e.target.value,
                   })}
-                  placeholder="Choose a type of input"
+                  placeholder={t('sidekick.interaction_settings.choose_input_type')}
                   value={inputType}
                 >
                   {INTERACTION_INPUT_TYPES.map((iType: string) => (
@@ -258,13 +260,13 @@ function InteractionSettings({
                     <Spacing mb={PADDING_UNITS}>
                       <Spacing mb={1}>
                         <Text bold default>
-                          Style {removeUnderscore(inputType)}
+                          {t('sidekick.interaction_settings.style_label', { type: removeUnderscore(inputType) })}
                         </Text>
                       </Spacing>
 
                       <Checkbox
                         checked={style?.multiline}
-                        label="Allow writing multiple lines"
+                        label={t('sidekick.interaction_settings.allow_multiple_lines')}
                         onClick={() => updateInteractionInputs(inputUUID, {
                           style: {
                             ...style,
@@ -277,11 +279,11 @@ function InteractionSettings({
                     <div>
                       <Spacing mb={1}>
                         <Text bold default>
-                          Text field type
+                          {t('sidekick.interaction_settings.text_field_type')}
                         </Text>
                         {style?.multiline && (
                           <Text muted small>
-                            Not available for multiline text field.
+                            {t('sidekick.interaction_settings.not_available_multiline')}
                           </Text>
                         )}
                       </Spacing>
@@ -289,7 +291,7 @@ function InteractionSettings({
                       <Checkbox
                         checked={InteractionInputStyleInputTypeEnum.NUMBER === style?.input_type}
                         disabled={!!style?.multiline}
-                        label="Numbers only"
+                        label={t('sidekick.interaction_settings.numbers_only')}
                         onClick={() => updateInteractionInputs(inputUUID, {
                           style: {
                             ...style,
@@ -310,7 +312,7 @@ function InteractionSettings({
                   <>
                     <Spacing mb={1}>
                       <Text bold default>
-                        Options for {removeUnderscore(inputType)}
+                        {t('sidekick.interaction_settings.options_for', { type: removeUnderscore(inputType) })}
                       </Text>
                     </Spacing>
 
@@ -336,8 +338,8 @@ function InteractionSettings({
 
                           <Spacing mr={PADDING_UNITS} />
 
-                          <Text default>
-                            Label
+                         <Text default>
+                            {t('sidekick.interaction_settings.label_option')}
                           </Text>
 
                           <Spacing mr={1} />
@@ -355,8 +357,8 @@ function InteractionSettings({
 
                           <Spacing mr={PADDING_UNITS} />
 
-                          <Text default>
-                            Value
+                         <Text default>
+                            {t('sidekick.interaction_settings.value')}
                           </Text>
 
                           <Spacing mr={1} />
@@ -387,7 +389,7 @@ function InteractionSettings({
                         })}
                         secondary
                       >
-                        Add option
+                        {t('sidekick.interaction_settings.add_option')}
                       </Button>
                     </Spacing>
                   </>
@@ -460,7 +462,7 @@ function InteractionSettings({
                     <Spacing mr={1} />
 
                     <Text muted={!required} success={required}>
-                      Required
+                      {t('sidekick.interaction_settings.required')}
                     </Text>
                   </FlexContainer>
                 </FlexContainer>
@@ -487,7 +489,7 @@ function InteractionSettings({
               <Flex flex={1} flexDirection="column">
                 <Spacing mb={1}>
                   <Text bold default>
-                    Label
+                    {t('sidekick.interaction_settings.label')}
                   </Text>
                 </Spacing>
 
@@ -501,7 +503,7 @@ function InteractionSettings({
                 <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
                   <Spacing mb={1}>
                     <Text bold default>
-                      Valid data types
+                      {t('sidekick.interaction_settings.valid_data_types')}
                     </Text>
                   </Spacing>
 
@@ -540,7 +542,7 @@ function InteractionSettings({
               <Flex flex={1} flexDirection="column">
                 <Spacing mb={1}>
                   <Text bold default>
-                    Description
+                    {t('sidekick.interaction_settings.description')}
                   </Text>
                 </Spacing>
 

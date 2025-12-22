@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import BlockTemplateType from '@interfaces/BlockTemplateType';
 import BlockType, { BlockLanguageEnum, BlockTypeEnum } from '@interfaces/BlockType';
@@ -29,7 +30,7 @@ import {
 } from '@utils/hooks/keyboardShortcuts/constants';
 import { ICON_SIZE, IconContainerStyle } from '../AddNewBlocks/index.style';
 import { PADDING_UNITS } from '@oracle/styles/units/spacing';
-import { capitalize, lowercase, pluralize } from '@utils/string';
+import { lowercase, pluralize } from '@utils/string';
 import {
   getdataSourceMenuItems,
   groupBlockTemplates,
@@ -79,6 +80,7 @@ function AddonBlock({
   showUpdateBlockModal,
   textareaFocused,
 }: AddonBlockProps) {
+  const { t } = useTranslation('common');
   const refParent = useRef(null);
   const [dropdownMenuVisible, setDropdownMenuVisible] = useState<boolean>(false);
 
@@ -158,6 +160,19 @@ function AddonBlock({
     addOnBlocksByUUID,
     selectedBlock,
   ]);
+
+  const blockTypeLabel = useMemo(
+    () => (addOnBlockType === BlockTypeEnum.CALLBACK
+      ? t('sidekick.addon_blocks.callback_label')
+      : t('sidekick.addon_blocks.conditional_label')),
+    [addOnBlockType, t],
+  );
+  const blockTypeLabelPlural = useMemo(
+    () => (addOnBlockType === BlockTypeEnum.CALLBACK
+      ? t('sidekick.addon_blocks.callback_label_plural')
+      : t('sidekick.addon_blocks.conditional_label_plural')),
+    [addOnBlockType, t],
+  );
 
   const runningBlocksByUUID = useMemo(() => runningBlocks.reduce((
     acc: {
@@ -243,15 +258,17 @@ function AddonBlock({
             setAnyInputFocused(false);
           }}
           executionState={executionState}
-          extraContent={(
-            <CodeBlockExtraContent
-              block={block}
-              blocks={blocksInNotebook}
-              inputPlaceholder={`Select blocks to add ${pluralize(displayBlockName, null)} to`}
-              loading={isLoadingUpdateBlock}
-              onClickTag={(block: BlockType) => {
-                // @ts-ignore
-                setHiddenBlocks(prev => ({
+              extraContent={(
+                <CodeBlockExtraContent
+                  block={block}
+                  blocks={blocksInNotebook}
+                  inputPlaceholder={t('sidekick.addon_blocks.select_blocks_to_add', {
+                    name: blockTypeLabelPlural,
+                  })}
+                  loading={isLoadingUpdateBlock}
+                  onClickTag={(block: BlockType) => {
+                    // @ts-ignore
+                    setHiddenBlocks(prev => ({
                   ...prev,
                   [block.uuid]: false,
                 }));
@@ -298,6 +315,7 @@ function AddonBlock({
     blockRefs,
     blocks,
     blocksInNotebook,
+    blockTypeLabelPlural,
     deleteBlock,
     displayBlockName,
     fetchFileTree,
@@ -362,11 +380,11 @@ function AddonBlock({
         </Text>
         <Spacing mt={1}>
           <Text default>
-            Learn more about <Link
+            {t('sidekick.addon_blocks.learn_more_prefix')}{' '}<Link
               href={`https://docs.mage.ai/development/blocks/${lowercase(pluralize(displayBlockName, null))}/overview`}
               openNewWindow
             >
-              {lowercase(pluralize(displayBlockName, null))}
+              {blockTypeLabelPlural}
             </Link>.
           </Text>
         </Spacing>
@@ -402,7 +420,7 @@ function AddonBlock({
               }}
               uuid={`AddNewBlocks/${displayBlockName}`}
             >
-              {capitalize(displayBlockName)} block
+              {t('sidekick.addon_blocks.add_block', { name: blockTypeLabel })}
             </KeyboardShortcutButton>
           </FlyoutMenuWrapper>
         </ClickOutside>

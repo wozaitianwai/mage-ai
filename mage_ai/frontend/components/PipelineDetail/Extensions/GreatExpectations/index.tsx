@@ -6,6 +6,7 @@ import {
   useState,
  } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import BlockType, { BlockLanguageEnum, BlockTypeEnum } from '@interfaces/BlockType';
 import ClickOutside from '@oracle/components/ClickOutside';
@@ -64,6 +65,7 @@ function GreatExpectations({
   showBrowseTemplates,
   textareaFocused,
 }: GreatExpectationsProps) {
+  const { t } = useTranslation('common');
   const refParent = useRef(null);
   const [dropdownMenuVisible, setDropdownMenuVisible] = useState<boolean>(false);
   const {
@@ -181,9 +183,9 @@ function GreatExpectations({
           extraContent={(
             <CodeBlockExtraContent
               block={block}
-              blockActionDescription="Click a block name to run expectations on it."
+              blockActionDescription={t('sidekick.power_ups.great_expectations.block_action_description')}
               blocks={blocksInNotebook}
-              inputPlaceholder="Select blocks to run expectations on"
+              inputPlaceholder={t('sidekick.power_ups.great_expectations.input_placeholder')}
               loading={isLoadingUpdateBlock}
               supportedUpstreamBlockLanguages={[
                 BlockLanguageEnum.PYTHON,
@@ -283,27 +285,26 @@ function GreatExpectations({
     <>
       <Spacing mb={PADDING_UNITS}>
         <Text default>
-          Add an extension block to start writing expectations for blocks in the current pipeline.
+          {t('sidekick.power_ups.great_expectations.intro_primary')}
         </Text>
         <Spacing mt={1}>
           <Text default>
-            When a block in your pipeline runs, it’ll run any tests you define in its code.
-            All associated extension blocks will also run during that phase.
-            Learn more about the <Link
+            {t('sidekick.power_ups.great_expectations.intro_secondary')}{' '}
+            {t('sidekick.power_ups.great_expectations.learn_more_prefix')}{' '}<Link
               href="https://docs.mage.ai/development/testing/great-expectations"
               openNewWindow
             >
-              Great Expectation power up
+              {t('sidekick.power_ups.great_expectations.link_power_up')}
             </Link>.
           </Text>
         </Spacing>
         <Spacing mt={1}>
           <Text default>
-            For all available expectations, read Great Expectation’s <Link
+            {t('sidekick.power_ups.great_expectations.doc_prefix')}{' '}<Link
               href="https://greatexpectations.io/expectations/"
               openNewWindow
             >
-              documentation
+              {t('common.documentation')}
             </Link>.
           </Text>
         </Spacing>
@@ -372,7 +373,7 @@ function GreatExpectations({
               }}
               uuid="AddNewBlocks/Extension"
             >
-              Extension block
+              {t('sidekick.power_ups.great_expectations.extension_block_button')}
             </KeyboardShortcutButton>
           </FlyoutMenuWrapper>
         </ClickOutside>
