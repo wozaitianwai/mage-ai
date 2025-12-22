@@ -2,6 +2,7 @@ import Ansi from 'ansi-to-react';
 import NextLink from 'next/link';
 import { FixedSizeList } from 'react-window';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import BlockType from '@interfaces/BlockType';
 import Circle from '@oracle/elements/Circle';
@@ -58,6 +59,7 @@ function LogsTable({
   setSelectedLog,
   themeContext,
 }: LogsTableProps) {
+  const { t } = useTranslation('common');
   const displayLocalTimezone = shouldDisplayLocalTimezone();
   const { height: windowHeight } = useWindowSize();
   const tableRef = useRef(null);
@@ -113,26 +115,26 @@ function LogsTable({
     logs,
   ]);
 
-  const columns = [
+  const columns = useMemo(() => ([
     {
       uuid: '_',
       width: 28,
     },
     {
-      uuid: 'Date',
+      uuid: t('logs.table.date'),
       width: displayLocalTimezone ? 202 : 214,
     },
     {
-      uuid: 'Block',
+      uuid: t('logs.table.block'),
       width: blockUUIDColWidth + 16,
     },
     {
-      uuid: 'Message',
+      uuid: t('logs.table.message'),
     },
     {
       uuid: '_',
     },
-  ];
+  ]), [blockUUIDColWidth, displayLocalTimezone, t]);
 
   const renderRow = useCallback(({ data, index, style }) => {
     const {

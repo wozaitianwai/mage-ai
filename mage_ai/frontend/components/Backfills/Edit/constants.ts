@@ -3,15 +3,15 @@ import {
   BACKFILL_TYPE_CODE,
 } from '@interfaces/BackfillType';
 
-export const BACKFILL_TYPES = [
+export const getBackfillTypes = (t?: (key: string, options?: any) => string) => ([
   {
-    label: () => 'Date and time window',
-    description: () => 'Backfill between a date and time range.',
+    label: () => t?.('backfills.edit.types.datetime.label') || 'Date and time window',
+    description: () => t?.('backfills.edit.types.datetime.description') || 'Backfill between a date and time range.',
     uuid: BACKFILL_TYPE_DATETIME,
   },
   // {
-  //   label: () => 'Custom code',
-  //   description: () => 'Use the output of a block to generate backfills.',
+  //   label: () => t?.('backfills.edit.types.code.label') || 'Custom code',
+  //   description: () => t?.('backfills.edit.types.code.description') || 'Use the output of a block to generate backfills.',
   //   uuid: BACKFILL_TYPE_CODE,
   // },
-];
+]);

@@ -1,5 +1,6 @@
 import { ThemeContext } from 'styled-components';
 import { useMemo, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import BlockType from '@interfaces/BlockType';
 import Button from '@oracle/elements/Button';
@@ -48,6 +49,7 @@ function Filter({
   blocks,
   query,
 }: FilterProps) {
+  const { t } = useTranslation('common');
   const themeContext = useContext(ThemeContext);
   const queryLevels: string[] = useMemo(() => query[FilterQueryParamEnum.LEVEL], [query]);
   const queryBlockTypes: string[] = useMemo(() => query[FilterQueryParamEnum.BLOCK_TYPE], [query]);
@@ -57,13 +59,23 @@ function Filter({
   const queryPipelineRunIDs: string[] = useMemo(() => query[FilterQueryParamEnum.PIPELINE_RUN_ID], [query]);
   const queryBlockRunIDs: string[] = useMemo(() => query[FilterQueryParamEnum.BLOCK_RUN_ID], [query]);
 
+  const logLevelLabelMapping = useMemo(() => ({
+    [LogLevelEnum.CRITICAL]: t('logs.levels.critical'),
+    [LogLevelEnum.DEBUG]: t('logs.levels.debug'),
+    [LogLevelEnum.ERROR]: t('logs.levels.error'),
+    [LogLevelEnum.EXCEPTION]: t('logs.levels.exception'),
+    [LogLevelEnum.INFO]: t('logs.levels.info'),
+    [LogLevelEnum.LOG]: t('logs.levels.log'),
+    [LogLevelEnum.WARNING]: t('logs.levels.warning'),
+  }), [t]);
+
   return (
     <BeforeStyle>
       <Spacing p={PADDING_UNITS}>
         <Spacing mb={3}>
           <Spacing mb={1}>
             <Text bold default large>
-              Log level
+              {t('logs.filter.log_level')}
             </Text>
           </Spacing>
 
@@ -84,7 +96,7 @@ function Filter({
                   <LogLevelIndicatorStyle {...{ [level.toLowerCase()]: true }} />
                   <Spacing mr={1} />
                   <Text disableWordBreak>
-                    {capitalize(level.toLowerCase())}
+                    {logLevelLabelMapping[level] || capitalize(level.toLowerCase())}
                   </Text>
                 </FlexContainer>
               </FilterRowStyle>
@@ -95,7 +107,7 @@ function Filter({
         <Spacing mb={3}>
           <Spacing mb={1}>
             <Text bold default large>
-              Block type
+              {t('logs.filter.block_type')}
             </Text>
           </Spacing>
 
@@ -137,7 +149,7 @@ function Filter({
         <Spacing mb={3}>
           <Spacing mb={1}>
             <Text bold default large>
-              Block
+              {t('logs.filter.block')}
             </Text>
           </Spacing>
 
@@ -181,11 +193,11 @@ function Filter({
 
         {queryPipelineScheduleIDs?.length && (
           <Spacing mb={3}>
-            <Spacing mb={1}>
-              <Text bold default large>
-                Trigger
-              </Text>
-            </Spacing>
+          <Spacing mb={1}>
+            <Text bold default large>
+              {t('pipeline_runs.trigger')}
+            </Text>
+          </Spacing>
 
             {queryPipelineScheduleIDs.map((pipelineScheduleID: string) => (
               <Button
@@ -215,11 +227,11 @@ function Filter({
 
         {queryPipelineRunIDs?.length && (
           <Spacing mb={3}>
-            <Spacing mb={1}>
-              <Text bold default large>
-                Pipeline run
-              </Text>
-            </Spacing>
+          <Spacing mb={1}>
+            <Text bold default large>
+              {t('logs.filter.pipeline_run')}
+            </Text>
+          </Spacing>
 
             {queryPipelineRunIDs.map((id: string) => (
               <Button
@@ -249,11 +261,11 @@ function Filter({
 
         {queryBlockRunIDs?.length && (
           <Spacing mb={3}>
-            <Spacing mb={1}>
-              <Text bold default large>
-                Block run
-              </Text>
-            </Spacing>
+          <Spacing mb={1}>
+            <Text bold default large>
+              {t('logs.filter.block_run')}
+            </Text>
+          </Spacing>
 
             {queryBlockRunIDs.map((id: string) => (
               <Button

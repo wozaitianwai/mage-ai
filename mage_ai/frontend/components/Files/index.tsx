@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Dashboard from '@components/Dashboard';
 import Divider from '@oracle/elements/Divider';
@@ -15,6 +16,7 @@ function FilesPageComponent({
     file_path: string;
   };
 }) {
+  const { t } = useTranslation('common');
   const refHeader = useRef(null);
   const [headerOffset, setHeaderOffset] = useState(null);
 
@@ -72,7 +74,7 @@ function FilesPageComponent({
           </FileTabsScroller>
         </div>
       )}
-      title="Files"
+      title={t('sidebar.files')}
       uuid="Files/index"
     >
       {controller}

@@ -5,6 +5,7 @@ import {
 } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import BackfillType from '@interfaces/BackfillType';
 import BackfillsTable from '@components/Backfills/Table';
@@ -31,6 +32,7 @@ type PipelineBackfillsProp = {
 function PipelineBackfills({
   pipeline,
 }: PipelineBackfillsProp) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const pipelineUUID = pipeline.uuid;
   const {
@@ -89,7 +91,7 @@ function PipelineBackfills({
 
     const arr = [
       {
-        label: () => 'Backfills',
+        label: () => t('pipeline_detail.navigation.backfills'),
         linkProps: selectedRow ? {
           as: asLink,
           href: '/pipelines/[pipeline]/backfills',
@@ -108,6 +110,7 @@ function PipelineBackfills({
   }, [
     pipelineUUID,
     selectedRow,
+    t,
   ]);
 
   const [createBackfill, { isLoading }] = useMutation(
@@ -141,7 +144,7 @@ function PipelineBackfills({
       pageName={PageNameEnum.BACKFILLS}
       pipeline={pipeline}
       setErrors={setErrors}
-      title={({ name }) => `${name} backfills`}
+      title={({ name }) => t('pipeline_detail.backfills.title', { name })}
       uuid={`${PageNameEnum.BACKFILLS}_${pipelineUUID}`}
     >
       <Spacing p={PADDING_UNITS}>
@@ -160,14 +163,14 @@ function PipelineBackfills({
           sameColorAsText
           uuid="PipelineDetailPage/Backfills/add_new_backfill"
         >
-          Create new backfill
+          {t('pipeline_detail.backfills.create_new_backfill')}
         </KeyboardShortcutButton>
       </Spacing>
 
       {models && models.length === 0 && (
         <Spacing p={PADDING_UNITS}>
           <Text bold default monospace muted>
-            No backfills available
+            {t('pipeline_detail.backfills.no_backfills_available')}
           </Text>
         </Spacing>
       )}

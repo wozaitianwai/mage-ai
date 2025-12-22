@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import ApiErrorType from '@interfaces/ApiErrorType';
 import Button from '@oracle/elements/Button';
@@ -26,6 +27,7 @@ function UploadFiles({
   onCancel,
   selectedFolder,
 }: UploadFilesProps) {
+  const { t } = useTranslation('common');
   const [isDragActive, setIsDragActive] = useState<boolean>(false);
   const [fileUploadProgress, setFileUploadProgress] = useState<{
     [key: string]: number;
@@ -73,9 +75,11 @@ function UploadFiles({
         columnFlex={[1, 4]}
         columns={[
           {
+            label: () => t('files.file_browser.upload.columns.filename'),
             uuid: 'Filename',
           },
           {
+            label: () => t('files.file_browser.upload.columns.upload_progress'),
             uuid: 'Upload progress',
           },
         ]}
@@ -85,6 +89,7 @@ function UploadFiles({
     );
   }, [
     fileUploadProgress,
+    t,
     uploadedFiles,
   ]);
 
@@ -93,7 +98,7 @@ function UploadFiles({
       footer={(
         <FlexContainer fullWidth>
           <Button onClick={() => onCancel()}>
-            Close
+            {t('common.close')}
           </Button>
           {hasFiles && (
             <Spacing ml={1}>
@@ -103,13 +108,13 @@ function UploadFiles({
                   setUploadedFiles({});
                 }}
               >
-                Clear files and retry
+                {t('files.file_browser.upload.actions.clear_and_retry')}
               </Button>
             </Spacing>
           )}
         </FlexContainer>
       )}
-      headerTitle="Upload files"
+      headerTitle={t('files.file_browser.upload.title')}
     >
       {hasFiles && (
         <TableStyle>
@@ -132,8 +137,10 @@ function UploadFiles({
         >
           <DropZoneStyle>
             <Text center>
-              {isDragActive && 'Drop to upload'}
-              {!isDragActive && 'Click or drop files and folders to upload'}
+              {isDragActive
+                ? t('files.file_browser.upload.dropzone.drop_to_upload')
+                : t('files.file_browser.upload.dropzone.click_or_drop')
+              }
             </Text>
           </DropZoneStyle>
         </FileUploader>

@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import BackfillType, {
   BackfillSettingsType,
@@ -38,14 +39,13 @@ import {
   Schedule,
   Variables as VariablesIcon,
 } from '@oracle/icons';
-import { BACKFILL_TYPES } from './constants';
+import { getBackfillTypes } from './constants';
 import { CardStyle } from '../../Triggers/Edit/index.style';
 import { PageNameEnum } from '@components/PipelineDetailPage/constants';
 import {
   PADDING_UNITS,
   UNIT,
 } from '@oracle/styles/units/spacing';
-import { capitalize } from '@utils/string';
 import { getDateAndTimeObjFromDatetimeString } from '@oracle/components/Calendar/utils';
 import { getDatetimeFromDateAndTime } from '@components//Triggers/utils';
 import {
@@ -74,6 +74,7 @@ function BackfillEdit({
   setErrors,
   variables,
 }: BackfillEditProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const displayLocalTimezone = shouldDisplayLocalTimezone();
   const [model, setModel] = useState<BackfillType>();
@@ -150,6 +151,21 @@ function BackfillEdit({
   ]);
 
   const detailsMemo = useMemo(() => {
+    const intervalTypeLabelMapping = {
+      [IntervalTypeEnum.CUSTOM]: t('backfills.interval_types.custom'),
+      [IntervalTypeEnum.DAY]: t('backfills.interval_types.day'),
+      [IntervalTypeEnum.HOUR]: t('backfills.interval_types.hour'),
+      [IntervalTypeEnum.MINUTE]: t('backfills.interval_types.minute'),
+      [IntervalTypeEnum.MONTH]: t('backfills.interval_types.month'),
+      [IntervalTypeEnum.SECOND]: t('backfills.interval_types.second'),
+      [IntervalTypeEnum.WEEK]: t('backfills.interval_types.week'),
+      [IntervalTypeEnum.YEAR]: t('backfills.interval_types.year'),
+    };
+    const intervalTypeLabel = intervalType ? intervalTypeLabelMapping[intervalType] : null;
+    const intervalTypeLabelLower = intervalTypeLabel?.toLowerCase?.()
+      ? intervalTypeLabel.toLowerCase()
+      : intervalTypeLabel;
+
     const rows = [
       [
         <FlexContainer
@@ -159,7 +175,7 @@ function BackfillEdit({
           <Alphabet default />
           <Spacing mr={1} />
           <Text default>
-            Backfill name
+            {t('backfills.edit.backfill_name')}
           </Text>
         </FlexContainer>,
         <TextInput
@@ -172,7 +188,7 @@ function BackfillEdit({
               name: e.target.value,
             }));
           }}
-          placeholder="Name this backfill"
+          placeholder={t('backfills.edit.backfill_name_placeholder')}
           value={name}
         />,
       ],
@@ -188,7 +204,7 @@ function BackfillEdit({
             <CalendarDate default />
             <Spacing mr={1} />
             <Text default>
-              Start date and time
+              {t('backfills.detail.start_date_and_time')}
             </Text>
           </FlexContainer>,
           <div
@@ -200,7 +216,7 @@ function BackfillEdit({
                 monospace
                 onClick={() => setShowCalendarStart(val => !val)}
                 onFocus={() => setShowCalendarStart(true)}
-                placeholder="YYYY-MM-DD HH:MM"
+                placeholder={t('backfills.edit.datetime_placeholder')}
                 value={dateStart
                   ? getDatetimeFromDateAndTime(
                     dateStart,
@@ -237,7 +253,7 @@ function BackfillEdit({
             <CalendarDate default />
             <Spacing mr={1} />
             <Text default>
-              End date and time
+              {t('backfills.detail.end_date_and_time')}
             </Text>
           </FlexContainer>,
           <div
@@ -249,7 +265,7 @@ function BackfillEdit({
                 monospace
                 onClick={() => setShowCalendarEnd(val => !val)}
                 onFocus={() => setShowCalendarEnd(true)}
-                placeholder="YYYY-MM-DD HH:MM"
+                placeholder={t('backfills.edit.datetime_placeholder')}
                 value={dateEnd
                   ? getDatetimeFromDateAndTime(
                     dateEnd,
@@ -286,7 +302,7 @@ function BackfillEdit({
             <Schedule default />
             <Spacing mr={1} />
             <Text default>
-              Interval type
+              {t('backfills.table.interval')}
             </Text>
           </FlexContainer>,
           <Select
@@ -299,12 +315,12 @@ function BackfillEdit({
                 interval_type: e.target.value,
               }));
             }}
-            placeholder="Time spacing between each backfill"
+            placeholder={t('backfills.edit.interval_type_placeholder')}
             value={intervalType}
           >
             {INTERVAL_TYPES.map(value => (
               <option key={value} value={value}>
-                {capitalize(value)}
+                {intervalTypeLabelMapping[value]}
               </option>
             ))}
           </Select>,
@@ -317,7 +333,7 @@ function BackfillEdit({
             <Schedule default />
             <Spacing mr={1} />
             <Text default>
-              Interval units
+              {t('backfills.table.interval_units')}
             </Text>
           </FlexContainer>,
           <TextInput
@@ -334,8 +350,12 @@ function BackfillEdit({
               }));
             }}
             placeholder={intervalType
-              ? `Number of ${intervalType}${intervalType !== IntervalTypeEnum.CUSTOM ? 's' : ''} between each backfill`
-              : 'Interval type is required'
+              ? intervalType === IntervalTypeEnum.CUSTOM
+                ? t('backfills.edit.interval_units_placeholder_custom')
+                : t('backfills.edit.interval_units_placeholder', {
+                  interval: intervalTypeLabelLower,
+                })
+              : t('backfills.edit.interval_type_required')
             }
             type="number"
             value={intervalUnits}
@@ -353,7 +373,7 @@ function BackfillEdit({
           <VariablesIcon default />
           <Spacing mr={1} />
           <Text default>
-            Runtime variables
+            {t('backfills.detail.runtime_variables')}
           </Text>
         </FlexContainer>,
         <OverwriteVariables
@@ -374,7 +394,7 @@ function BackfillEdit({
         key="concurrency"
       >
         <Text default>
-          Max concurrent runs
+          {t('backfills.edit.max_concurrent_runs')}
         </Text>
       </FlexContainer>,
       <TextInput
@@ -399,7 +419,7 @@ function BackfillEdit({
       <>
         <Spacing mb={2} px={PADDING_UNITS}>
           <Headline>
-            Settings
+            {t('backfills.detail.settings')}
           </Headline>
         </Spacing>
 
@@ -425,6 +445,7 @@ function BackfillEdit({
     setupType,
     showCalendarStart,
     showCalendarEnd,
+    t,
     timeEnd,
     timeStart,
   ]);
@@ -529,7 +550,7 @@ function BackfillEdit({
       // after={afterMemo}
       breadcrumbs={[
         {
-          label: () => 'Backfills',
+          label: () => t('pipeline_detail.navigation.backfills'),
           linkProps: {
             as: `/pipelines/${pipelineUUID}/backfills`,
             href: '/pipelines/[pipeline]/backfills',
@@ -556,7 +577,7 @@ function BackfillEdit({
             outline
             primary
           >
-            Save changes
+            {t('backfills.edit.save_changes')}
           </Button>
 
           <Spacing mr={1} />
@@ -570,26 +591,26 @@ function BackfillEdit({
             outline
             sameColorAsText
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
         </FlexContainer>
       )}
-      title={() => `Edit ${model?.name}`}
+      title={() => t('backfills.edit.title', { name: model?.name })}
       uuid="backfill/edit"
     >
       <Spacing p={PADDING_UNITS}>
         <Spacing mb={2}>
           <Headline>
-            Backfill type
+            {t('backfills.edit.backfill_type')}
           </Headline>
 
           <Text muted>
-            How would you like this pipeline to be backfilled?
+            {t('backfills.edit.backfill_type_subtitle')}
           </Text>
         </Spacing>
 
         <FlexContainer>
-          {BACKFILL_TYPES.map(({
+          {getBackfillTypes(t).map(({
             label,
             description,
             uuid,

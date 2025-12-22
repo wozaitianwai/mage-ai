@@ -1,6 +1,7 @@
 import React, { useContext, useMemo, useState } from 'react';
 import moment from 'moment';
 import { ThemeContext } from 'styled-components';
+import { useTranslation } from 'react-i18next';
 
 import BarStackChart from '@components/charts/BarStack';
 import Circle from '@oracle/elements/Circle';
@@ -32,6 +33,7 @@ type BlockRunsMonitorProps = {
 function BlockRunsMonitor({
   pipeline: pipelineProp,
 }: BlockRunsMonitorProps) {
+  const { t } = useTranslation('common');
   const theme = useContext(ThemeContext);
   const [pipelineSchedule, setPipelineSchedule] = useState<number>(null);
 
@@ -101,11 +103,11 @@ function BlockRunsMonitor({
 
     arr.push({
       bold: true,
-      label: () => 'Monitors',
+      label: () => t('pipeline_detail.monitors.title'),
     });
 
     return arr;
-  }, []);
+  }, [t]);
 
   return (
     <Monitor
@@ -116,7 +118,7 @@ function BlockRunsMonitor({
         <FlexContainer>
           <Select
             backgroundColor={dark.interactive.defaultBackground}
-            label="Trigger:"
+            label={t('pipeline_detail.monitors.trigger_label')}
             onChange={e => {
               const val = e.target.value;
               if (val !== 'initial') {
@@ -130,7 +132,7 @@ function BlockRunsMonitor({
             value={pipelineSchedule || 'initial'}
           >
             <option value="initial">
-              All
+              {t('common.all')}
             </option>
             {pipelineSchedules && pipelineSchedules.map(schedule => (
               <option key={schedule.id} value={schedule.id}>

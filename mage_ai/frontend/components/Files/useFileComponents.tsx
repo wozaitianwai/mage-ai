@@ -1,6 +1,7 @@
 import moment from 'moment-timezone';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGlobalState } from '@storage/state';
 import { useMutation } from 'react-query';
 
@@ -68,7 +69,6 @@ import { SearchContainerStyle } from './index.style';
 import { ViewKeyEnum } from '@components/Sidekick/constants';
 import { UNIT } from '@oracle/styles/units/spacing';
 import { buildFileTreeByExtension } from '@components/FileBrowser/utils';
-import { capitalizeRemoveUnderscoreLower } from '@utils/string';
 import { convertFilePathToRelativeRoot } from '@utils/files';
 import { displayPipelineLastSaved } from '@components/PipelineDetail/utils';
 import { filterFiles, getFilenameFromFilePath, searchFiles } from './utils';
@@ -180,6 +180,7 @@ function useFileComponents(
   },
 ) {
   const uuid = useMemo(() => `useFileComponents/${uuidProp}`, [uuidProp]);
+  const { t } = useTranslation('common');
   const [, setApiReloads] = useGlobalState('apiReloads');
   const [showError] = useError(null, {}, [], {
     uuid,
@@ -340,7 +341,9 @@ function useFileComponents(
           filesTouched?.[filePath] &&
           (typeof window === 'undefined' ||
             !window.confirm(
-              `${filePath} has unsaved changes, are you sure you want to close this file?`,
+              t('files.alerts.close_file_unsaved_changes_confirm', {
+                path: filePath,
+              }),
             )),
       );
 
@@ -405,6 +408,7 @@ function useFileComponents(
       setOpenFilePaths,
       setSelectedFilePath,
       status,
+      t,
     ],
   );
 
@@ -768,10 +772,10 @@ function useFileComponents(
                       beforeIcon:
                         fileFilter !== FileFilterEnum.UNUSED_BLOCK_FILES ? (
                           <Check fill={dark.content.default} />
-                        ) : (
+                      ) : (
                           <Circle muted />
                         ),
-                      label: () => capitalizeRemoveUnderscoreLower(FileFilterEnum.ALL_FILES),
+                      label: () => t('files.filters.all_files'),
                       onClick: () => {
                         setFileFilter(FileFilterEnum.ALL_FILES);
                       },
@@ -784,8 +788,7 @@ function useFileComponents(
                         ) : (
                           <Circle muted />
                         ),
-                      label: () =>
-                        capitalizeRemoveUnderscoreLower(FileFilterEnum.UNUSED_BLOCK_FILES),
+                      label: () => t('files.filters.unused_block_files'),
                       onClick: () => {
                         setFileFilter(FileFilterEnum.UNUSED_BLOCK_FILES);
                       },
@@ -806,7 +809,7 @@ function useFileComponents(
                     iconOnly
                     noBackground
                     onClick={() => setFileFilterMenuOpen(prevState => !prevState)}
-                    title="Filter files"
+                    title={t('files.search.filter_files')}
                   >
                     <FilterV2
                       fill={fileFilter !== FileFilterEnum.ALL_FILES ? dark.accent.cyan : null}
@@ -827,17 +830,23 @@ function useFileComponents(
             maxWidth={300}
             onChange={e => setFileSearchText(e.target.value)}
             paddingVertical={UNIT / 2}
-            placeholder="Search files"
+            placeholder={t('files.search.placeholder')}
             ref={searchInputRef}
             value={fileSearchText}
           />
-          <Button basic iconOnly noBackground onClick={fetchFiles} title="Refresh files">
+          <Button
+            basic
+            iconOnly
+            noBackground
+            onClick={fetchFiles}
+            title={t('files.search.refresh_files')}
+          >
             <Refresh />
           </Button>
         </FlexContainer>
       </SearchContainerStyle>
     ),
-    [closeFilterButtonMenu, fetchFiles, fileFilter, fileFilterMenuOpen, fileSearchText],
+    [closeFilterButtonMenu, fetchFiles, fileFilter, fileFilterMenuOpen, fileSearchText, t],
   );
 
   const fileBrowserFlattenMemo = useMemo(
@@ -908,10 +917,12 @@ function useFileComponents(
     () => [
       {
         uuid: 'File',
+        label: () => t('file_header_menu.file'),
         items: [
           {
             beforeIcon: <Save {...MENU_ICON_PROPS} />,
             uuid: 'Save file and and all changes',
+            label: () => t('files.header_menu.save_file_and_all_changes'),
             onClick: opts => {
               if (contentByFilePath?.current?.[selectedFilePath]?.length >= 1) {
                 saveFile(contentByFilePath.current[selectedFilePath], {
@@ -924,10 +935,12 @@ function useFileComponents(
       },
       {
         uuid: 'Edit',
+        label: () => t('file_header_menu.edit'),
         items: [
           {
             beforeIcon: <Edit success={fileVersionsVisible} {...MENU_ICON_PROPS} />,
             uuid: 'Show previous file versions to undo changes',
+            label: () => t('files.header_menu.show_previous_file_versions_to_undo_changes'),
             disabled: fileVersionsVisible,
             onClick: () => {
               setFilesVersionsVisible(true);
@@ -936,6 +949,7 @@ function useFileComponents(
           {
             beforeIcon: <Edit {...MENU_ICON_PROPS} />,
             uuid: 'Close file versions',
+            label: () => t('files.header_menu.close_file_versions'),
             disabled: !Edit,
             onClick: () => {
               setFilesVersionsVisible(false);
@@ -945,21 +959,28 @@ function useFileComponents(
       },
       {
         uuid: 'View',
+        label: () => t('file_header_menu.view'),
         items: [
           {
             beforeIcon: <VisibleEye success={showHiddenFiles} {...MENU_ICON_PROPS} />,
             onClick: () => {
               setShowHiddenFiles(prevState => !prevState);
             },
-            uuid: showHiddenFiles ? 'Hide hidden files' : 'Show hidden files',
+            uuid: 'Toggle hidden files',
+            label: () =>
+              showHiddenFiles
+                ? t('files.header_menu.hide_hidden_files')
+                : t('files.header_menu.show_hidden_files'),
           },
         ],
       },
       {
         uuid: 'Keyboard shortcuts',
+        label: () => t('files.header_menu.keyboard_shortcuts'),
         items: [
           {
             uuid: 'Next file in tab',
+            label: () => t('files.header_menu.next_file_in_tab'),
             beforeIcon: (
               <KeyboardTextGroup
                 addPlusSignBetweenKeys
@@ -971,6 +992,7 @@ function useFileComponents(
           },
           {
             uuid: 'Previous file in tab',
+            label: () => t('files.header_menu.previous_file_in_tab'),
             beforeIcon: (
               <KeyboardTextGroup
                 addPlusSignBetweenKeys
@@ -982,6 +1004,7 @@ function useFileComponents(
           },
           {
             uuid: 'Next file recently viewed',
+            label: () => t('files.header_menu.next_file_recently_viewed'),
             beforeIcon: (
               <KeyboardTextGroup
                 addPlusSignBetweenKeys
@@ -993,6 +1016,7 @@ function useFileComponents(
           },
           {
             uuid: 'Previously viewed file',
+            label: () => t('files.header_menu.previously_viewed_file'),
             beforeIcon: (
               <KeyboardTextGroup
                 addPlusSignBetweenKeys
@@ -1004,6 +1028,7 @@ function useFileComponents(
           },
           {
             uuid: 'Close current file',
+            label: () => t('files.header_menu.close_current_file'),
             beforeIcon: (
               <KeyboardTextGroup
                 addPlusSignBetweenKeys
@@ -1026,6 +1051,7 @@ function useFileComponents(
       setShowHiddenFiles,
       setFilesVersionsVisible,
       showHiddenFiles,
+      t,
     ],
   );
 
@@ -1052,6 +1078,7 @@ function useFileComponents(
       const menuItems = [
         {
           uuid: 'Close tab',
+          label: () => t('files.tabs_menu.close_tab'),
           onClick: () => {
             removeOpenFilePaths([filePath]);
             hideContextMenuFileTabs();
@@ -1060,6 +1087,7 @@ function useFileComponents(
 
         {
           uuid: 'Close all tabs',
+          label: () => t('files.tabs_menu.close_all_tabs'),
           onClick: () => {
             openFilePaths?.forEach(fp => {
               if (!filesTouched?.[fp]) {
@@ -1071,6 +1099,7 @@ function useFileComponents(
         },
         {
           uuid: 'Close all other tabs',
+          label: () => t('files.tabs_menu.close_all_other_tabs'),
           onClick: () =>
             openFilePaths?.forEach(fp => {
               if (fp !== filePath && !filesTouched?.[fp]) {
@@ -1081,6 +1110,7 @@ function useFileComponents(
         },
         {
           uuid: 'Close all tabs to the right',
+          label: () => t('files.tabs_menu.close_all_tabs_to_the_right'),
           onClick: () => {
             const idx = openFilePaths?.findIndex((fp: string) => fp === filePath);
             openFilePaths?.slice(idx + 1)?.forEach(fp => {
@@ -1093,6 +1123,7 @@ function useFileComponents(
         },
         {
           uuid: 'Close tabs with files saved',
+          label: () => t('files.tabs_menu.close_tabs_with_files_saved'),
           onClick: () => {
             openFilePaths?.forEach((fp: string) => {
               if (!filesTouched?.[fp]) {
@@ -1104,8 +1135,9 @@ function useFileComponents(
         },
         {
           uuid: 'Copy file path',
+          label: () => t('files.tabs_menu.copy_file_path'),
           onClick: () => {
-            alert(`${filePath} is copied to your clipboard.`);
+            alert(t('files.alerts.file_path_copied', { path: filePath }));
             hideContextMenuFileTabs();
           },
           render: el => <CopyToClipboard text={filePath}>{el}</CopyToClipboard>,
@@ -1122,6 +1154,7 @@ function useFileComponents(
       openFilePaths,
       removeOpenFilePaths,
       showContextMenuFileTabs,
+      t,
     ],
   );
 

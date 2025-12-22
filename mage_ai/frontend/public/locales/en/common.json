@@ -99,6 +99,8 @@
     "redo": "Redo",
     "select_all": "Select All",
     "deselect_all": "Deselect All",
+    "all": "All",
+    "not_applicable": "N/A",
     "language": "Language",
     "english": "English",
     "chinese": "中文",
@@ -376,6 +378,15 @@
     "saved_in_code": "This trigger is saved in code.",
     "save_triggers_automatically": "Save triggers in code automatically",
     "save_triggers_description": "Every time a trigger is created or updated in this pipeline, automatically persist it in code.",
+    "run_pipeline_popup": {
+      "title": "Run pipeline now",
+      "description": "Creates a new trigger and immediately runs the current pipeline once.",
+      "run_now": "Run now",
+      "tabs": {
+        "runtime_variables": "Runtime variables",
+        "bookmark_values": "Bookmark values"
+      }
+    },
     "headers": {
       "active": "Active",
       "name": "Name",
@@ -393,9 +404,341 @@
     },
     "delete_confirmation": "Are you sure you want to delete the trigger {{name}}?"
   },
+  "backfills": {
+    "delete_confirmation": "Are you sure you want to delete the backfill \"{{name}}\"?",
+    "types": {
+      "code": "Code",
+      "datetime": "Date and time"
+    },
+    "interval_types": {
+      "custom": "Custom",
+      "day": "Day",
+      "hour": "Hour",
+      "minute": "Minute",
+      "month": "Month",
+      "second": "Second",
+      "week": "Week",
+      "year": "Year"
+    },
+    "table": {
+      "backfill": "Backfill",
+      "total_runs": "Total runs",
+      "interval": "Interval type",
+      "interval_units": "Interval units"
+    },
+    "detail": {
+      "no_runs_available_setup_needed": "No runs available. Please complete backfill configuration by clicking \"Edit backfill\" above.",
+      "backfill_type": "Backfill type",
+      "start_date_and_time": "Start date and time",
+      "end_date_and_time": "End date and time",
+      "total_runs_excludes_retries_tooltip": "This count does not include retries.",
+      "settings": "Settings",
+      "runtime_variables": "Runtime variables",
+      "runs_for_this_backfill": "Runs for this backfill",
+      "actions": {
+        "cancel_backfill": "Cancel backfill",
+        "retry_backfill": "Retry backfill",
+        "start_backfill": "Start backfill",
+        "edit_backfill": "Edit backfill",
+        "cannot_edit_tooltip": "Backfills cannot be edited once they've been started."
+      }
+    },
+    "edit": {
+      "title": "Edit {{name}}",
+      "save_changes": "Save changes",
+      "backfill_type": "Backfill type",
+      "backfill_type_subtitle": "How would you like this pipeline to be backfilled?",
+      "backfill_name": "Backfill name",
+      "backfill_name_placeholder": "Name this backfill",
+      "datetime_placeholder": "YYYY-MM-DD HH:MM",
+      "interval_type_placeholder": "Time spacing between each backfill",
+      "interval_units_placeholder": "Number of {{interval}}s between each backfill",
+      "interval_units_placeholder_custom": "Number of units between each backfill",
+      "interval_type_required": "Interval type is required",
+      "max_concurrent_runs": "Max concurrent runs",
+      "types": {
+        "datetime": {
+          "label": "Date and time window",
+          "description": "Backfill between a date and time range."
+        }
+      }
+    }
+  },
+  "logs": {
+    "pipeline_title": "{{name}} logs",
+    "logs_found": "{{count}} logs found",
+    "searching": "Searching...",
+    "actions": {
+      "load_latest_logs": "Load latest logs",
+      "scroll_to_bottom": "Scroll to bottom",
+      "auto_scroll_to_new_logs": "Auto-scroll to new logs"
+    },
+    "time_ranges": {
+      "last_hour": "Last hour",
+      "last_day": "Last day",
+      "last_week": "Last week",
+      "last_30_days": "Last 30 days",
+      "custom_range": "Custom range"
+    },
+    "toolbar": {
+      "all_past_loaded": "All past logs within range loaded",
+      "load_older_logs": "Load older logs",
+      "load_newer_logs": "Load newer logs",
+      "select_time_range": "Select time range",
+      "start": "Start",
+      "to": "to",
+      "end": "End"
+    },
+    "levels": {
+      "critical": "Critical",
+      "debug": "Debug",
+      "error": "Error",
+      "exception": "Exception",
+      "info": "Info",
+      "log": "Log",
+      "warning": "Warning"
+    },
+    "filter": {
+      "log_level": "Log level",
+      "block_type": "Block type",
+      "block": "Block",
+      "pipeline_run": "Pipeline run",
+      "block_run": "Block run"
+    },
+    "table": {
+      "date": "Date",
+      "block": "Block",
+      "message": "Message"
+    },
+    "detail": {
+      "tabs": {
+        "details": "Details",
+        "errors": "Errors"
+      },
+      "file_name": "file name",
+      "file_path": "file path",
+      "hide_log": "Click to hide log",
+      "show_full_log_message": "Click to show full log message",
+      "stack_trace": "Stack trace"
+    }
+  },
   "pipeline_detail": {
     "unsaved_changes": "You have unsaved changes.",
-    "add_new_block": "Add a new block to start building your pipeline."
+    "add_new_block": "Add a new block to start building your pipeline.",
+    "error_loading_pipeline": "Error loading pipeline",
+    "navigation": {
+      "edit_pipeline": "Edit pipeline",
+      "triggers": "Triggers",
+      "runs": "Runs",
+      "logs": "Logs",
+      "monitor": "Monitor",
+      "backfills": "Backfills",
+      "syncs": "Syncs",
+      "pipeline_settings": "Pipeline settings"
+    },
+    "sidekick": {
+      "dependency_tree": "Dependency tree"
+    },
+    "triggers": {
+      "title": "{{name}} triggers",
+      "run_once": "Run@once",
+      "run_once_tooltip": "Creates an @once trigger and runs pipeline immediately",
+      "run_once_disabled_tooltip": "Trigger must be enabled to run@once",
+      "invalid_cron_expression": "Schedule interval for Trigger (in code) \"{{name}}\" is invalid. Please check your cron expression’s syntax in the pipeline’s triggers.yaml file.",
+      "create_trigger_with_no_code": "Create trigger with no-code",
+      "runs_for_this_trigger": "Runs for this trigger",
+      "types": {
+        "api": "API",
+        "event": "Event",
+        "schedule": "Schedule"
+      },
+      "statuses": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "intervals": {
+        "always_on": "Always on",
+        "daily": "Daily",
+        "hourly": "Hourly",
+        "monthly": "Monthly",
+        "once": "Once",
+        "weekly": "Weekly"
+      },
+      "sections": {
+        "settings": "Settings",
+        "events": "Events",
+        "dbt_runtime_settings": "dbt runtime settings",
+        "tags": "Tags"
+      },
+      "fields": {
+        "trigger_type": "Trigger type",
+        "status": "Status",
+        "description": "Description",
+        "sla": "SLA",
+        "frequency": "Frequency",
+        "next_run_date": "Next run date",
+        "start_date": "Start date",
+        "last_enabled_at": "Last enabled at",
+        "api_endpoint": "API endpoint",
+        "timeout": "Timeout",
+        "skip_if_running": "Skip if running",
+        "allow_blocks_to_fail": "Allow blocks to fail",
+        "create_initial_run": "Create initial run"
+      },
+      "tooltips": {
+        "timeout": "Timeout set for runs of this trigger",
+        "skip_if_running": "Skip current run if any previous runs are still in progress",
+        "allow_blocks_to_fail": "Trigger runs will continue running blocks if other unrelated blocks fail",
+        "create_initial_run": "Create initial pipeline run if start date is before current execution period"
+      },
+      "bookmark_values": {
+        "stream": "Stream"
+      },
+      "events": {
+        "columns": {
+          "provider": "Provider",
+          "event": "Event"
+        }
+      },
+      "actions": {
+        "enable_trigger": "Enable trigger",
+        "disable_trigger": "Disable trigger",
+        "edit_trigger": "Edit trigger"
+      },
+      "store_in_code": {
+        "title_exists": "Trigger exists in code",
+        "title_store": "Store trigger in code",
+        "auto_persist_prefix": "This trigger will automatically be persisted in code. To change this behavior, update the",
+        "auto_persist_or": "or",
+        "auto_persist_suffix": ".",
+        "pipeline_settings": "pipeline’s settings",
+        "project_settings": "project settings",
+        "description_prefix": "Save or update the trigger and its settings in the pipeline’s metadata and version control the trigger using Git. For more information, please read the",
+        "documentation": "documentation",
+        "description_suffix": ".",
+        "update_trigger_in_code": "Update trigger in code",
+        "save_trigger_in_code": "Save trigger in code"
+      }
+    },
+    "runs": {
+      "title": "{{name}} runs",
+      "pipeline_is_running": "Pipeline is running",
+      "retry_incomplete_blocks": "Retry incomplete blocks",
+      "retry_from_selected_block": "Retry from selected block ({{block_uuid}})",
+      "no_runs_matching_search": "No runs on this page match your search.",
+      "select_run_status": "Select run status",
+      "all_statuses": "All statuses",
+      "search_pipeline_run_variables": "Search pipeline run variables",
+      "filter_runs_by_status": "Filter runs by status:",
+      "actions": {
+        "selected_count": "{{count}} selected",
+        "retry_selected": "Retry selected ({{count}})",
+        "retry_all_incomplete_block_runs": "Retry all incomplete block runs",
+        "cancel_selected_running": "Cancel selected running ({{count}})",
+        "cancel_all_running": "Cancel all running"
+      },
+      "confirmation": {
+        "subtitle_base": "This includes runs on other pages as well, not just the current page.",
+        "subtitle_retry_failed_note": "Incomplete block runs will be retried for FAILED pipeline runs specifically.",
+        "cancel_all_running_title": "Are you sure you want to cancel all pipeline runs in progress?",
+        "retry_all_incomplete_title": "Are you sure you want to retry all incomplete block runs for any failed pipeline runs?"
+      },
+      "sidekick": {
+        "run_details": "Run details",
+        "run_id": "Run ID"
+      }
+    },
+    "block_runs": {
+      "download_progress": "{{mb}}mb downloaded...",
+      "save_output_as_csv_tooltip": "Save block run output as CSV file (not supported for dynamic blocks)",
+      "sidekick": {
+        "block_output": "Block output",
+        "no_output": "This block run has no output.",
+        "image_output_alt": "Image from code output",
+        "block_output_numbered": "Block output {{number}}{{letter}}"
+      }
+    },
+    "monitors": {
+      "title": "Monitors",
+      "insights": "Insights",
+      "all_pipeline_runs": "All pipeline runs",
+      "block_runtime": "Block runtime",
+      "trigger_label": "Trigger:",
+      "all_blocks": "All blocks",
+      "seconds_suffix": "s"
+    },
+    "settings": {
+      "title": "{{name}} settings",
+      "sections": {
+        "details": "Details",
+        "pipeline_level_concurrency": "Pipeline level concurrency"
+      },
+      "pipeline_name": "Pipeline name",
+      "pipeline_description": "Pipeline description",
+      "pipeline_description_placeholder": "Enter description...",
+      "run_pipeline_single_process": "Run pipeline in a single process",
+      "run_pipeline_single_process_description": "When enabled, this setting allows sharing of objects and memory space across blocks within a single pipeline.",
+      "select_option_placeholder": "Select an option",
+      "save_pipeline_settings": "Save pipeline settings",
+      "hide_all_blocks_in_notebook": "Hide all blocks in notebook",
+      "output_block_messages_to_logs": "When running a block while editing a pipeline, output the block messages to the logs",
+      "triggers": {
+        "project_level_warning": "This setting is enabled at the project level. Changing the value here will only affect this pipeline."
+      },
+      "concurrency": {
+        "pipeline_run_limit_all_triggers_title": "Pipeline run limit across all triggers",
+        "pipeline_run_limit_all_triggers_description": "Limit the concurrent pipeline runs across all triggers in this pipeline.",
+        "pipeline_run_limit_all_triggers_placeholder": "e.g. 40",
+        "pipeline_run_limit_per_trigger_title": "Pipeline run limit in 1 trigger",
+        "pipeline_run_limit_per_trigger_description": "Limit the concurrent pipeline runs in a single trigger for this pipeline.",
+        "pipeline_run_limit_per_trigger_placeholder": "e.g. 10",
+        "block_run_limit_title": "Block run limit",
+        "block_run_limit_description": "Limit the concurrent blocks runs in one pipeline run.",
+        "block_run_limit_placeholder": "e.g. 20",
+        "on_limit_reached_title": "How to handle new pipeline runs when limit reached",
+        "on_limit_reached_description": "Choose whether to wait or skip when the pipeline run limit is reached.",
+        "on_limit_reached_actions": {
+          "skip": "Skip",
+          "wait": "Wait"
+        }
+      },
+      "executor_type": {
+        "heading": "Executor type",
+        "label": "Executor type",
+        "select_preset": "Select a preset executor type",
+        "enter_custom": "Enter a custom executor type"
+      },
+      "retry_configuration": {
+        "heading": "Retry configuration",
+        "retries": "Retries",
+        "delay": "Delay",
+        "max_delay": "Max delay",
+        "exponential_backoff": "Exponential backoff"
+      },
+      "more_info_prefix": "For more information on this setting, please read the ",
+      "documentation_link": "documentation",
+      "more_info_suffix": "."
+    },
+    "backfills": {
+      "title": "{{name}} backfills",
+      "create_new_backfill": "Create new backfill",
+      "no_backfills_available": "No backfills available"
+    },
+    "edit": {
+      "check_pipeline_configuration_file": "Check pipeline configuration file for any issues",
+      "pipeline_configuration_file_issue": "There may be an issue with your pipeline’s configuration file. Please check to make sure it is valid. It can be found at /pipelines/[pipeline_uuid]/metadata.yaml.",
+      "variables_dir_invalid": "The variables_dir ({{variables_dir}}) or remote_variables_dir ({{remote_variables_dir}}) might be configured incorrectly. Please make sure those properties have values interpolated correctly in your project’s metadata.yaml config file.",
+      "check_project_configuration": "Check project configuration",
+      "check_pipeline_configuration": "Check pipeline configuration",
+      "view_existing_block_file_contents": "View existing block file contents.",
+      "data_integration": {
+        "source_language_mismatch": "The source you’re trying to add must contain the language {{expected}} and not {{actual}}.",
+        "pipeline_already_has_source": "Pipeline {{pipeline_uuid}} already has a source: {{source_block_uuid}}.",
+        "pipeline_already_has_transformer": "Pipeline {{pipeline_uuid}} already has a transformer: {{transformer_block_uuid}}.",
+        "destination_language_mismatch": "The destination you’re trying to add must contain the language {{expected}} and not {{actual}}.",
+        "pipeline_already_has_destination": "Pipeline {{pipeline_uuid}} already has a destination: {{destination_block_uuid}}."
+      }
+    }
   },
   "preferences": {
     "pipeline_settings": "Pipeline settings",
@@ -459,6 +802,7 @@
     "create_new_branch": "Create new branch",
     "compare_branch": "Compare branch",
     "message_for_action": "Message for {{action}}",
+    "message_for": "Message for {{action}}",
     "push_pull_requests": "Push & Pull Requests",
     "branch": "Branch",
     "create_pull_request": "Create pull request",
@@ -531,6 +875,7 @@
     "started_at": "Started at",
     "completed_at": "Completed at",
     "execution_time": "Execution time",
+    "runtime": "Runtime",
     "delete": "Delete",
     "selected": "Selected",
     "action": "Action",
@@ -679,6 +1024,114 @@
       "helper_text": "When requesting data from this global data product, the selected block(s) will return data from its most recent partition. You can override this by adding a value in the partitions setting. For example, if you set the partitions value to 5, then the selected block will return data from its 5 most recent partitions. If you set the partitions value to 0, then all the partitions will be returned.",
       "block_uuid": "Block UUID",
       "partitions": "Partitions"
+    }
+  },
+  "files": {
+    "alerts": {
+      "close_file_unsaved_changes_confirm": "{{path}} has unsaved changes, are you sure you want to close this file?",
+      "file_path_copied": "{{path}} is copied to your clipboard."
+    },
+    "file_browser": {
+      "confirmations": {
+        "delete_folder": "Are you sure you want to delete folder {{path}} and all its subfolders and files?",
+        "delete_file": "Are you sure you want to delete file {{path}}?",
+        "delete_item": "Are you sure you want to delete {{item}}?"
+      },
+      "context_menu": {
+        "collapse_all_subfolders": "Collapse all subfolders",
+        "delete_file": "Delete file",
+        "delete_folder": "Delete folder",
+        "download_file": "Download file",
+        "expand_all_subfolders": "Expand all subfolders",
+        "move_file": "Move file",
+        "move_folder": "Move folder",
+        "new_file": "New file",
+        "new_folder": "New folder",
+        "new_mage_project": "New Mage project",
+        "open_all_files_in_directory": "Open all files in the immediate directory",
+        "rename_file": "Rename file",
+        "rename_folder": "Rename folder",
+        "upload_files": "Upload files"
+      },
+      "fields": {
+        "directory": "Directory",
+        "filename": "Filename",
+        "folder_name": "Folder name",
+        "project_directory": "Project directory",
+        "project_name": "Project name"
+      },
+      "new_file": {
+        "actions": {
+          "create_file": "Create file",
+          "move_file": "Move file",
+          "rename_file": "Rename file"
+        },
+        "titles": {
+          "move_file": "Move file",
+          "new_file": "New file",
+          "rename_file": "Rename file"
+        }
+      },
+      "new_folder": {
+        "actions": {
+          "create_folder": "Create folder",
+          "create_project": "Create project",
+          "move_folder": "Move folder",
+          "rename_folder": "Rename folder"
+        },
+        "titles": {
+          "move_folder": "Move folder",
+          "new_dbt_project": "New dbt project",
+          "new_folder": "New folder",
+          "new_mage_project": "New Mage project",
+          "new_project": "New project",
+          "rename_folder": "Rename folder"
+        }
+      },
+      "upload": {
+        "actions": {
+          "clear_and_retry": "Clear files and retry"
+        },
+        "columns": {
+          "filename": "Filename",
+          "upload_progress": "Upload progress"
+        },
+        "dropzone": {
+          "click_or_drop": "Click or drop files and folders to upload",
+          "drop_to_upload": "Drop to upload"
+        },
+        "title": "Upload files"
+      }
+    },
+    "filters": {
+      "all_files": "All files",
+      "unused_block_files": "Unused block files"
+    },
+    "header_menu": {
+      "close_current_file": "Close current file",
+      "close_file_versions": "Close file versions",
+      "hide_hidden_files": "Hide hidden files",
+      "keyboard_shortcuts": "Keyboard shortcuts",
+      "next_file_in_tab": "Next file in tab",
+      "next_file_recently_viewed": "Next file recently viewed",
+      "previous_file_in_tab": "Previous file in tab",
+      "previously_viewed_file": "Previously viewed file",
+      "save_file_and_all_changes": "Save file and all changes",
+      "show_hidden_files": "Show hidden files",
+      "show_previous_file_versions_to_undo_changes": "Show previous file versions to undo changes"
+    },
+    "search": {
+      "filter_files": "Filter files",
+      "placeholder": "Search files",
+      "refresh_files": "Refresh files"
+    },
+    "tabs_menu": {
+      "close_all_other_tabs": "Close all other tabs",
+      "close_all_tabs": "Close all tabs",
+      "close_all_tabs_to_the_right": "Close all tabs to the right",
+      "close_tab": "Close tab",
+      "close_tabs_with_files_saved": "Close tabs with files saved",
+      "copy_file_path": "Copy file path"
     }
   },
   "toolbar": {

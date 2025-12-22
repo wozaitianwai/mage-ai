@@ -3,6 +3,7 @@ import { ThemeContext } from 'styled-components';
 import { useContext, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import CopyToClipboard from '@oracle/components/CopyToClipboard';
@@ -20,7 +21,6 @@ import PipelineRunType, {
   PipelineRunReqQueryParamsType,
  } from '@interfaces/PipelineRunType';
 import PipelineScheduleType, {
-  SCHEDULE_TYPE_TO_LABEL,
   ScheduleIntervalEnum,
   ScheduleStatusEnum,
   ScheduleTypeEnum,
@@ -99,6 +99,15 @@ type TriggerDetailProps = {
 
 const LIMIT = 30;
 
+const PIPELINE_RUN_STATUS_TO_I18N_KEY: { [key: string]: string } = {
+  cancelled: 'pipeline_runs.statuses.cancelled',
+  completed: 'pipeline_runs.statuses.done',
+  failed: 'pipeline_runs.statuses.failed',
+  initial: 'pipeline_runs.statuses.ready',
+  last_run_failed: 'pipeline_runs.statuses.last_run_failed',
+  running: 'pipeline_runs.statuses.running',
+};
+
 function TriggerDetail({
   errors,
   fetchPipelineSchedule,
@@ -107,6 +116,7 @@ function TriggerDetail({
   setErrors,
   variables,
 }: TriggerDetailProps) {
+  const { t } = useTranslation('common');
   const themeContext = useContext(ThemeContext);
 
   const {
@@ -305,6 +315,20 @@ function TriggerDetail({
       size: 1.5 * UNIT,
     };
 
+    const scheduleTypeLabel = scheduleType === ScheduleTypeEnum.API
+      ? t('pipeline_detail.triggers.types.api')
+      : scheduleType === ScheduleTypeEnum.EVENT
+        ? t('pipeline_detail.triggers.types.event')
+        : scheduleType === ScheduleTypeEnum.TIME
+          ? t('pipeline_detail.triggers.types.schedule')
+          : scheduleType;
+
+    const statusLabel = status === ScheduleStatusEnum.ACTIVE
+      ? t('pipeline_detail.triggers.statuses.active')
+      : status === ScheduleStatusEnum.INACTIVE
+        ? t('pipeline_detail.triggers.statuses.inactive')
+        : status;
+
     const rows = [
       [
         <FlexContainer
@@ -314,14 +338,14 @@ function TriggerDetail({
           <MultiShare {...iconProps} />
           <Spacing mr={1} />
           <Text default>
-            Trigger type
+            {t('pipeline_detail.triggers.fields.trigger_type')}
           </Text>
         </FlexContainer>,
         <Text
           key="trigger_type"
           monospace
         >
-          {SCHEDULE_TYPE_TO_LABEL[scheduleType]?.()}
+          {scheduleTypeLabel}
         </Text>,
       ],
       [
@@ -332,7 +356,7 @@ function TriggerDetail({
           <Switch {...iconProps} />
           <Spacing mr={1} />
           <Text default>
-            Status
+            {t('pipeline_detail.triggers.fields.status')}
           </Text>
         </FlexContainer>,
         <Text
@@ -341,7 +365,7 @@ function TriggerDetail({
           monospace
           success={isActive}
         >
-          {status}
+          {statusLabel}
         </Text>,
       ],
     ];
@@ -355,7 +379,7 @@ function TriggerDetail({
           <Alphabet {...iconProps} />
           <Spacing mr={1} />
           <Text default>
-            Description
+            {t('pipeline_detail.triggers.fields.description')}
           </Text>
         </FlexContainer>,
         <Text
@@ -378,7 +402,7 @@ function TriggerDetail({
             <Info {...iconProps} />
             <Spacing mr={1} />
             <Text default>
-              SLA
+              {t('pipeline_detail.triggers.fields.sla')}
             </Text>
           </FlexContainer>,
           <Text
@@ -401,7 +425,7 @@ function TriggerDetail({
             <Schedule {...iconProps} />
             <Spacing mr={1} />
             <Text default>
-              Frequency
+              {t('pipeline_detail.triggers.fields.frequency')}
             </Text>
           </FlexContainer>,
           <Text
@@ -410,7 +434,19 @@ function TriggerDetail({
           >
             {(displayLocalTimezone && isCustomInterval)
               ? convertUtcCronExpressionToLocalTimezone(scheduleInterval)
-              : scheduleInterval.replace('@', '')
+              : scheduleInterval === ScheduleIntervalEnum.ONCE
+                ? t('pipeline_detail.triggers.intervals.once')
+                : scheduleInterval === ScheduleIntervalEnum.HOURLY
+                  ? t('pipeline_detail.triggers.intervals.hourly')
+                  : scheduleInterval === ScheduleIntervalEnum.DAILY
+                    ? t('pipeline_detail.triggers.intervals.daily')
+                    : scheduleInterval === ScheduleIntervalEnum.WEEKLY
+                      ? t('pipeline_detail.triggers.intervals.weekly')
+                      : scheduleInterval === ScheduleIntervalEnum.MONTHLY
+                        ? t('pipeline_detail.triggers.intervals.monthly')
+                        : scheduleInterval === ScheduleIntervalEnum.ALWAYS_ON
+                          ? t('pipeline_detail.triggers.intervals.always_on')
+                          : scheduleInterval.replace('@', '')
             }
           </Text>,
         ],
@@ -422,7 +458,7 @@ function TriggerDetail({
             <CalendarDate {...iconProps} />
             <Spacing mr={1} />
             <Text default>
-              Next run date
+              {t('pipeline_detail.triggers.fields.next_run_date')}
             </Text>
           </FlexContainer>,
           <Text
@@ -433,10 +469,10 @@ function TriggerDetail({
               ? (displayLocalTimezone
                 ? datetimeInLocalTimezone(nextRunDate, displayLocalTimezone)
                 : dateFormatLong(
-                  nextRunDate,
-                  { includeSeconds: true, utcFormat: true },
-                )
-              ): 'N/A'
+                   nextRunDate,
+                   { includeSeconds: true, utcFormat: true },
+                 )
+              ): t('common.not_applicable')
             }
           </Text>,
         ],
@@ -452,7 +488,7 @@ function TriggerDetail({
           <CalendarDate {...iconProps} />
           <Spacing mr={1} />
           <Text default>
-            Start date
+            {t('pipeline_detail.triggers.fields.start_date')}
           </Text>
         </FlexContainer>,
         <Text
@@ -476,7 +512,7 @@ function TriggerDetail({
           <CalendarDate {...iconProps} />
           <Spacing mr={1} />
           <Text default>
-            Last enabled at
+            {t('pipeline_detail.triggers.fields.last_enabled_at')}
           </Text>
         </FlexContainer>,
         <Text
@@ -501,7 +537,7 @@ function TriggerDetail({
           <PlugAPI {...iconProps} />
           <Spacing mr={1} />
           <Text default>
-            API endpoint
+            {t('pipeline_detail.triggers.fields.api_endpoint')}
           </Text>
         </FlexContainer>,
         <CopyToClipboard
@@ -525,13 +561,13 @@ function TriggerDetail({
         >
           <Tooltip
             default
-            label="Timeout set for runs of this trigger"
+            label={t('pipeline_detail.triggers.tooltips.timeout')}
             size={ICON_SIZE_DEFAULT}
             widthFitContent
           />
           <Spacing mr={1} />
           <Text default>
-            Timeout
+            {t('pipeline_detail.triggers.fields.timeout')}
           </Text>
         </FlexContainer>,
         <Text
@@ -550,20 +586,20 @@ function TriggerDetail({
         >
           <Tooltip
             default
-            label="Skip current run if any previous runs are still in progress"
+            label={t('pipeline_detail.triggers.tooltips.skip_if_running')}
             size={ICON_SIZE_DEFAULT}
             widthFitContent
           />
           <Spacing mr={1} />
           <Text default>
-            Skip if running
+            {t('pipeline_detail.triggers.fields.skip_if_running')}
           </Text>
         </FlexContainer>,
         <Text
           key="trigger_skip_if_running_label"
           monospace
         >
-          {settings.skip_if_previous_running?.toString()}
+          {settings.skip_if_previous_running ? t('common.yes') : t('common.no')}
         </Text>,
       ]);
     }
@@ -575,20 +611,20 @@ function TriggerDetail({
         >
           <Tooltip
             default
-            label="Trigger runs will continue running blocks if other unrelated blocks fail"
+            label={t('pipeline_detail.triggers.tooltips.allow_blocks_to_fail')}
             size={ICON_SIZE_DEFAULT}
             widthFitContent
           />
           <Spacing mr={1} />
           <Text default>
-            Allow blocks to fail
+            {t('pipeline_detail.triggers.fields.allow_blocks_to_fail')}
           </Text>
         </FlexContainer>,
         <Text
           key="trigger_allow_blocks_to_fail_label"
           monospace
         >
-          {settings.allow_blocks_to_fail.toString()}
+          {settings.allow_blocks_to_fail ? t('common.yes') : t('common.no')}
         </Text>,
       ]);
     }
@@ -600,20 +636,20 @@ function TriggerDetail({
         >
           <Tooltip
             default
-            label="Create initial pipeline run if start date is before current execution period"
+            label={t('pipeline_detail.triggers.tooltips.create_initial_run')}
             maxWidth={UNIT * 32}
             size={ICON_SIZE_DEFAULT}
           />
           <Spacing mr={1} />
           <Text default>
-            Create initial run
+            {t('pipeline_detail.triggers.fields.create_initial_run')}
           </Text>
         </FlexContainer>,
         <Text
           key="trigger_create_initial_pipeline_run_label"
           monospace
         >
-          {settings.create_initial_pipeline_run?.toString()}
+          {settings.create_initial_pipeline_run ? t('common.yes') : t('common.no')}
         </Text>,
       ]);
     }
@@ -637,6 +673,7 @@ function TriggerDetail({
     sla,
     startTime,
     status,
+    t,
   ]);
 
   const scheduleVariables = useMemo(() => scheduleVariablesInit || {}, [scheduleVariablesInit]);
@@ -733,7 +770,7 @@ function TriggerDetail({
                           key={`stream_title_${idx}`}
                           monospace
                         >
-                          Stream
+                          {t('pipeline_detail.triggers.bookmark_values.stream')}
                         </Text>,
                         <Text
                           key={`stream_id_${idx}`}
@@ -771,6 +808,7 @@ function TriggerDetail({
     blocksMapping,
     scheduleVariables,
     themeContext,
+    t,
   ]);
 
   const dbtSettingsTable = useMemo(() => {
@@ -855,9 +893,11 @@ function TriggerDetail({
       columnFlex={[null, 1]}
       columns={[
         {
+          label: () => t('pipeline_detail.triggers.events.columns.provider'),
           uuid: 'Provider',
         },
         {
+          label: () => t('pipeline_detail.triggers.events.columns.event'),
           uuid: 'Event',
         },
       ]}
@@ -880,7 +920,7 @@ function TriggerDetail({
         </Text>,
       ])}
     />
-  ), [eventMatchers]);
+  ), [eventMatchers, t]);
 
   const saveInCodeAutomaticallyToggled =
     useMemo(() => typeof pipeline?.settings?.triggers?.save_in_code_automatically === 'undefined'
@@ -923,7 +963,7 @@ function TriggerDetail({
 
           <Spacing px={PADDING_UNITS}>
             <Headline level={5}>
-              Settings
+              {t('pipeline_detail.triggers.sections.settings')}
             </Headline>
           </Spacing>
 
@@ -935,7 +975,7 @@ function TriggerDetail({
             <Spacing my={UNITS_BETWEEN_SECTIONS}>
               <Spacing px={PADDING_UNITS}>
                 <Headline level={5}>
-                  Events
+                  {t('pipeline_detail.triggers.sections.events')}
                 </Headline>
               </Spacing>
 
@@ -949,7 +989,7 @@ function TriggerDetail({
             <Spacing my={UNITS_BETWEEN_SECTIONS}>
               <Spacing px={PADDING_UNITS}>
                 <Headline level={5}>
-                  Runtime variables
+                  {t('triggers.run_pipeline_popup.tabs.runtime_variables')}
                 </Headline>
               </Spacing>
 
@@ -963,7 +1003,7 @@ function TriggerDetail({
             <Spacing my={UNITS_BETWEEN_SECTIONS}>
               <Spacing px={PADDING_UNITS}>
                 <Headline level={5}>
-                  Bookmark values
+                  {t('triggers.run_pipeline_popup.tabs.bookmark_values')}
                 </Headline>
               </Spacing>
 
@@ -977,7 +1017,7 @@ function TriggerDetail({
             <Spacing my={UNITS_BETWEEN_SECTIONS}>
               <Spacing px={PADDING_UNITS}>
                 <Headline level={5}>
-                  dbt runtime settings
+                  {t('pipeline_detail.triggers.sections.dbt_runtime_settings')}
                 </Headline>
               </Spacing>
 
@@ -991,7 +1031,7 @@ function TriggerDetail({
             <Spacing my={UNITS_BETWEEN_SECTIONS}>
               <Spacing px={PADDING_UNITS}>
                 <Headline level={5}>
-                  Tags
+                  {t('pipeline_detail.triggers.sections.tags')}
                 </Headline>
               </Spacing>
 
@@ -1008,39 +1048,42 @@ function TriggerDetail({
           <Spacing my={UNITS_BETWEEN_SECTIONS}>
             <Spacing px={PADDING_UNITS}>
               <Headline level={5}>
-                {triggerExistsInCode && 'Trigger exists in code'}
-                {!triggerExistsInCode && 'Store trigger in code'}
+                {triggerExistsInCode
+                  ? t('pipeline_detail.triggers.store_in_code.title_exists')
+                  : t('pipeline_detail.triggers.store_in_code.title_store')
+                }
               </Headline>
 
               <Spacing mt={1}>
                 {saveInCodeAutomaticallyToggled && (
                   <Text default>
-                    This trigger will automatically be persisted in code.
-                    To change this behavior, update the <NextLink
+                    {t('pipeline_detail.triggers.store_in_code.auto_persist_prefix')}{' '}
+                    <NextLink
                       as={`/pipelines/${pipelineUUID}/settings`}
                       href={'/pipelines/[pipeline]/settings'}
                       passHref
                     >
-                      <Link openNewWindow>pipeline’s settings</Link>
-                    </NextLink> or <NextLink
+                      <Link openNewWindow>{t('pipeline_detail.triggers.store_in_code.pipeline_settings')}</Link>
+                    </NextLink>{' '}
+                    {t('pipeline_detail.triggers.store_in_code.auto_persist_or')}{' '}
+                    <NextLink
                       as="/settings/workspace/preferences"
                       href="/settings/workspace/preferences"
                       passHref
                     >
-                      <Link openNewWindow>project settings</Link>
-                    </NextLink>.
+                      <Link openNewWindow>{t('pipeline_detail.triggers.store_in_code.project_settings')}</Link>
+                    </NextLink>{t('pipeline_detail.triggers.store_in_code.auto_persist_suffix')}
                   </Text>
                 )}
                 {!saveInCodeAutomaticallyToggled && (
                   <Text default>
-                    Save or update the trigger and its settings in the
-                    pipeline’s metadata and version control the trigger using Git.
-                    For more information, please read the <Link
+                    {t('pipeline_detail.triggers.store_in_code.description_prefix')}{' '}
+                    <Link
                       href="https://docs.mage.ai/guides/triggers/configure-triggers-in-code"
                       openNewWindow
                     >
-                      documentation
-                    </Link>.
+                      {t('pipeline_detail.triggers.store_in_code.documentation')}
+                    </Link>{t('pipeline_detail.triggers.store_in_code.description_suffix')}
                   </Text>
                 )}
               </Spacing>
@@ -1062,8 +1105,10 @@ function TriggerDetail({
                       }}
                       secondary
                     >
-                      {triggerExistsInCode && 'Update trigger in code'}
-                      {!triggerExistsInCode && 'Save trigger in code'}
+                      {triggerExistsInCode
+                        ? t('pipeline_detail.triggers.store_in_code.update_trigger_in_code')
+                        : t('pipeline_detail.triggers.store_in_code.save_trigger_in_code')
+                      }
                     </Button>
                   )}
                 </Spacing>
@@ -1075,7 +1120,7 @@ function TriggerDetail({
       beforeWidth={BEFORE_WIDTH}
       breadcrumbs={[
         {
-          label: () => 'Triggers',
+          label: () => t('pipeline_detail.navigation.triggers'),
           linkProps: {
             as: `/pipelines/${pipelineUUID}/triggers`,
             href: '/pipelines/[pipeline]/triggers',
@@ -1091,6 +1136,7 @@ function TriggerDetail({
       ]}
       buildSidekick={props => buildTableSidekick({
         ...props,
+        t,
         selectedRun,
         selectedTab,
         setSelectedTab,
@@ -1126,8 +1172,8 @@ function TriggerDetail({
             success={!isActive && !isViewerRole}
           >
             {isActive
-              ? 'Disable trigger'
-              : 'Enable trigger'
+              ? t('pipeline_detail.triggers.actions.disable_trigger')
+              : t('pipeline_detail.triggers.actions.enable_trigger')
             }
           </Button>
 
@@ -1148,12 +1194,12 @@ function TriggerDetail({
                 })}
                 outline
                 title={disabledRunOnce
-                  ? 'Trigger must be enabled to run@once'
-                  : 'Manually run pipeline once immediately'
+                  ? t('pipeline_detail.triggers.run_once_disabled_tooltip')
+                  : t('pipeline_detail.triggers.run_once_tooltip')
                 }
               >
                 <Text disabled={disabledRunOnce}>
-                  Run@once
+                  {t('pipeline_detail.triggers.run_once')}
                 </Text>
               </Button>
               <Spacing mr={PADDING_UNITS} />
@@ -1172,7 +1218,7 @@ function TriggerDetail({
                 outline
                 sameColorAsText
               >
-                Edit trigger
+                {t('pipeline_detail.triggers.actions.edit_trigger')}
               </Button>
 
               <Spacing mr={PADDING_UNITS} />
@@ -1200,15 +1246,15 @@ function TriggerDetail({
               }
             }}
             paddingRight={UNIT * 4}
-            placeholder="Select run status"
+            placeholder={t('pipeline_detail.runs.select_run_status')}
             value={q?.status || 'all'}
           >
             <option key="all_statuses" value="all">
-              All statuses
+              {t('pipeline_detail.runs.all_statuses')}
             </option>
             {PIPELINE_RUN_STATUSES.map(status => (
               <option key={status} value={status}>
-                {RUN_STATUS_TO_LABEL[status]}
+                {t(PIPELINE_RUN_STATUS_TO_I18N_KEY[status]) || RUN_STATUS_TO_LABEL[status]}
               </option>
             ))}
           </Select>
@@ -1219,7 +1265,7 @@ function TriggerDetail({
     >
       <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
         <Headline level={5}>
-          Runs for this trigger
+          {t('pipeline_detail.triggers.runs_for_this_trigger')}
         </Headline>
       </Spacing>
 

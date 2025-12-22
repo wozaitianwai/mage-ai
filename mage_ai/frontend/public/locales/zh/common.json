@@ -99,6 +99,8 @@
     "redo": "重做",
     "select_all": "全选",
     "deselect_all": "取消全选",
+    "all": "全部",
+    "not_applicable": "不适用",
     "language": "语言",
     "english": "English",
     "chinese": "中文",
@@ -376,6 +378,15 @@
     "saved_in_code": "此触发器保存在代码中。",
     "save_triggers_automatically": "自动将触发器保存到代码",
     "save_triggers_description": "每次在此流水线中创建或更新触发器时，自动将其持久化到代码中。",
+    "run_pipeline_popup": {
+      "title": "立即运行管道",
+      "description": "创建一个新的触发器并立即运行当前管道一次。",
+      "run_now": "立即运行",
+      "tabs": {
+        "runtime_variables": "运行时变量",
+        "bookmark_values": "书签值"
+      }
+    },
     "headers": {
       "active": "启用",
       "name": "名称",
@@ -393,9 +404,341 @@
     },
     "delete_confirmation": "您确定要删除触发器 {{name}} 吗？"
   },
+  "backfills": {
+    "delete_confirmation": "您确定要删除回填 \"{{name}}\" 吗？",
+    "types": {
+      "code": "代码",
+      "datetime": "日期和时间"
+    },
+    "interval_types": {
+      "custom": "自定义",
+      "day": "天",
+      "hour": "小时",
+      "minute": "分钟",
+      "month": "月",
+      "second": "秒",
+      "week": "周",
+      "year": "年"
+    },
+    "table": {
+      "backfill": "回填",
+      "total_runs": "总运行数",
+      "interval": "间隔类型",
+      "interval_units": "间隔单位数"
+    },
+    "detail": {
+      "no_runs_available_setup_needed": "没有可用运行。请点击上方“编辑回填”完成回填配置。",
+      "backfill_type": "回填类型",
+      "start_date_and_time": "开始日期和时间",
+      "end_date_and_time": "结束日期和时间",
+      "total_runs_excludes_retries_tooltip": "该数量不包含重试。",
+      "settings": "设置",
+      "runtime_variables": "运行时变量",
+      "runs_for_this_backfill": "此回填的运行",
+      "actions": {
+        "cancel_backfill": "取消回填",
+        "retry_backfill": "重试回填",
+        "start_backfill": "开始回填",
+        "edit_backfill": "编辑回填",
+        "cannot_edit_tooltip": "回填一旦开始就无法编辑。"
+      }
+    },
+    "edit": {
+      "title": "编辑 {{name}}",
+      "save_changes": "保存更改",
+      "backfill_type": "回填类型",
+      "backfill_type_subtitle": "您希望如何对该管道进行回填？",
+      "backfill_name": "回填名称",
+      "backfill_name_placeholder": "为此回填命名",
+      "datetime_placeholder": "YYYY-MM-DD HH:MM",
+      "interval_type_placeholder": "每次回填之间的时间间隔",
+      "interval_units_placeholder": "每次回填之间相隔 {{interval}} 的数量",
+      "interval_units_placeholder_custom": "每次回填之间相隔的单位数",
+      "interval_type_required": "必须选择间隔类型",
+      "max_concurrent_runs": "最大并发运行数",
+      "types": {
+        "datetime": {
+          "label": "日期和时间窗口",
+          "description": "在一个日期时间范围内回填。"
+        }
+      }
+    }
+  },
+  "logs": {
+    "pipeline_title": "{{name}} 日志",
+    "logs_found": "找到 {{count}} 条日志",
+    "searching": "搜索中...",
+    "actions": {
+      "load_latest_logs": "加载最新日志",
+      "scroll_to_bottom": "滚动到底部",
+      "auto_scroll_to_new_logs": "自动滚动到新日志"
+    },
+    "time_ranges": {
+      "last_hour": "最近 1 小时",
+      "last_day": "最近 1 天",
+      "last_week": "最近 1 周",
+      "last_30_days": "最近 30 天",
+      "custom_range": "自定义范围"
+    },
+    "toolbar": {
+      "all_past_loaded": "已加载范围内所有更早的日志",
+      "load_older_logs": "加载更早日志",
+      "load_newer_logs": "加载更新日志",
+      "select_time_range": "选择时间范围",
+      "start": "开始",
+      "to": "至",
+      "end": "结束"
+    },
+    "levels": {
+      "critical": "严重",
+      "debug": "调试",
+      "error": "错误",
+      "exception": "异常",
+      "info": "信息",
+      "log": "日志",
+      "warning": "警告"
+    },
+    "filter": {
+      "log_level": "日志级别",
+      "block_type": "代码块类型",
+      "block": "代码块",
+      "pipeline_run": "管道运行",
+      "block_run": "代码块运行"
+    },
+    "table": {
+      "date": "日期",
+      "block": "代码块",
+      "message": "消息"
+    },
+    "detail": {
+      "tabs": {
+        "details": "详情",
+        "errors": "错误"
+      },
+      "file_name": "文件名",
+      "file_path": "文件路径",
+      "hide_log": "点击隐藏日志",
+      "show_full_log_message": "点击显示完整日志信息",
+      "stack_trace": "堆栈跟踪"
+    }
+  },
   "pipeline_detail": {
     "unsaved_changes": "您有未保存的更改。",
-    "add_new_block": "添加一个新块以开始构建您的管道。"
+    "add_new_block": "添加一个新块以开始构建您的管道。",
+    "error_loading_pipeline": "加载管道出错",
+    "navigation": {
+      "edit_pipeline": "编辑管道",
+      "triggers": "触发器",
+      "runs": "运行",
+      "logs": "日志",
+      "monitor": "监控",
+      "backfills": "回填",
+      "syncs": "同步",
+      "pipeline_settings": "管道设置"
+    },
+    "sidekick": {
+      "dependency_tree": "依赖树"
+    },
+    "triggers": {
+      "title": "{{name}} 触发器",
+      "run_once": "运行一次",
+      "run_once_tooltip": "创建一个 @once 触发器并立即运行管道",
+      "run_once_disabled_tooltip": "触发器必须启用才能运行一次",
+      "invalid_cron_expression": "触发器（代码）\"{{name}}\" 的调度间隔无效。请检查该管道 triggers.yaml 文件中的 cron 表达式语法。",
+      "create_trigger_with_no_code": "通过无代码创建触发器",
+      "runs_for_this_trigger": "此触发器的运行",
+      "types": {
+        "api": "API",
+        "event": "事件",
+        "schedule": "调度"
+      },
+      "statuses": {
+        "active": "启用",
+        "inactive": "停用"
+      },
+      "intervals": {
+        "always_on": "始终运行",
+        "daily": "每天",
+        "hourly": "每小时",
+        "monthly": "每月",
+        "once": "一次",
+        "weekly": "每周"
+      },
+      "sections": {
+        "settings": "设置",
+        "events": "事件",
+        "dbt_runtime_settings": "dbt 运行时设置",
+        "tags": "标签"
+      },
+      "fields": {
+        "trigger_type": "触发器类型",
+        "status": "状态",
+        "description": "描述",
+        "sla": "SLA",
+        "frequency": "频率",
+        "next_run_date": "下次运行时间",
+        "start_date": "开始日期",
+        "last_enabled_at": "上次启用时间",
+        "api_endpoint": "API 端点",
+        "timeout": "超时",
+        "skip_if_running": "运行中则跳过",
+        "allow_blocks_to_fail": "允许代码块失败",
+        "create_initial_run": "创建初始运行"
+      },
+      "tooltips": {
+        "timeout": "为该触发器的运行设置超时",
+        "skip_if_running": "如果之前的运行仍在进行中，则跳过当前运行",
+        "allow_blocks_to_fail": "若其他无关代码块失败，触发器运行仍会继续执行代码块",
+        "create_initial_run": "如果开始日期早于当前执行周期，则创建初始管道运行"
+      },
+      "bookmark_values": {
+        "stream": "流"
+      },
+      "events": {
+        "columns": {
+          "provider": "提供方",
+          "event": "事件"
+        }
+      },
+      "actions": {
+        "enable_trigger": "启用触发器",
+        "disable_trigger": "停用触发器",
+        "edit_trigger": "编辑触发器"
+      },
+      "store_in_code": {
+        "title_exists": "触发器已存在于代码中",
+        "title_store": "将触发器存储到代码中",
+        "auto_persist_prefix": "该触发器会自动持久化到代码中。若要更改此行为，请更新",
+        "auto_persist_or": "或",
+        "auto_persist_suffix": "。",
+        "pipeline_settings": "管道设置",
+        "project_settings": "项目设置",
+        "description_prefix": "将触发器及其设置保存或更新到管道的元数据中，并使用 Git 对触发器进行版本控制。更多信息请阅读",
+        "documentation": "文档",
+        "description_suffix": "。",
+        "update_trigger_in_code": "更新代码中的触发器",
+        "save_trigger_in_code": "将触发器保存到代码中"
+      }
+    },
+    "runs": {
+      "title": "{{name}} 运行",
+      "pipeline_is_running": "管道正在运行",
+      "retry_incomplete_blocks": "重试未完成代码块",
+      "retry_from_selected_block": "从选中的代码块重试（{{block_uuid}}）",
+      "no_runs_matching_search": "此页没有与搜索匹配的运行。",
+      "select_run_status": "选择运行状态",
+      "all_statuses": "所有状态",
+      "search_pipeline_run_variables": "搜索管道运行变量",
+      "filter_runs_by_status": "按状态筛选运行：",
+      "actions": {
+        "selected_count": "{{count}} 已选择",
+        "retry_selected": "重试已选择（{{count}}）",
+        "retry_all_incomplete_block_runs": "重试所有未完成的代码块运行",
+        "cancel_selected_running": "取消已选择的运行中任务（{{count}}）",
+        "cancel_all_running": "取消所有运行中的任务"
+      },
+      "confirmation": {
+        "subtitle_base": "这也包括其他页面上的运行，不仅是当前页。",
+        "subtitle_retry_failed_note": "仅针对 FAILED 的管道运行会重试未完成的代码块运行。",
+        "cancel_all_running_title": "您确定要取消所有进行中的管道运行吗？",
+        "retry_all_incomplete_title": "您确定要为所有失败的管道运行重试未完成的代码块运行吗？"
+      },
+      "sidekick": {
+        "run_details": "运行详情",
+        "run_id": "运行 ID"
+      }
+    },
+    "block_runs": {
+      "download_progress": "{{mb}}mb 已下载...",
+      "save_output_as_csv_tooltip": "将代码块运行输出保存为 CSV 文件（动态代码块不支持）",
+      "sidekick": {
+        "block_output": "代码块输出",
+        "no_output": "此代码块运行没有输出。",
+        "image_output_alt": "代码输出的图片",
+        "block_output_numbered": "代码块输出 {{number}}{{letter}}"
+      }
+    },
+    "monitors": {
+      "title": "监控",
+      "insights": "洞察",
+      "all_pipeline_runs": "所有管道运行",
+      "block_runtime": "代码块运行时长",
+      "trigger_label": "触发器：",
+      "all_blocks": "所有代码块",
+      "seconds_suffix": "秒"
+    },
+    "settings": {
+      "title": "{{name}} 设置",
+      "sections": {
+        "details": "详情",
+        "pipeline_level_concurrency": "管道级并发"
+      },
+      "pipeline_name": "管道名称",
+      "pipeline_description": "管道描述",
+      "pipeline_description_placeholder": "输入描述...",
+      "run_pipeline_single_process": "在单进程中运行管道",
+      "run_pipeline_single_process_description": "启用后，此设置允许在单个管道内的代码块之间共享对象和内存空间。",
+      "select_option_placeholder": "选择一个选项",
+      "save_pipeline_settings": "保存管道设置",
+      "hide_all_blocks_in_notebook": "在 notebook 中隐藏所有代码块",
+      "output_block_messages_to_logs": "编辑管道时运行代码块，将代码块消息输出到日志",
+      "triggers": {
+        "project_level_warning": "该设置已在项目级启用。在此处更改只会影响此管道。"
+      },
+      "concurrency": {
+        "pipeline_run_limit_all_triggers_title": "所有触发器的管道运行限制",
+        "pipeline_run_limit_all_triggers_description": "限制此管道中所有触发器的并发管道运行数。",
+        "pipeline_run_limit_all_triggers_placeholder": "例如：40",
+        "pipeline_run_limit_per_trigger_title": "单个触发器的管道运行限制",
+        "pipeline_run_limit_per_trigger_description": "限制此管道中单个触发器的并发管道运行数。",
+        "pipeline_run_limit_per_trigger_placeholder": "例如：10",
+        "block_run_limit_title": "代码块运行限制",
+        "block_run_limit_description": "限制一次管道运行中并发执行的代码块数。",
+        "block_run_limit_placeholder": "例如：20",
+        "on_limit_reached_title": "达到限制时如何处理新的管道运行",
+        "on_limit_reached_description": "选择当达到管道运行限制时，是等待还是跳过。",
+        "on_limit_reached_actions": {
+          "skip": "跳过",
+          "wait": "等待"
+        }
+      },
+      "executor_type": {
+        "heading": "执行器类型",
+        "label": "执行器类型",
+        "select_preset": "选择预设执行器类型",
+        "enter_custom": "输入自定义执行器类型"
+      },
+      "retry_configuration": {
+        "heading": "重试配置",
+        "retries": "重试次数",
+        "delay": "延迟",
+        "max_delay": "最大延迟",
+        "exponential_backoff": "指数退避"
+      },
+      "more_info_prefix": "有关此设置的更多信息，请阅读",
+      "documentation_link": "文档",
+      "more_info_suffix": "。"
+    },
+    "backfills": {
+      "title": "{{name}} 回填",
+      "create_new_backfill": "创建新回填",
+      "no_backfills_available": "没有可用回填"
+    },
+    "edit": {
+      "check_pipeline_configuration_file": "检查管道配置文件是否有问题",
+      "pipeline_configuration_file_issue": "您的管道配置文件可能存在问题。请检查其是否有效。该文件位于 /pipelines/[pipeline_uuid]/metadata.yaml。",
+      "variables_dir_invalid": "variables_dir（{{variables_dir}}）或 remote_variables_dir（{{remote_variables_dir}}）可能配置不正确。请确保在项目的 metadata.yaml 配置文件中这些属性的插值正确。",
+      "check_project_configuration": "检查项目配置",
+      "check_pipeline_configuration": "检查管道配置",
+      "view_existing_block_file_contents": "查看现有代码块文件内容。",
+      "data_integration": {
+        "source_language_mismatch": "您要添加的数据源必须包含语言 {{expected}}，且不能是 {{actual}}。",
+        "pipeline_already_has_source": "管道 {{pipeline_uuid}} 已有数据源：{{source_block_uuid}}。",
+        "pipeline_already_has_transformer": "管道 {{pipeline_uuid}} 已有 transformer：{{transformer_block_uuid}}。",
+        "destination_language_mismatch": "您要添加的目标必须包含语言 {{expected}}，且不能是 {{actual}}。",
+        "pipeline_already_has_destination": "管道 {{pipeline_uuid}} 已有目标：{{destination_block_uuid}}。"
+      }
+    }
   },
   "preferences": {
     "pipeline_settings": "流水线设置",
@@ -532,6 +875,7 @@
     "started_at": "开始时间",
     "completed_at": "完成时间",
     "execution_time": "执行时间",
+    "runtime": "运行时长",
     "delete": "删除",
     "selected": "已选择",
     "action": "操作",
@@ -682,6 +1026,114 @@
       "partitions": "分区数"
     }
   },
+  "files": {
+    "alerts": {
+      "close_file_unsaved_changes_confirm": "{{path}} 有未保存的更改，确定要关闭该文件吗？",
+      "file_path_copied": "{{path}} 已复制到剪贴板。"
+    },
+    "file_browser": {
+      "confirmations": {
+        "delete_folder": "确定要删除文件夹 {{path}} 及其所有子文件夹和文件吗？",
+        "delete_file": "确定要删除文件 {{path}} 吗？",
+        "delete_item": "确定要删除 {{item}} 吗？"
+      },
+      "context_menu": {
+        "collapse_all_subfolders": "折叠所有子文件夹",
+        "delete_file": "删除文件",
+        "delete_folder": "删除文件夹",
+        "download_file": "下载文件",
+        "expand_all_subfolders": "展开所有子文件夹",
+        "move_file": "移动文件",
+        "move_folder": "移动文件夹",
+        "new_file": "新建文件",
+        "new_folder": "新建文件夹",
+        "new_mage_project": "新建 Mage 项目",
+        "open_all_files_in_directory": "打开当前目录中的所有文件",
+        "rename_file": "重命名文件",
+        "rename_folder": "重命名文件夹",
+        "upload_files": "上传文件"
+      },
+      "fields": {
+        "directory": "目录",
+        "filename": "文件名",
+        "folder_name": "文件夹名称",
+        "project_directory": "项目目录",
+        "project_name": "项目名称"
+      },
+      "new_file": {
+        "actions": {
+          "create_file": "创建文件",
+          "move_file": "移动文件",
+          "rename_file": "重命名文件"
+        },
+        "titles": {
+          "move_file": "移动文件",
+          "new_file": "新建文件",
+          "rename_file": "重命名文件"
+        }
+      },
+      "new_folder": {
+        "actions": {
+          "create_folder": "创建文件夹",
+          "create_project": "创建项目",
+          "move_folder": "移动文件夹",
+          "rename_folder": "重命名文件夹"
+        },
+        "titles": {
+          "move_folder": "移动文件夹",
+          "new_dbt_project": "新建 dbt 项目",
+          "new_folder": "新建文件夹",
+          "new_mage_project": "新建 Mage 项目",
+          "new_project": "新建项目",
+          "rename_folder": "重命名文件夹"
+        }
+      },
+      "upload": {
+        "actions": {
+          "clear_and_retry": "清空并重试"
+        },
+        "columns": {
+          "filename": "文件名",
+          "upload_progress": "上传进度"
+        },
+        "dropzone": {
+          "click_or_drop": "点击或拖拽文件/文件夹以上传",
+          "drop_to_upload": "拖拽松开以上传"
+        },
+        "title": "上传文件"
+      }
+    },
+    "filters": {
+      "all_files": "全部文件",
+      "unused_block_files": "未使用的代码块文件"
+    },
+    "header_menu": {
+      "close_current_file": "关闭当前文件",
+      "close_file_versions": "关闭文件版本",
+      "hide_hidden_files": "隐藏隐藏文件",
+      "keyboard_shortcuts": "键盘快捷键",
+      "next_file_in_tab": "下一个标签文件",
+      "next_file_recently_viewed": "下一个最近浏览的文件",
+      "previous_file_in_tab": "上一个标签文件",
+      "previously_viewed_file": "上一个浏览的文件",
+      "save_file_and_all_changes": "保存文件及全部更改",
+      "show_hidden_files": "显示隐藏文件",
+      "show_previous_file_versions_to_undo_changes": "显示历史版本以撤销更改"
+    },
+    "search": {
+      "filter_files": "筛选文件",
+      "placeholder": "搜索文件",
+      "refresh_files": "刷新文件"
+    },
+    "tabs_menu": {
+      "close_all_other_tabs": "关闭其他标签页",
+      "close_all_tabs": "关闭所有标签页",
+      "close_all_tabs_to_the_right": "关闭右侧标签页",
+      "close_tab": "关闭标签页",
+      "close_tabs_with_files_saved": "关闭已保存文件的标签页",
+      "copy_file_path": "复制文件路径"
+    }
+  },
   "toolbar": {
     "filter": "筛选",
     "group": "分组",
@@ -732,6 +1184,8 @@
     "terminal": "终端",
     "block_settings": "代码块设置",
     "interactions": "交互",
+    "all_interactions": "全部交互",
+    "block_settings_for": "{{name}} 的代码块设置",
     "errors": "错误",
     "select_block_for_insights": "选择一个代码块以查看见解",
     "no_data_or_insights": "无可用数据或见解",

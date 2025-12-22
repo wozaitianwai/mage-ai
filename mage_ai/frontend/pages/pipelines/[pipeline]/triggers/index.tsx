@@ -2,6 +2,7 @@ import NextLink from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import DependencyGraph, { DependencyGraphProps } from '@components/DependencyGraph';
 import Divider from '@oracle/elements/Divider';
@@ -64,6 +65,7 @@ type PipelineSchedulesProp = {
 function PipelineSchedules({
   pipeline: pipelineProp,
 }: PipelineSchedulesProp) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const isViewerRole = isViewer(router?.basePath);
   const pipelineUUID = pipelineProp.uuid;
@@ -299,13 +301,14 @@ function PipelineSchedules({
     const triggerWithInvalidCronExpression = triggers.find(({ settings }) => settings?.invalid_schedule_interval);
     if (triggerWithInvalidCronExpression) {
       setTriggerErrors({
-        displayMessage: `Schedule interval for Trigger (in code) "${triggerWithInvalidCronExpression?.name}"`
-          + ' is invalid. Please check your cron expression’s syntax in the pipeline’s triggers.yaml file.',
+        displayMessage: t('pipeline_detail.triggers.invalid_cron_expression', {
+          name: triggerWithInvalidCronExpression?.name,
+        }),
       });
     } else {
       setTriggerErrors(null);
     }
-  }, [dataPipelineTriggers?.pipeline_triggers]);
+  }, [dataPipelineTriggers?.pipeline_triggers, t]);
 
   const { data: dataTags } = api.tags.list();
   const tags: TagType[] = useMemo(() => sortByKey(dataTags?.tags || [], ({ uuid }) => uuid), [
@@ -358,19 +361,20 @@ function PipelineSchedules({
         onClick={() => setIsCreatingTrigger(true)}
         uuid="Create trigger with no-code"
       >
-        Create trigger with no-code
+        {t('pipeline_detail.triggers.create_trigger_with_no_code')}
       </KeyboardShortcutButton>
     </>
   ), [
     pipelineHasInteractions,
     setIsCreatingTrigger,
+    t,
   ]);
 
   const toolbarEl = useMemo(() => (
     <Toolbar
       addButtonProps={!isCreateDisabled && {
         isLoading: isLoadingCreateNewSchedule,
-        label: 'New trigger',
+        label: t('trigger.new'),
         onClick: () => createNewSchedule({
           pipeline_schedule: {
             name: randomNameGenerator(),
@@ -405,9 +409,9 @@ function PipelineSchedules({
         beforeIcon: <Once size={ICON_SIZE_SMALL} />,
         disabled: isViewerRole,
         isLoading: isLoadingCreateOnceSchedule,
-        label: 'Run@once',
+        label: t('pipeline_detail.triggers.run_once'),
         onClick: showModal,
-        tooltip: 'Creates an @once trigger and runs pipeline immediately',
+        tooltip: t('pipeline_detail.triggers.run_once_tooltip'),
       }}
       showDivider={!isCreateDisabled}
     >
@@ -427,6 +431,7 @@ function PipelineSchedules({
     router,
     showModal,
     tags,
+    t,
   ]);
 
   const breadcrumbs = useMemo(() => {
@@ -435,17 +440,17 @@ function PipelineSchedules({
     if (isCreatingTrigger) {
       arr.push(...[
         {
-          label: () => 'Triggers',
+          label: () => t('triggers.title'),
           onClick: () => setIsCreatingTrigger(false),
         },
         {
           bold: true,
-          label: () => 'New trigger',
+          label: () => t('trigger.new'),
         },
       ]);
     } else {
       arr.push({
-        label: () => 'Triggers',
+        label: () => t('triggers.title'),
       });
     }
 
@@ -453,6 +458,7 @@ function PipelineSchedules({
   }, [
     isCreatingTrigger,
     setIsCreatingTrigger,
+    t,
   ]);
 
   if (isCreatingTrigger) {
@@ -477,7 +483,7 @@ function PipelineSchedules({
       pipeline={pipeline}
       setErrors={setErrors}
       subheader={!isCreatingTrigger && toolbarEl}
-      title={({ name }) => `${name} triggers`}
+      title={({ name }) => t('pipeline_detail.triggers.title', { name })}
       uuid={`${PageNameEnum.TRIGGERS}_${pipelineUUID}`}
     >
       {!isCreatingTrigger && (

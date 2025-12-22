@@ -16,16 +16,26 @@ export function buildNavigationItems(
   pageName: PageNameEnum,
   pipeline: PipelineType,
   pipelineUUIDFromUrl?: string,
+  t?: (key: string, options?: any) => string,
 ) {
   const { uuid } = pipeline || {};
   const pipelineUUID = uuid || pipelineUUIDFromUrl;
+
+  const labelEditPipeline = t?.('pipeline_detail.navigation.edit_pipeline') || 'Edit pipeline';
+  const labelTriggers = t?.('pipeline_detail.navigation.triggers') || 'Triggers';
+  const labelRuns = t?.('pipeline_detail.navigation.runs') || 'Runs';
+  const labelLogs = t?.('pipeline_detail.navigation.logs') || 'Logs';
+  const labelMonitor = t?.('pipeline_detail.navigation.monitor') || 'Monitor';
+  const labelBackfills = t?.('pipeline_detail.navigation.backfills') || 'Backfills';
+  const labelSyncs = t?.('pipeline_detail.navigation.syncs') || 'Syncs';
+  const labelPipelineSettings = t?.('pipeline_detail.navigation.pipeline_settings') || 'Pipeline settings';
 
   const navigationItems = [
     {
       Icon: Lightning,
       id: PageNameEnum.TRIGGERS,
       isSelected: () => PageNameEnum.TRIGGERS === pageName,
-      label: () => 'Triggers',
+      label: () => labelTriggers,
       linkProps: {
         as: `/pipelines/${pipelineUUID}/triggers`,
         href: '/pipelines/[pipeline]/triggers',
@@ -35,7 +45,7 @@ export function buildNavigationItems(
       Icon: Schedule,
       id: PageNameEnum.RUNS,
       isSelected: () => PageNameEnum.RUNS === pageName,
-      label: () => 'Runs',
+      label: () => labelRuns,
       linkProps: {
         as: `/pipelines/${pipelineUUID}/runs`,
         href: '/pipelines/[pipeline]/runs',
@@ -45,7 +55,7 @@ export function buildNavigationItems(
       Icon: Logs,
       id: PageNameEnum.PIPELINE_LOGS,
       isSelected: () => PageNameEnum.PIPELINE_LOGS === pageName,
-      label: () => 'Logs',
+      label: () => labelLogs,
       linkProps: {
         as: `/pipelines/${pipelineUUID}/logs`,
         href: '/pipelines/[pipeline]/logs',
@@ -55,7 +65,7 @@ export function buildNavigationItems(
       Icon: Monitor,
       id: PageNameEnum.MONITOR,
       isSelected: () => PageNameEnum.MONITOR === pageName,
-      label: () => 'Monitor',
+      label: () => labelMonitor,
       linkProps: {
         as: `/pipelines/${pipelineUUID}/monitors`,
         href: '/pipelines/[pipeline]/monitors',
@@ -68,7 +78,7 @@ export function buildNavigationItems(
       Icon: BackfillV2,
       id: PageNameEnum.BACKFILLS,
       isSelected: () => PageNameEnum.BACKFILLS === pageName,
-      label: () => 'Backfills',
+      label: () => labelBackfills,
       linkProps: {
         as: `/pipelines/${pipelineUUID}/backfills`,
         href: '/pipelines/[pipeline]/backfills',
@@ -81,7 +91,7 @@ export function buildNavigationItems(
       Icon: PipeIcon,
       id: PageNameEnum.SYNCS,
       isSelected: () => PageNameEnum.SYNCS === pageName,
-      label: () => 'Syncs',
+      label: () => labelSyncs,
       linkProps: {
         as: `/pipelines/${pipelineUUID}/syncs`,
         href: '/pipelines/[pipeline]/syncs',
@@ -96,7 +106,7 @@ export function buildNavigationItems(
     disabled: !pipelineUUID,
     id: PageNameEnum.EDIT,
     isSelected: () => PageNameEnum.EDIT === pageName,
-    label: () => 'Edit pipeline',
+    label: () => labelEditPipeline,
     linkProps: {
       as: `/pipelines/${pipelineUUID}/edit`,
       href: '/pipelines/[pipeline]/edit',
@@ -108,7 +118,7 @@ export function buildNavigationItems(
     Icon: SettingsWithKnobs,
     id: PageNameEnum.SETTINGS,
     isSelected: () => PageNameEnum.SETTINGS === pageName,
-    label: () => 'Pipeline settings',
+    label: () => labelPipelineSettings,
     linkProps: {
       as: `/pipelines/${pipelineUUID}/settings`,
       href: '/pipelines/[pipeline]/settings',

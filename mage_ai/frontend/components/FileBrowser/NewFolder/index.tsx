@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import FileType from '@interfaces/FileType';
@@ -44,6 +45,7 @@ function NewFolder({
   setErrors,
   showError,
 }: NewFolderProps) {
+  const { t } = useTranslation('common');
   const refTextInput = useRef(null);
   const file = isEmptyObject(fileProp) ? null : fileProp;
 
@@ -190,14 +192,14 @@ function NewFolder({
             tabIndex={0}
             uuid="NewFolder/create_folder"
           >
-            {projectType && 'Create project'}
+            {projectType && t('files.file_browser.new_folder.actions.create_project')}
             {!projectType && (
               <>
                 {file
                   ? moveFile
-                    ? 'Move'
-                    : 'Rename'
-                  : 'Create'} folder
+                    ? t('files.file_browser.new_folder.actions.move_folder')
+                    : t('files.file_browser.new_folder.actions.rename_folder')
+                  : t('files.file_browser.new_folder.actions.create_folder')}
               </>
             )}
           </KeyboardShortcutButton>
@@ -207,29 +209,32 @@ function NewFolder({
               onClick={() => onCancel()}
               tabIndex={0}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
           </Spacing>
         </FlexContainer>
       )}
       headerTitle={file
         ? moveFile
-          ? 'Move folder'
-          : 'Rename folder'
+          ? t('files.file_browser.new_folder.titles.move_folder')
+          : t('files.file_browser.new_folder.titles.rename_folder')
         : projectType
           ? (ProjectTypeEnum.STANDALONE === projectType
-            ? 'New Mage project'
+            ? t('files.file_browser.new_folder.titles.new_mage_project')
             : ProjectTypeEnum.DBT === projectType
-              ? 'New dbt project'
-              : 'New project'
+              ? t('files.file_browser.new_folder.titles.new_dbt_project')
+              : t('files.file_browser.new_folder.titles.new_project')
           )
-          : 'New folder'
+          : t('files.file_browser.new_folder.titles.new_folder')
         }
       minWidth={UNIT * 50}
     >
       <TextInput
         disabled={!!file && !moveFile}
-        label={projectType ? 'Project directory' : 'Directory'}
+        label={projectType
+          ? t('files.file_browser.fields.project_directory')
+          : t('files.file_browser.fields.directory')
+        }
         monospace
         onChange={e => setDirectory(e.target.value)}
         setContentOnMount
@@ -239,7 +244,10 @@ function NewFolder({
       <Spacing mt={2}>
         <TextInput
           disabled={!!moveFile}
-          label={projectType ? 'Project name' : 'Folder name'}
+          label={projectType
+            ? t('files.file_browser.fields.project_name')
+            : t('files.file_browser.fields.folder_name')
+          }
           monospace
           onChange={e => setFilename(e.target.value)}
           ref={refTextInput}

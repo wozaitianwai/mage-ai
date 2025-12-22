@@ -1,4 +1,5 @@
 import { createElement, isValidElement, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import ButtonTabs, { TabType } from '@oracle/components/Tabs/ButtonTabs';
@@ -44,6 +45,7 @@ function LogDetail({
   selectedTab,
   setSelectedTab,
 }: LogDetailProps) {
+  const { t } = useTranslation('common');
   const [showFullLogMessage, setShowFullLogMessage] = useState<boolean>(false);
   const {
     data,
@@ -96,9 +98,17 @@ function LogDetail({
   ]);
 
   const buttonTabs = useMemo(() => {
-    const tabs = [TAB_DETAILS];
+    const tabs = [
+      {
+        ...TAB_DETAILS,
+        label: () => t('logs.detail.tabs.details'),
+      },
+    ];
     if (error) {
-      tabs.push(TAB_ERRORS);
+      tabs.push({
+        ...TAB_ERRORS,
+        label: () => t('logs.detail.tabs.errors'),
+      });
     }
 
     return (
@@ -112,6 +122,7 @@ function LogDetail({
     error,
     selectedTab,
     setSelectedTab,
+    t,
   ]);
 
   return (
@@ -161,6 +172,15 @@ function LogDetail({
             const isMessageKey = MESSAGE_KEY === k;
             const isTagsKey = TAGS_KEY === k;
 
+            let keyLabel = k;
+            if ('file name' === k) {
+              keyLabel = t('logs.detail.file_name');
+            } else if ('file path' === k) {
+              keyLabel = t('logs.detail.file_path');
+            } else if ('error' === k) {
+              keyLabel = t('common.error');
+            }
+
             let valueToDisplay = v;
             let valueTitle = v;
             if (isTagsKey) {
@@ -197,7 +217,7 @@ function LogDetail({
                 monospace
                 muted
               >
-                {k}
+                {keyLabel}
               </Text>,
               <>
                 <Text
@@ -222,8 +242,8 @@ function LogDetail({
                     onClick={() => setShowFullLogMessage(prevState => !prevState)}
                   >
                     {showFullLogMessage
-                      ? 'Click to hide log'
-                      : 'Click to show full log message'
+                      ? t('logs.detail.hide_log')
+                      : t('logs.detail.show_full_log_message')
                     }
                   </Link>
                 }
@@ -238,7 +258,7 @@ function LogDetail({
         <Spacing mb={5} px={PADDING_UNITS}>
           <Spacing mb={1}>
             <Text bold>
-              Error
+              {t('common.error')}
             </Text>
           </Spacing>
 
@@ -262,7 +282,7 @@ function LogDetail({
             <Spacing mt={3}>
               <Spacing mb={1}>
                 <Text bold>
-                  Stack trace
+                  {t('logs.detail.stack_trace')}
                 </Text>
               </Spacing>
 

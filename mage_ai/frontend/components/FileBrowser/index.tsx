@@ -12,6 +12,7 @@ import React, {
 import { ThemeContext } from 'styled-components';
 import { useMutation } from 'react-query';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 
 import BlockType, {
   ADD_ON_BLOCK_TYPES,
@@ -119,6 +120,7 @@ function FileBrowser({
   uuid: uuidFileBrowser,
   widgets = [],
 }: FileBrowserProps, ref) {
+  const { t } = useTranslation('common');
   const renderRef = useRef(0);
   DEBUG(() => {
     renderRef.current += 1;
@@ -522,7 +524,7 @@ function FileBrowser({
     if (selectedFolder) {
       items.push(...[
         {
-          label: () => 'Open all files in the immediate directory',
+          label: () => t('files.file_browser.context_menu.open_all_files_in_directory'),
           onClick: () => {
             selectedFolder?.children?.forEach((file: FileType) => {
               if (!('children' in file)) {
@@ -531,59 +533,58 @@ function FileBrowser({
               }
             });
           },
-          uuid: 'new_folder',
+          uuid: 'open_all_files_in_directory',
         },
         {
-          label: () => 'New folder',
+          label: () => t('files.file_browser.context_menu.new_folder'),
           onClick: () => {
             showModalNewFolder();
           },
           uuid: 'new_folder',
         },
         {
-          label: () => 'Rename folder',
+          label: () => t('files.file_browser.context_menu.rename_folder'),
           onClick: () => {
             showModalNewFolder({ file: selectedFolder });
           },
           uuid: 'rename_folder',
         },
         {
-          label: () => 'Move folder',
+          label: () => t('files.file_browser.context_menu.move_folder'),
           onClick: () => {
             showModalNewFolder({ file: selectedFolder, moveFile: true });
           },
-          uuid: 'Move_folder',
+          uuid: 'move_folder',
         },
         {
-          label: () => 'Delete folder',
+          label: () => t('files.file_browser.context_menu.delete_folder'),
           onClick: () => {
             const fp = getFullPath(selectedFolder);
-            if (typeof window !== 'undefined'
-              && window.confirm(
-                `Are you sure you want to delete folder ${fp} and all its subfolders and files?`,
-              )
+            if (
+              typeof window !== 'undefined' &&
+              window.confirm(t('files.file_browser.confirmations.delete_folder', { path: fp }))
             ) {
               deleteFolder(encodeURIComponent(fp));
             }
           },
-          uuid: 'Delete_folder',
+          uuid: 'delete_folder',
         },
         {
-          label: () => 'New file',
+          label: () => t('files.file_browser.context_menu.new_file'),
           onClick: () => {
             showModalNewFile({ file: {} });
           },
           uuid: 'new_file',
         },
         {
-          label: () => 'Upload files',
+          label: () => t('files.file_browser.context_menu.upload_files'),
           onClick: () => {
             showModal();
           },
           uuid: 'upload_files',
         },
         {
-          label: () => 'Expand all subfolders',
+          label: () => t('files.file_browser.context_menu.expand_all_subfolders'),
           onClick: () => {
             const eventCustom = new CustomEvent(CUSTOM_EVENT_NAME_FOLDER_EXPAND, {
               detail: {
@@ -597,10 +598,10 @@ function FileBrowser({
               window.dispatchEvent(eventCustom);
             }
           },
-          uuid: 'Expand all subfolders',
+          uuid: 'expand_all_subfolders',
         },
         {
-          label: () => 'Collapse all subfolders',
+          label: () => t('files.file_browser.context_menu.collapse_all_subfolders'),
           onClick: () => {
             const eventCustom = new CustomEvent(CUSTOM_EVENT_NAME_FOLDER_EXPAND, {
               detail: {
@@ -614,16 +615,17 @@ function FileBrowser({
               window.dispatchEvent(eventCustom);
             }
           },
-          uuid: 'Collapse all subfolders',
+          uuid: 'collapse_all_subfolders',
         },
       ]);
 
       items.push({
         beforeIcon: <GradientLogoIcon width={UNIT * 1.5} />,
+        label: () => t('files.file_browser.context_menu.new_mage_project'),
         onClick: () => {
           showModalNewFolder({ projectType: ProjectTypeEnum.STANDALONE });
         },
-        uuid: 'New Mage project',
+        uuid: 'new_mage_project',
       });
     } else if (selectedFile) {
       if (selectedFile?.path) {
@@ -662,20 +664,20 @@ function FileBrowser({
 
       items.push(...[
         {
-          label: () => 'Rename file',
+          label: () => t('files.file_browser.context_menu.rename_file'),
           onClick: () => {
             showModalNewFile({ file: selectedFile });
           },
           uuid: 'rename_file',
         },
         {
-          label: () => 'Move file',
+          label: () => t('files.file_browser.context_menu.move_file'),
           onClick: () => {
             showModalNewFile({ file: selectedFile, moveFile: true });
           },
           uuid: 'move_file',
         }, {
-          label: () => 'Download file',
+          label: () => t('files.file_browser.context_menu.download_file'),
           onClick: () => {
             const fp = getFullPath(selectedFile);
             downloadFile(encodeURIComponent(fp));
@@ -686,18 +688,20 @@ function FileBrowser({
 
       if (selectedBlock) {
         items.push({
-          label: () => 'Delete file',
+          label: () => t('files.file_browser.context_menu.delete_file'),
           onClick: () => {
             if (selectedBlock.type === BlockTypeEnum.CHART) {
               if (typeof window !== 'undefined'
-                && window.confirm(`Are you sure you want to delete ${selectedBlock.uuid}?`)
+                && window.confirm(t('files.file_browser.confirmations.delete_item', {
+                  item: selectedBlock.uuid,
+                }))
               ) {
                 deleteWidget(selectedBlock);
               }
             } else {
               const fp = getFullPath(selectedFile);
               if (typeof window !== 'undefined'
-                && window.confirm(`Are you sure you want to delete ${fp}?`)
+                && window.confirm(t('files.file_browser.confirmations.delete_file', { path: fp }))
               ) {
                 deleteFile(encodeURIComponent(fp));
               }
@@ -707,12 +711,12 @@ function FileBrowser({
         });
       } else {
         items.push({
-          label: () => 'Delete file',
+          label: () => t('files.file_browser.context_menu.delete_file'),
           onClick: () => {
             const fp = getFullPath(selectedFile);
 
             if (typeof window !== 'undefined'
-              && window.confirm(`Are you sure you want to delete file ${fp}?`)
+              && window.confirm(t('files.file_browser.confirmations.delete_file', { path: fp }))
             ) {
               deleteFile(encodeURIComponent(fp));
             }
@@ -764,6 +768,7 @@ function FileBrowser({
     selectedBlock,
     selectedFile,
     selectedFolder,
+    t,
   ]);
 
   return (

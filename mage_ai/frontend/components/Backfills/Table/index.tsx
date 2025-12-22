@@ -1,9 +1,12 @@
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import BackfillType, {
   BACKFILL_TYPE_DATETIME,
   BACKFILL_TYPE_CODE,
+  IntervalTypeEnum,
 } from '@interfaces/BackfillType';
 import Button from '@oracle/elements/Button';
 import FlexContainer from '@oracle/components/FlexContainer';
@@ -46,6 +49,7 @@ function BackfillsTable({
   pipeline,
   selectedRow,
 }: BackfillsTableProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const isViewerRole = isViewer(router?.basePath);
   const displayLocalTimezone = shouldDisplayLocalTimezone();
@@ -59,60 +63,84 @@ function BackfillsTable({
     pipelineUUID,
   });
 
+  const intervalTypeLabelMapping = useMemo(() => ({
+    [IntervalTypeEnum.CUSTOM]: t('backfills.interval_types.custom'),
+    [IntervalTypeEnum.DAY]: t('backfills.interval_types.day'),
+    [IntervalTypeEnum.HOUR]: t('backfills.interval_types.hour'),
+    [IntervalTypeEnum.MINUTE]: t('backfills.interval_types.minute'),
+    [IntervalTypeEnum.MONTH]: t('backfills.interval_types.month'),
+    [IntervalTypeEnum.SECOND]: t('backfills.interval_types.second'),
+    [IntervalTypeEnum.WEEK]: t('backfills.interval_types.week'),
+    [IntervalTypeEnum.YEAR]: t('backfills.interval_types.year'),
+  }), [t]);
+
+  const statusLabelMapping = useMemo(() => ({
+    [RunStatus.CANCELLED]: t('pipeline_runs.statuses.cancelled'),
+    [RunStatus.COMPLETED]: t('pipeline_runs.statuses.done'),
+    [RunStatus.FAILED]: t('pipeline_runs.statuses.failed'),
+    [RunStatus.INITIAL]: t('pipeline_runs.statuses.ready'),
+    [RunStatus.RUNNING]: t('pipeline_runs.statuses.running'),
+  }), [t]);
+
   const columnFlex = [null, 1, 1, null, null, null, null, null, null, 1, 1, null, null, null, null];
-  const columns: ColumnType[] = [
-    {
-      uuid: 'Status',
-    },
-    {
-      uuid: 'Name',
-    },
-    {
-      ...timezoneTooltipProps,
-      uuid: 'Backfill',
-    },
-    {
-      uuid: 'Ready',
-    },
-    {
-      uuid: 'Running',
-    },
-    {
-      uuid: 'Cancelled',
-    },
-    {
-      uuid: 'Completed',
-    },
-    {
-      uuid: 'Failed',
-    },
-    {
-      uuid: 'Total runs',
-    },
-    {
-      ...timezoneTooltipProps,
-      uuid: 'Started at',
-    },
-    {
-      ...timezoneTooltipProps,
-      uuid: 'Completed at',
-    },
-    {
-      uuid: 'Interval',
-    },
-    {
-      uuid: 'Interval units',
-    },
-    {
-      uuid: 'Type',
-    },
-  ];
-  if (!isViewerRole) {
-    columns.push({
-      label: () => '',
-      uuid: 'edit_delete_backfill',
-    });
-  }
+  const columns: ColumnType[] = useMemo(() => {
+    const arr: ColumnType[] = [
+      {
+        uuid: t('pipeline_runs.status'),
+      },
+      {
+        uuid: t('common.name'),
+      },
+      {
+        ...timezoneTooltipProps,
+        uuid: t('backfills.table.backfill'),
+      },
+      {
+        uuid: t('pipeline_runs.statuses.ready'),
+      },
+      {
+        uuid: t('pipeline_runs.statuses.running'),
+      },
+      {
+        uuid: t('pipeline_runs.statuses.cancelled'),
+      },
+      {
+        uuid: t('pipeline_runs.statuses.done'),
+      },
+      {
+        uuid: t('pipeline_runs.statuses.failed'),
+      },
+      {
+        uuid: t('backfills.table.total_runs'),
+      },
+      {
+        ...timezoneTooltipProps,
+        uuid: t('pipeline_runs.started_at'),
+      },
+      {
+        ...timezoneTooltipProps,
+        uuid: t('pipeline_runs.completed_at'),
+      },
+      {
+        uuid: t('backfills.table.interval'),
+      },
+      {
+        uuid: t('backfills.table.interval_units'),
+      },
+      {
+        uuid: t('common.type'),
+      },
+    ];
+
+    if (!isViewerRole) {
+      arr.push({
+        label: () => '',
+        uuid: 'edit_delete_backfill',
+      });
+    }
+
+    return arr;
+  }, [isViewerRole, t, timezoneTooltipProps]);
 
   return (
     <Table
@@ -139,7 +167,7 @@ function BackfillsTable({
             {...getRunStatusTextProps(status)}
             key={`status_${idx}`}
           >
-            {status || 'inactive'}
+            {statusLabelMapping[status] || t('pipelines.status.inactive')}
           </Text>,
           <NextLink
             as={`/pipelines/${pipelineUUID}/backfills/${id}`}
@@ -232,7 +260,7 @@ function BackfillsTable({
             {...SHARED_COLUMN_TEXT_PROPS}
             key={`interval_${idx}`}
           >
-            {intervalType || <>&#8212;</>}
+            {intervalTypeLabelMapping[intervalType] || <>&#8212;</>}
           </Text>,
           <Text
             {...SHARED_COLUMN_TEXT_PROPS}
@@ -244,7 +272,10 @@ function BackfillsTable({
             {...SHARED_COLUMN_TEXT_PROPS}
             key={`type_${idx}`}
           >
-            {blockUUID ? BACKFILL_TYPE_CODE : BACKFILL_TYPE_DATETIME}
+            {blockUUID
+              ? t('backfills.types.code', { defaultValue: BACKFILL_TYPE_CODE })
+              : t('backfills.types.datetime', { defaultValue: BACKFILL_TYPE_DATETIME })
+            }
           </Text>,
         ];
         if (!isViewerRole) {
@@ -260,14 +291,14 @@ function BackfillsTable({
                   href: '/pipelines/[pipeline]/backfills/[...slug]',
                 }}
                 noBackground
-                title="Edit"
+                title={t('common.edit')}
               >
                 <Edit default size={2 * UNIT} />
               </Button>
               {deleteButton(
                 id,
                 idx,
-                `Are you sure you want to delete the backfill "${name}?"`,
+                t('backfills.delete_confirmation', { name }),
               )}
             </FlexContainer>,
           );

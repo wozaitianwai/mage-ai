@@ -4,6 +4,7 @@ import NextLink from 'next/link';
 import Router from 'next/router';
 import { ThemeContext } from 'styled-components';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import AuthToken from '@api/utils/AuthToken';
 import BlockRunType, { RunStatus } from '@interfaces/BlockRunType';
@@ -65,6 +66,7 @@ function BlockRunsTable({
   setErrors,
   sortableColumnIndexes,
 }: BlockRunsTableProps) {
+  const { t } = useTranslation('common');
   const displayLocalTimezone = shouldDisplayLocalTimezone();
   const themeContext = useContext(ThemeContext);
   const [blockOutputDownloadProgress, setBlockOutputDownloadProgress] = useState<string>(null);
@@ -138,46 +140,46 @@ function BlockRunsTable({
     const colFlex = [1, null, 2, null, 2, 1, 1, 1, null];
     const arr = [
       {
-        uuid: 'Status',
+        uuid: t('pipeline_runs.status'),
       },
       {
         center: true,
-        uuid: 'Logs',
+        uuid: t('pipeline_runs.logs'),
       },
       {
-        uuid: 'Block',
+        uuid: t('common.block'),
       },
       {
-        uuid: 'ID',
+        uuid: t('pipeline_runs.id'),
       },
       {
-        uuid: 'Trigger',
-      },
-      {
-        ...timezoneTooltipProps,
-        uuid: 'Created at',
+        uuid: t('pipeline_runs.trigger'),
       },
       {
         ...timezoneTooltipProps,
-        uuid: 'Started at',
+        uuid: t('common.created_at'),
       },
       {
         ...timezoneTooltipProps,
-        uuid: 'Completed at',
+        uuid: t('pipeline_runs.started_at'),
+      },
+      {
+        ...timezoneTooltipProps,
+        uuid: t('pipeline_runs.completed_at'),
       },
     ];
 
     if (atLeastOneCompleted) {
       arr.push({
         center: true,
-        uuid: 'Runtime',
+        uuid: t('pipeline_runs.runtime'),
       });
       colFlex.push(null);
     }
 
     if (isStandardPipeline) {
       arr.push({
-        uuid: 'Output',
+        uuid: t('common.output'),
       });
     }
 
@@ -185,7 +187,7 @@ function BlockRunsTable({
       columnFlex: colFlex,
       columns: arr,
     };
-  }, [isStandardPipeline, atLeastOneCompleted, timezoneTooltipProps]);
+  }, [atLeastOneCompleted, isStandardPipeline, t, timezoneTooltipProps]);
 
   return (
     <Table
@@ -354,8 +356,10 @@ function BlockRunsTable({
                 forceVisible={downloadingOutput}
                 label={
                   downloadingOutput
-                    ? `${blockOutputDownloadProgress || 0}mb downloaded...`
-                    : 'Save block run output as CSV file (not supported for dynamic blocks)'
+                    ? t('pipeline_detail.block_runs.download_progress', {
+                      mb: blockOutputDownloadProgress || 0,
+                    })
+                    : t('pipeline_detail.block_runs.save_output_as_csv_tooltip')
                 }
                 size={null}
               >

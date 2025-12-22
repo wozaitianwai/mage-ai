@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import BlocksSeparatedGradient from '@oracle/icons/custom/BlocksSeparatedGradient';
 import BlockRunsTable, {
@@ -18,9 +19,9 @@ import Paginate, { MAX_PAGES, ROW_LIMIT } from '@components/shared/Paginate';
 import PipeIconGradient from '@oracle/icons/custom/PipeIconGradient';
 import PipelineDetailPage from '@components/PipelineDetailPage';
 import PipelineRunType, {
+  LAST_RUN_FAILED_STATUS,
   PIPELINE_RUN_STATUSES,
   PipelineRunReqQueryParamsType,
-  RUN_STATUS_TO_LABEL,
   RUNNING_STATUSES,
 } from '@interfaces/PipelineRunType';
 import PipelineRunsTable from '@components/PipelineDetail/Runs/Table';
@@ -64,19 +65,13 @@ import { queryFromUrl, queryString } from '@utils/url';
 const TAB_PIPELINE_RUNS = {
   Icon: PipeIcon,
   IconSelected: PipeIconGradient,
-  label: () => 'Pipeline runs',
   uuid: 'pipeline_runs',
 };
 const TAB_BLOCK_RUNS = {
   Icon: BlocksSeparated,
   IconSelected: BlocksSeparatedGradient,
-  label: () => 'Block runs',
   uuid: 'block_runs',
 };
-const TABS = [
-  TAB_PIPELINE_RUNS,
-  TAB_BLOCK_RUNS,
-];
 
 
 type PipelineRunsProp = {
@@ -88,13 +83,25 @@ type PipelineRunsProp = {
 function PipelineRuns({
   pipeline: pipelineProp,
 }: PipelineRunsProp) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const refActionsMenu = useRef(null);
   const variableSearchInputRef = useRef(null);
 
+  const tabs = useMemo(() => ([
+    {
+      ...TAB_PIPELINE_RUNS,
+      label: () => t('sidebar.pipeline_runs'),
+    },
+    {
+      ...TAB_BLOCK_RUNS,
+      label: () => t('pipeline_runs.block_runs'),
+    },
+  ]), [t]);
+
   const [errors, setErrors] = useState<ErrorsType>(null);
   const [blockRunErrors, setBlockRunErrors] = useState<ErrorsType>(null);
-  const [selectedTab, setSelectedTab] = useState<TabType>(TAB_PIPELINE_RUNS);
+  const [selectedTab, setSelectedTab] = useState<TabType>(tabs[0]);
   const [selectedTabSidekick, setSelectedTabSidekick] = useState<TabType>(TABS_SIDEKICK[0]);
   const [selectedRun, setSelectedRun] = useState<PipelineRunType>(null);
   const [selectedRuns, setSelectedRuns] = useState<{ [keyof: string]: PipelineRunType }>({});
@@ -113,6 +120,15 @@ function PipelineRuns({
     () => TAB_PIPELINE_RUNS.uuid === selectedTab?.uuid,
     [selectedTab?.uuid],
   );
+
+  const pipelineRunStatusLabelMapping = useMemo(() => ({
+    [LAST_RUN_FAILED_STATUS]: t('pipeline_runs.statuses.last_run_failed'),
+    [RunStatusEnum.CANCELLED]: t('pipeline_runs.statuses.cancelled'),
+    [RunStatusEnum.COMPLETED]: t('pipeline_runs.statuses.done'),
+    [RunStatusEnum.FAILED]: t('pipeline_runs.statuses.failed'),
+    [RunStatusEnum.INITIAL]: t('pipeline_runs.statuses.ready'),
+    [RunStatusEnum.RUNNING]: t('pipeline_runs.statuses.running'),
+  }), [t]);
 
   const pipelineUUID = pipelineProp.uuid;
   const { data: dataPipeline } = api.pipelines.detail(pipelineUUID, {
@@ -307,24 +323,25 @@ function PipelineRuns({
   useEffect(() => {
     const uuid = q[TAB_URL_PARAM];
     if (uuid) {
-      setSelectedTab(TABS.find(({ uuid: tabUUID }) => tabUUID === uuid));
+      setSelectedTab(tabs.find(({ uuid: tabUUID }) => tabUUID === uuid));
     }
   }, [
     q,
     selectedTab,
     selectedTabPrev,
+    tabs,
   ]);
 
   const pipelineRunActionItems: FlyoutMenuItemType[] = useMemo(() => ([
     {
       isGroupingTitle: true,
-      label: () => `${selectedRunsCount} selected`,
+      label: () => t('pipeline_detail.runs.actions.selected_count', { count: selectedRunsCount }),
       uuid: 'runs_selected_count',
     },
     {
       beforeIcon: <Refresh muted={selectedRunsCount === 0} />,
       disabled: selectedRunsCount === 0,
-      label: () => `Retry selected (${selectedRunsCount})`,
+      label: () => t('pipeline_detail.runs.actions.retry_selected', { count: selectedRunsCount }),
       onClick: () => updatePipeline({
         pipeline: {
           pipeline_runs: selectedRunsArr,
@@ -340,7 +357,7 @@ function PipelineRuns({
         />
       ),
       disabled: !hasFailedPipelineRun || hasRunningPipeline,
-      label: () => 'Retry all incomplete block runs',
+      label: () => t('pipeline_detail.runs.actions.retry_all_incomplete_block_runs'),
       onClick: () => updatePipeline({
         pipeline: {
           status: PipelineStatusEnum.RETRY_INCOMPLETE_BLOCK_RUNS,
@@ -352,7 +369,7 @@ function PipelineRuns({
     {
       beforeIcon: <AlertTriangle muted={selectedRunningRunsCount === 0} />,
       disabled: selectedRunningRunsCount === 0,
-      label: () => `Cancel selected running (${selectedRunningRunsCount})`,
+      label: () => t('pipeline_detail.runs.actions.cancel_selected_running', { count: selectedRunningRunsCount }),
       onClick: () => updatePipeline({
         pipeline: {
           pipeline_runs: selectedRunningRunsArr,
@@ -364,7 +381,7 @@ function PipelineRuns({
     {
       beforeIcon: <AlertTriangle muted={!(hasRunningPipeline && isPipelineRunsTab)} />,
       disabled: !(hasRunningPipeline && isPipelineRunsTab),
-      label: () => 'Cancel all running',
+      label: () => t('pipeline_detail.runs.actions.cancel_all_running'),
       onClick: () => updatePipeline({
         pipeline: {
           status: RunStatusEnum.CANCELLED,
@@ -381,6 +398,7 @@ function PipelineRuns({
     selectedRunningRunsCount,
     selectedRunsArr,
     selectedRunsCount,
+    t,
     updatePipeline,
   ]);
 
@@ -420,7 +438,7 @@ function PipelineRuns({
         deletePipelineRun={deletePipelineRun}
         disableKeyboardNav={showActionsMenu}
         emptyMessage={variableSearchText
-          ? 'No runs on this page match your search.'
+          ? t('pipeline_detail.runs.no_runs_matching_search')
           : undefined
         }
         fetchPipelineRuns={fetchPipelineRuns}
@@ -447,6 +465,7 @@ function PipelineRuns({
     selectedRun,
     selectedRuns,
     showActionsMenu,
+    t,
     variableSearchText,
   ]);
 
@@ -470,23 +489,24 @@ function PipelineRuns({
       afterHidden={isPipelineRunsTab && !selectedRun}
       breadcrumbs={[
         {
-          label: () => 'Runs',
+          label: () => t('pipeline_detail.navigation.runs'),
         },
       ]}
       buildSidekick={isPipelineRunsTab
         ? props => buildTableSidekick({
           ...props,
+          t,
           selectedRun,
           selectedTab: selectedTabSidekick,
           setSelectedTab: setSelectedTabSidekick,
         })
-        : props => buildTableSidekick(props)
+        : props => buildTableSidekick({ ...props, t })
       }
       errors={errors || blockRunErrors}
       pageName={PageNameEnum.RUNS}
       pipeline={pipeline}
       setErrors={setErrors}
-      title={({ name }) => `${name} runs`}
+      title={({ name }) => t('pipeline_detail.runs.title', { name })}
       uuid={`${PageNameEnum.RUNS}_${pipelineUUID}`}
     >
       <PageSectionHeader>
@@ -500,7 +520,7 @@ function PipelineRuns({
                 }
               }}
               selectedTabUUID={selectedTab?.uuid}
-              tabs={TABS}
+              tabs={tabs}
             />
 
             {isPipelineRunsTab &&
@@ -527,7 +547,7 @@ function PipelineRuns({
                       outline
                       padding="6px 12px"
                     >
-                      Actions
+                      {t('common.actions')}
                     </Button>
                   </FlyoutMenuWrapper>
 
@@ -542,15 +562,15 @@ function PipelineRuns({
                         confirmationAction?.();
                         setConfirmationDialogueOpenId(null);
                       }}
-                      subtitle={'This includes runs on other pages as well, not just the current page.' +
-                        (confirmationDialogueOpenId === PipelineStatusEnum.RETRY_INCOMPLETE_BLOCK_RUNS
-                          ? ' Incomplete block runs will be retried for FAILED pipeline runs specifically.'
-                          : ''
-                        )
-                      }
+                      subtitle={[
+                        t('pipeline_detail.runs.confirmation.subtitle_base'),
+                        confirmationDialogueOpenId === PipelineStatusEnum.RETRY_INCOMPLETE_BLOCK_RUNS
+                          ? t('pipeline_detail.runs.confirmation.subtitle_retry_failed_note')
+                          : null,
+                      ].filter(Boolean).join(' ')}
                       title={confirmationDialogueOpenId === CANCEL_ALL_RUNNING_PIPELINE_RUNS_UUID
-                        ? 'Are you sure you want to cancel all pipeline runs in progress?'
-                        : 'Are you sure you want to retry all incomplete block runs for any failed pipeline runs?'
+                        ? t('pipeline_detail.runs.confirmation.cancel_all_running_title')
+                        : t('pipeline_detail.runs.confirmation.retry_all_incomplete_title')
                       }
                       width={POPUP_MENU_WIDTH}
                     />
@@ -577,15 +597,15 @@ function PipelineRuns({
                     }
                   }}
                   paddingRight={UNIT * 4}
-                  placeholder="Select run status"
+                  placeholder={t('pipeline_detail.runs.select_run_status')}
                   value={query?.status}
                 >
                   <option key="all_statuses" value="all">
-                    All statuses
+                    {t('pipeline_detail.runs.all_statuses')}
                   </option>
                   {PIPELINE_RUN_STATUSES.map(status => (
                     <option key={status} value={status}>
-                      {RUN_STATUS_TO_LABEL[status]}
+                      {pipelineRunStatusLabelMapping[status] || status}
                     </option>
                   ))}
                 </Select>
@@ -601,7 +621,7 @@ function PipelineRuns({
                   }}
                   onChange={e => setVariableSearchText(e.target.value)}
                   paddingVertical={6}
-                  placeholder="Search pipeline run variables"
+                  placeholder={t('pipeline_detail.runs.search_pipeline_run_variables')}
                   ref={variableSearchInputRef}
                   value={variableSearchText}
                 />

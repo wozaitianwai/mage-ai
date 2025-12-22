@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import ClickOutside from '@oracle/components/ClickOutside';
 import Dashboard, { DashboardSharedProps } from '@components/Dashboard';
@@ -70,6 +71,7 @@ function PipelineDetailPage(
   }: PipelineDetailPageProps,
   ref,
 ) {
+  const { t } = useTranslation('common');
   const { height } = useWindowSize();
   const router = useRouter();
   const { pipeline: pipelineUUIDFromUrl }: any = router.query;
@@ -116,7 +118,7 @@ function PipelineDetailPage(
       arr.push(
         ...[
           {
-            label: () => 'Pipelines',
+            label: () => t('sidebar.pipelines'),
             linkProps: {
               href: '/pipelines',
             },
@@ -144,12 +146,12 @@ function PipelineDetailPage(
       arr.push({
         bold: true,
         danger: true,
-        label: () => 'Error loading pipeline',
+        label: () => t('pipeline_detail.error_loading_pipeline'),
       });
     }
 
     return arr;
-  }, [breadcrumbsProp, data?.error, pipeline, pipelineUUID]);
+  }, [breadcrumbsProp, data?.error, pipeline, pipelineUUID, t]);
 
   return (
     <>
@@ -160,7 +162,7 @@ function PipelineDetailPage(
         before={before}
         beforeWidth={beforeWidth}
         breadcrumbs={breadcrumbs}
-        navigationItems={buildNavigationItems(pageName, pipeline, pipelineUUIDFromUrl)}
+        navigationItems={buildNavigationItems(pageName, pipeline, pipelineUUIDFromUrl, t)}
         ref={ref}
         subheaderChildren={typeof subheader !== 'undefined' && subheader}
         subheaderNoPadding={subheaderNoPadding}
