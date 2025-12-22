@@ -11,12 +11,13 @@ import {
   SettingsWithKnobs,
 } from '@oracle/icons';
 import { PageNameEnum } from './constants';
+import type { TFunction } from 'i18next';
 
 export function buildNavigationItems(
   pageName: PageNameEnum,
   pipeline: PipelineType,
   pipelineUUIDFromUrl?: string,
-  t?: (key: string, options?: any) => string,
+  t?: TFunction,
 ) {
   const { uuid } = pipeline || {};
   const pipelineUUID = uuid || pipelineUUIDFromUrl;

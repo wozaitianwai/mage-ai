@@ -13,6 +13,7 @@ import { HTMLOutputStyle, OutputRowStyle } from 'components/CodeBlock/CodeOutput
 import Text from '@oracle/elements/Text';
 import OutputRenderer from '@components/CodeBlock/CodeOutput/OutputRenderer';
 import { DataTypeEnum } from '@interfaces/KernelOutputType';
+import type { TFunction } from 'i18next';
 import { HEADER_HEIGHT } from '@components/shared/Header/index.style';
 import { PADDING_UNITS } from '@oracle/styles/units/spacing';
 import { TABLE_COLUMN_HEADER_HEIGHT } from '@components/Sidekick/index.style';
@@ -21,9 +22,9 @@ import { createBlockStatus } from '@components/Triggers/utils';
 import { alphabet, hashCode, isJsonString } from '@utils/string';
 import { indexBy, sortByKey } from '@utils/array';
 
-export const TAB_TREE = { uuid: 'Dependency tree' };
-export const TAB_OUTPUT = { uuid: 'Block output' };
-export const TABS = [TAB_OUTPUT, TAB_TREE];
+export const TAB_TREE: TabType = { uuid: 'Dependency tree' };
+export const TAB_OUTPUT: TabType = { uuid: 'Block output' };
+export const TABS: TabType[] = [TAB_OUTPUT, TAB_TREE];
 
 const MAX_COLUMNS = 40;
 
@@ -49,7 +50,7 @@ export default function ({
   width,
   ...props
 }: {
-  t?: (key: string, options?: any) => string;
+  t?: TFunction;
   blockRuns: BlockRunType[];
   blocks?: BlockType[];
   blocksOverride?: BlockType[];

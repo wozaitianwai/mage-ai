@@ -25,16 +25,17 @@ import {
   PipelineTypeEnum,
 } from '@interfaces/PipelineType';
 import { getColorsForBlockType } from '@components/CodeBlock/index.style';
+import type { TabType } from '@oracle/components/Tabs/ButtonTabs';
 
-export const NAV_TAB_BLOCKS = {
+export const NAV_TAB_BLOCKS: TabType = {
   uuid: 'Blocks',
 };
 
-export const NAV_TAB_PIPELINES = {
+export const NAV_TAB_PIPELINES: TabType = {
   uuid: 'Pipelines',
 };
 
-export const NAV_TABS = [
+export const NAV_TABS: TabType[] = [
   NAV_TAB_BLOCKS,
   NAV_TAB_PIPELINES,
 ];

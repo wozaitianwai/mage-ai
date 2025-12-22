@@ -3,6 +3,7 @@ import { MutateFunction, useMutation } from 'react-query';
 import { createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 import Button from '@oracle/elements/Button';
 import Checkbox from '@oracle/elements/Checkbox';
@@ -51,9 +52,7 @@ const SHARED_DATE_FONT_PROPS = {
   small: true,
 };
 
-type TranslateFn = (key: string, options?: {
-  [key: string]: any;
-}) => string;
+type TranslateFn = TFunction;
 
 const PIPELINE_RUN_STATUS_TO_I18N_KEY: { [key: string]: string } = {
   canceling: 'pipeline_runs.statuses.canceling',

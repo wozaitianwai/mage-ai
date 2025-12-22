@@ -2,8 +2,9 @@ import {
   BACKFILL_TYPE_DATETIME,
   BACKFILL_TYPE_CODE,
 } from '@interfaces/BackfillType';
+import type { TFunction } from 'i18next';
 
-export const getBackfillTypes = (t?: (key: string, options?: any) => string) => ([
+export const getBackfillTypes = (t?: TFunction) => ([
   {
     label: () => t?.('backfills.edit.types.datetime.label') || 'Date and time window',
     description: () => t?.('backfills.edit.types.datetime.description') || 'Backfill between a date and time range.',

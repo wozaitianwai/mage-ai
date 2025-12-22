@@ -21,6 +21,7 @@ import DataSourceTypeEnum, {
 } from '@interfaces/DataSourceType';
 import { FlyoutMenuItemType } from '@oracle/components/FlyoutMenu';
 import { PipelineTypeEnum } from '@interfaces/PipelineType';
+import type { TFunction } from 'i18next';
 import { addUnderscores, capitalize } from '@utils/string';
 import { getColorsForBlockType } from '@components/CodeBlock/index.style';
 import { sortByKey } from '@utils/array';
@@ -82,7 +83,7 @@ export const createDataSourceMenuItems = (
   blockType: BlockTypeEnum,
   blockCallback: (block: BlockRequestPayloadType) => void,
   pipelineType?: PipelineTypeEnum,
-  t?: (key: string, opts?: any) => string,
+  t?: TFunction,
 ) => {
   const requiresConfigFile = (pipelineType === PipelineTypeEnum.STREAMING)
     && (blockType === BlockTypeEnum.DATA_LOADER || blockType === BlockTypeEnum.DATA_EXPORTER);
@@ -115,7 +116,7 @@ export const createDataSourceMenuItems = (
 function SQLMenuItems(
   addNewBlock: (block: BlockRequestPayloadType) => void,
   blockType: BlockTypeEnum,
-  t?: (key: string) => string,
+  t?: TFunction,
 ) {
   return {
     label: () => t?.('common.sql') || 'SQL',
@@ -130,7 +131,7 @@ function SQLMenuItems(
 function RMenuItems(
   addNewBlock: (block: BlockRequestPayloadType) => void,
   blockType: BlockTypeEnum,
-  t?: (key: string) => string,
+  t?: TFunction,
 ) {
   return {
     label: () => t?.('common.r') || 'R',
@@ -145,7 +146,7 @@ function RMenuItems(
 export const getNonPythonMenuItems = (
   addNewBlock: (block: BlockRequestPayloadType) => void,
   blockType: BlockTypeEnum,
-  t?: (key: string) => string,
+  t?: TFunction,
 ) => ([
   SQLMenuItems(addNewBlock, blockType, t),
   RMenuItems(addNewBlock, blockType, t),
@@ -270,7 +271,7 @@ export const getdataSourceMenuItems = (
         [language: string]: FlyoutMenuItemType;
       };
     };
-    t?: (key: string, opts?: any) => string;
+    t?: TFunction;
     dataIntegrationType?: DataIntegrationTypeEnum;
     languages?: BlockLanguageEnum[];
     onlyCustomTemplate?: boolean;
@@ -372,7 +373,7 @@ export function createActionMenuItems(
   actions: ActionTypeEnum[],
   axis: AxisEnum,
   blockCallback: (block: BlockRequestPayloadType) => void,
-  t?: (key: string, opts?: any) => string,
+  t?: TFunction,
 ): FlyoutMenuItemType[] {
   return actions.map((action: ActionTypeEnum) => ({
     indent: true,
@@ -401,7 +402,7 @@ export function createActionMenuGroupings(
   groupings: ActionGroupingEnum[],
   axis: AxisEnum,
   blockCallback: (block: BlockRequestPayloadType) => void,
-  t?: (key: string, opts?: any) => string,
+  t?: TFunction,
 ): FlyoutMenuItemType[] {
   const menuItems: FlyoutMenuItemType[] = [];
   groupings.forEach((grouping: ActionGroupingEnum) => {

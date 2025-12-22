@@ -6,6 +6,7 @@ import PipelineRunType from '@interfaces/PipelineRunType';
 import Spacing from '@oracle/elements/Spacing';
 import Text from '@oracle/elements/Text';
 import Table from '@components/shared/Table';
+import type { TFunction } from 'i18next';
 import {
   PADDING_UNITS,
 } from '@oracle/styles/units/spacing';
@@ -32,7 +33,7 @@ export default function({
   setSelectedTab,
   ...props
 }: {
-  t?: (key: string, options?: any) => string;
+  t?: TFunction;
   height: number;
   heightOffset?: number;
   pipeline: PipelineType;

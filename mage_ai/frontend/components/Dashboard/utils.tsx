@@ -9,6 +9,7 @@ import {
 import { PipelineTypeEnum } from '@interfaces/PipelineType';
 import { UNIT } from '@oracle/styles/units/spacing';
 import { randomNameGenerator } from '@utils/string';
+import type { TFunction } from 'i18next';
 
 const ICON_SIZE = UNIT * 1.5;
 
@@ -21,6 +22,7 @@ export const getNewPipelineButtonMenuItems = (
     showBrowseTemplates?: () => void;
     showCreatePipelineModal?: (opts: { pipelineType: PipelineTypeEnum }) => void;
     showImportPipelineModal?: () => void;
+    t?: TFunction;
   },
 ) => {
   const t = opts?.t || ((key: string) => key);

@@ -546,7 +546,7 @@ function Browser({
                         arr.push(buildNavLinks(cacheItems)?.find(({
                           uuid,
                         }) => uuid === cacheItem?.item?.project?.uuid));
-                        arr.push(NAV_LINKS?.find(({
+                        arr.push(NAV_LINKS(t)?.find(({
                           uuid,
                         }) => ((uuid as unknown) as BlockTypeEnum) === BlockTypeEnum.DBT));
                       }
