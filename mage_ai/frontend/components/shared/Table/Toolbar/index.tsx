@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/router';
 
 import AddButton from '@components/shared/AddButton';
@@ -58,6 +59,9 @@ type ToolbarProps = {
   filterOptions?: {
     [keyof: string]: string[];
   };
+  filterOptionLabelMapping?: {
+    [keyof: string]: string | (() => string);
+  };
   filterValueLabelMapping?: {
     [keyof: string]: {
       [keyof: string]: string | (() => string);
@@ -103,6 +107,7 @@ function Toolbar({
   deleteRowProps,
   extraActionButtonProps,
   filterOptions = {},
+  filterOptionLabelMapping,
   filterValueLabelMapping,
   groupButtonProps,
   moreActionsMenuItems,
@@ -117,6 +122,7 @@ function Toolbar({
   setSelectedRow,
   showDivider,
 }: ToolbarProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const isViewerRole = isViewer(router?.basePath);
   const addButtonMenuRef = useRef(null);
@@ -239,28 +245,29 @@ function Toolbar({
     [filterOptionsEnabledMapping],
   );
   const filterButtonEl = useMemo(() => (
-    <ToggleMenu
-      compact
-      onClickCallback={(query, updatedQuery) => {
-        if (onFilterApply) {
-          onFilterApply?.(query, updatedQuery);
+      <ToggleMenu
+        compact
+        onClickCallback={(query, updatedQuery) => {
+          if (onFilterApply) {
+            onFilterApply?.(query, updatedQuery);
         }
         if (closeFilterButtonMenu) {
           closeFilterButtonMenu?.();
         }
       }}
-      onClickOutside={closeFilterButtonMenu}
-      onSecondaryClick={onClickFilterDefaults}
-      open={filterButtonMenuOpen}
-      options={filterOptionsEnabledMapping}
-      parentRef={filterButtonMenuRef}
-      query={query}
-      resetLimitOnApply={resetLimitOnFilterApply}
-      resetPageOnApply={resetPageOnFilterApply}
-      setOpen={setFilterButtonMenuOpen}
-      toggleValueMapping={filterValueLabelMapping}
-    >
-      <KeyboardShortcutButton
+        onClickOutside={closeFilterButtonMenu}
+        onSecondaryClick={onClickFilterDefaults}
+        open={filterButtonMenuOpen}
+        options={filterOptionsEnabledMapping}
+        parentRef={filterButtonMenuRef}
+        query={query}
+        resetLimitOnApply={resetLimitOnFilterApply}
+        resetPageOnApply={resetPageOnFilterApply}
+        setOpen={setFilterButtonMenuOpen}
+        optionLabelMapping={filterOptionLabelMapping}
+        toggleValueMapping={filterValueLabelMapping}
+      >
+        <KeyboardShortcutButton
         {...SHARED_BUTTON_PROPS}
         afterElement={filtersAppliedCount > 0
           ?
@@ -275,7 +282,7 @@ function Toolbar({
         onClick={() => setFilterButtonMenuOpen(prevOpenState => !prevOpenState)}
         uuid="Table/Toolbar/FilterButton"
       >
-        Filter
+        {t('common.filter')}
       </KeyboardShortcutButton>
     </ToggleMenu>
   ), [
@@ -284,6 +291,7 @@ function Toolbar({
     filterOptionsEnabledMapping,
     filterValueLabelMapping,
     filtersAppliedCount,
+    t,
     onClickFilterDefaults,
     onFilterApply,
     query,
@@ -315,13 +323,14 @@ function Toolbar({
         }}
         uuid="Table/Toolbar/GroupButton"
       >
-        {groupByLabel ? `Grouped by ${groupByLabel}` : 'Group'}
+        {groupByLabel ? t('table.grouped_by', { label: groupByLabel }) : t('common.group')}
       </KeyboardShortcutButton>
     </FlyoutMenuWrapper>
   ), [
     closeGroupButtonMenu,
     groupButtonMenuOpen,
     groupByLabel,
+    t,
     groupMenuItems,
   ]);
 
@@ -339,7 +348,7 @@ function Toolbar({
     >
       <Tooltip
         {...SHARED_TOOLTIP_PROPS}
-        label="More actions"
+        label={t('common.more_actions')}
       >
         <KeyboardShortcutButton
           Icon={Ellipsis}

@@ -1,7 +1,8 @@
 import NextLink from 'next/link';
-import { createRef, useRef, useState } from 'react';
+import { createRef, useMemo, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import ClickOutside from '@oracle/components/ClickOutside';
@@ -10,6 +11,7 @@ import FlexContainer from '@oracle/components/FlexContainer';
 import Link from '@oracle/elements/Link';
 import PipelineScheduleType, {
   SCHEDULE_TYPE_TO_LABEL,
+  ScheduleTypeEnum,
   ScheduleStatusEnum,
 } from '@interfaces/PipelineScheduleType';
 import PipelineTriggerType from '@interfaces/PipelineTriggerType';
@@ -88,9 +90,46 @@ function TriggersTable({
 }: TriggersTableProps) {
   const pipelineUUID = pipeline?.uuid;
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   const { projectPlatformActivated } = useProject();
   const { status: statusProject } = useStatus();
+
+  const headerLabelMapping = useMemo(
+    () => ({
+      active: t('triggers.headers.active'),
+      name: t('triggers.headers.name'),
+      logs: t('triggers.headers.logs'),
+      project: t('triggers.headers.project'),
+      pipeline: t('triggers.headers.pipeline'),
+      type: t('triggers.headers.type'),
+      frequency: t('triggers.headers.frequency'),
+      latestStatus: t('triggers.headers.latest_status'),
+      nextRunDate: t('triggers.headers.next_run_date'),
+      runs: t('triggers.headers.runs'),
+      description: t('triggers.headers.description'),
+      tags: t('triggers.headers.tags'),
+      createdAt: t('triggers.headers.created_at'),
+    }),
+    [t],
+  );
+
+  const scheduleTypeLabelMapping = useMemo(
+    () => ({
+      [ScheduleTypeEnum.API]: t('trigger.api'),
+      [ScheduleTypeEnum.EVENT]: t('trigger.event'),
+      [ScheduleTypeEnum.TIME]: t('trigger.schedule'),
+    }),
+    [t],
+  );
+
+  const statusLabelMapping = useMemo(
+    () => ({
+      [ScheduleStatusEnum.ACTIVE]: t('pipelines.status.active'),
+      [ScheduleStatusEnum.INACTIVE]: t('pipelines.status.inactive'),
+    }),
+    [t],
+  );
 
   const toggleTriggerRefs = useRef({});
   const deleteButtonRefs = useRef({});
@@ -171,6 +210,7 @@ function TriggersTable({
     columnFlex.push(...[null]);
     columns.push(...[
       {
+        label: () => headerLabelMapping.active,
         uuid: 'Active',
       },
     ]);
@@ -179,6 +219,7 @@ function TriggersTable({
   columnFlex.push(...[1]);
   columns.push(...[
     {
+      label: () => headerLabelMapping.name,
       uuid: 'Name',
     },
   ]);
@@ -188,6 +229,7 @@ function TriggersTable({
     columns.push(...[
       {
         center: true,
+        label: () => headerLabelMapping.logs,
         uuid: 'Logs',
       },
     ]);
@@ -196,6 +238,7 @@ function TriggersTable({
       columnFlex.push(...[null]);
       columns.push(...[
         {
+          label: () => headerLabelMapping.project,
           uuid: 'Project',
         },
       ]);
@@ -205,6 +248,7 @@ function TriggersTable({
       columnFlex.push(...[1]);
       columns.push(...[
         {
+          label: () => headerLabelMapping.pipeline,
           uuid: 'Pipeline',
         },
       ]);
@@ -213,9 +257,11 @@ function TriggersTable({
     columnFlex.push(...[null, null]);
     columns.push(...[
       {
+        label: () => headerLabelMapping.type,
         uuid: 'Type',
       },
       {
+        label: () => headerLabelMapping.frequency,
         uuid: 'Frequency',
       },
     ]);
@@ -224,16 +270,20 @@ function TriggersTable({
   columnFlex.push(...[1, 1,  null, null]);
   columns.push(...[
     {
+      label: () => headerLabelMapping.latestStatus,
       uuid: 'Latest status',
     },
     {
       ...timezoneTooltipProps,
+      label: () => headerLabelMapping.nextRunDate,
       uuid: 'Next run date',
     },
     {
+      label: () => headerLabelMapping.runs,
       uuid: 'Runs',
     },
     {
+      label: () => headerLabelMapping.description,
       uuid: 'Description',
     },
   ]);
@@ -242,6 +292,7 @@ function TriggersTable({
     columnFlex.push(...[1]);
     columns.push(...[
       {
+        label: () => headerLabelMapping.tags,
         uuid: 'Tags',
       },
     ]);
@@ -251,6 +302,7 @@ function TriggersTable({
       columns.push(...[
         {
           ...timezoneTooltipProps,
+          label: () => headerLabelMapping.createdAt,
           uuid: 'Created at',
         },
       ]);
@@ -335,9 +387,9 @@ function TriggersTable({
     <TableContainerStyle overflowVisible>
       {pipelineSchedules.length === 0
         ?
-          <Spacing px ={3} py={1}>
+          <Spacing px={3} py={1}>
             <Text bold default monospace muted>
-              No triggers available
+              {t('triggers.no_triggers')}
             </Text>
           </Spacing>
         :
@@ -367,12 +419,17 @@ function TriggersTable({
                 name,
                 repo_path: repoPath,
                 schedule_interval: scheduleInterval,
+                schedule_type: scheduleType,
                 status,
                 tags,
               } = pipelineSchedule;
               const isActive = ScheduleStatusEnum.ACTIVE === status;
               const isCustomInterval = checkIfCustomInterval(scheduleInterval);
               const finalPipelineUUID = pipelineUUID || triggerPipelineUUID;
+              const statusLabel = statusLabelMapping?.[status] || status;
+              const scheduleTypeLabel = scheduleTypeLabelMapping?.[scheduleType]
+                || SCHEDULE_TYPE_TO_LABEL[scheduleType]?.()
+                || scheduleType;
               toggleTriggerRefs.current[id] = createRef();
               deleteButtonRefs.current[id] = createRef();
 
@@ -383,7 +440,7 @@ function TriggersTable({
 
                     <Tooltip
                       block
-                      label="This trigger is saved in code."
+                      label={t('triggers.saved_in_code')}
                       size={ICON_SIZE}
                       widthFitContent
                     >
@@ -402,7 +459,7 @@ function TriggersTable({
                   <Tooltip
                     block
                     key={`trigger_enabled_${idx}`}
-                    label={status}
+                    label={statusLabel}
                     size={20}
                     widthFitContent
                   >
@@ -506,7 +563,7 @@ function TriggersTable({
                     key={`trigger_type_${idx}`}
                     monospace
                   >
-                    {SCHEDULE_TYPE_TO_LABEL[pipelineSchedule.schedule_type]?.()}
+                    {scheduleTypeLabel}
                   </Text>,
                   <Text default key={`trigger_frequency_${idx}`} monospace>
                     {(displayLocalTimezone && isCustomInterval)
@@ -522,7 +579,7 @@ function TriggersTable({
                   {...getRunStatusTextProps(lastPipelineRunStatus)}
                   key={`latest_run_status_${idx}`}
                 >
-                  {lastPipelineRunStatus || '—'}
+                  {lastPipelineRunStatus || '\u2014'}
                 </Text>,
                 <Text
                   key={`trigger_next_run_date_${idx}`}
@@ -586,7 +643,7 @@ function TriggersTable({
                         iconOnly
                         noBackground
                         onClick={() => router.push(`/pipelines/${finalPipelineUUID}/triggers/${id}/edit`)}
-                        title="Edit"
+                        title={t('common.edit')}
                       >
                         <Edit default size={ICON_SIZE_SMALL} />
                       </Button>
@@ -601,7 +658,7 @@ function TriggersTable({
                           setConfirmDialogueLeftOffset(deleteButtonRefs.current[id]?.current?.offsetLeft || 0);
                         }}
                         ref={deleteButtonRefs.current[id]}
-                        title="Delete"
+                        title={t('common.delete')}
                       >
                         <Trash default size={ICON_SIZE_SMALL} />
                       </Button>
@@ -617,7 +674,7 @@ function TriggersTable({
                             setDeleteConfirmationOpenIdx(null);
                             deletePipelineTrigger(id);
                           }}
-                          title={`Are you sure you want to delete the trigger ${name}?`}
+                          title={t('triggers.delete_confirmation', { name })}
                           top={(confirmDialogueTopOffset || 0)
                             - (idx <= 1 ? DELETE_CONFIRM_TOP_OFFSET_DIFF_FIRST : DELETE_CONFIRM_TOP_OFFSET_DIFF)
                           }

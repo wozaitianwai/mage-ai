@@ -801,6 +801,11 @@ function PipelineListPage() {
         tag: [PipelineQueryEnum.NO_TAGS, ...tags.map(({ uuid }) => uuid)],
         type: Object.values(PipelineTypeEnum),
       }}
+      filterOptionLabelMapping={{
+        status: t('pipelines.headers.status'),
+        tag: t('pipelines.headers.tags'),
+        type: t('pipelines.headers.type'),
+      }}
       filterValueLabelMapping={{
         status: FILTERABLE_PIPELINE_STATUSES.reduce(
           (acc, cv) => ({ ...acc, [cv]: pipelineStatusLabelMapping[cv] }), {},

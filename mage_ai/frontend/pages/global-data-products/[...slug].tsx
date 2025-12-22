@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Dashboard from '@components/Dashboard';
 import GlobalDataProductDetail from '@components/GlobalDataProductDetail';
@@ -14,6 +15,7 @@ type TemplateDetailsProps = {
 };
 
 function GlobalDataProductDetailPage({ project, slug }: TemplateDetailsProps) {
+  const { t } = useTranslation('common');
   const { data: dataGlobalDataProduct } = api.global_data_products.detail(
     slug,
     project ? { project } : {},
@@ -36,7 +38,7 @@ function GlobalDataProductDetailPage({ project, slug }: TemplateDetailsProps) {
       addProjectBreadcrumbToCustomBreadcrumbs
       breadcrumbs={[
         {
-          label: () => 'Global data products',
+          label: () => t('global_data_products.title'),
           linkProps: {
             href: '/global-data-products',
           },

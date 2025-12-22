@@ -2,6 +2,7 @@ import NextLink from 'next/link';
 import { MutateFunction, useMutation } from 'react-query';
 import { createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import Checkbox from '@oracle/elements/Checkbox';
@@ -10,7 +11,7 @@ import ErrorsType from '@interfaces/ErrorsType';
 import Flex from '@oracle/components/Flex';
 import FlexContainer from '@oracle/components/FlexContainer';
 import Link from '@oracle/elements/Link';
-import PipelineRunType, { RunStatus, RUN_STATUS_TO_LABEL } from '@interfaces/PipelineRunType';
+import PipelineRunType, { LAST_RUN_FAILED_STATUS, RunStatus } from '@interfaces/PipelineRunType';
 import PopupMenu from '@oracle/components/PopupMenu';
 import Spacing from '@oracle/elements/Spacing';
 import Spinner from '@oracle/components/Spinner';
@@ -50,6 +51,31 @@ const SHARED_DATE_FONT_PROPS = {
   small: true,
 };
 
+type TranslateFn = (key: string, options?: {
+  [key: string]: any;
+}) => string;
+
+const PIPELINE_RUN_STATUS_TO_I18N_KEY: { [key: string]: string } = {
+  canceling: 'pipeline_runs.statuses.canceling',
+  [LAST_RUN_FAILED_STATUS]: 'pipeline_runs.statuses.last_run_failed',
+  [RunStatus.CANCELLED]: 'pipeline_runs.statuses.cancelled',
+  [RunStatus.COMPLETED]: 'pipeline_runs.statuses.done',
+  [RunStatus.FAILED]: 'pipeline_runs.statuses.failed',
+  [RunStatus.INITIAL]: 'pipeline_runs.statuses.ready',
+  [RunStatus.RUNNING]: 'pipeline_runs.statuses.running',
+};
+
+function getPipelineRunStatusLabel(t: TranslateFn, status?: string): string {
+  if (!status) return '';
+
+  const i18nKey = PIPELINE_RUN_STATUS_TO_I18N_KEY[status];
+  if (i18nKey) {
+    return t(i18nKey);
+  }
+
+  return status;
+}
+
 function RetryButton({
   cancelingRunId,
   disableClick,
@@ -75,6 +101,7 @@ function RetryButton({
   setShowConfirmationId: (showConfirmationId: number) => void;
   showConfirmationId: number;
 }) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const isViewerRole = isViewer(router?.basePath);
   const {
@@ -188,7 +215,12 @@ function RetryButton({
         primary={RunStatus.RUNNING === status && !isCancelingPipeline && !isViewerRole}
         warning={RunStatus.CANCELLED === status && !isViewerRole}
       >
-        {disabled ? 'Ready' : isCancelingPipeline ? 'Canceling' : RUN_STATUS_TO_LABEL[status]}
+        {disabled
+          ? getPipelineRunStatusLabel(t, RunStatus.INITIAL)
+          : isCancelingPipeline
+            ? getPipelineRunStatusLabel(t, 'canceling')
+            : getPipelineRunStatusLabel(t, status)
+        }
       </Button>
       <ClickOutside
         onClickOutside={() => setShowConfirmationId(null)}
@@ -198,13 +230,11 @@ function RetryButton({
           {[RunStatus.RUNNING, RunStatus.INITIAL].includes(status) && (
             <>
               <Text bold color="#9ECBFF">
-                Run is in progress
+                {t('pipeline_runs.run_in_progress')}
               </Text>
               <Spacing mb={1} />
               <Text>
-                This pipeline run is currently ongoing. Retrying will cancel
-                <br />
-                the current pipeline run.
+                {t('pipeline_runs.run_in_progress_description')}
               </Text>
               <Text></Text>
               <Spacing mt={1}>
@@ -215,10 +245,10 @@ function RetryButton({
                       retryPipelineRun();
                     }}
                   >
-                    Retry run
+                    {t('pipeline_runs.retry_run')}
                   </Button>
                   <Spacing ml={1} />
-                  <Button onClick={cancelPipelineRun}>Cancel run</Button>
+                  <Button onClick={cancelPipelineRun}>{t('pipeline_runs.cancel_run')}</Button>
                 </FlexContainer>
               </Spacing>
             </>
@@ -226,20 +256,22 @@ function RetryButton({
           {[RunStatus.CANCELLED, RunStatus.FAILED, RunStatus.COMPLETED].includes(status) && (
             <>
               <Text bold color="#9ECBFF">
-                Run {status}
+                {t('pipeline_runs.run_status_title', {
+                  status: getPipelineRunStatusLabel(t, status),
+                })}
               </Text>
               <Spacing mb={1} />
               <Text>
-                Retry the run with changes you have made to the pipeline.
+                {t('pipeline_runs.retry_run_description')}
                 {isNotFirstPage ? (
                   <>
                     <br />
-                    Note that the retried run may appear on a previous page.
+                    {t('pipeline_runs.retry_run_note')}
                   </>
                 ) : null}
               </Text>
               <Spacing mb={1} />
-              <Button onClick={retryPipelineRun}>Retry run</Button>
+              <Button onClick={retryPipelineRun}>{t('pipeline_runs.retry_run')}</Button>
             </>
           )}
         </PopupContainerStyle>
@@ -275,7 +307,7 @@ function PipelineRunsTable({
   deletePipelineRun,
   disableKeyboardNav,
   disableRowSelect,
-  emptyMessage = 'No runs available',
+  emptyMessage,
   fetchPipelineRuns,
   hidePipelineColumn,
   hideTriggerColumn,
@@ -289,6 +321,7 @@ function PipelineRunsTable({
   setErrors,
   workspaceFormatting = false,
 }: PipelineRunsTableProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const isViewerRole = isViewer(router?.basePath);
   const displayLocalTimezone = shouldDisplayLocalTimezone();
@@ -398,17 +431,21 @@ function PipelineRunsTable({
   const columnFlex = [null, null, null, null];
   const columns: ColumnType[] = [
     {
+      label: () => t('pipeline_runs.status'),
       uuid: 'Status',
     },
     {
       center: true,
+      label: () => t('pipeline_runs.logs'),
       uuid: 'Logs',
     },
     {
       center: true,
+      label: () => t('pipeline_runs.id'),
       uuid: 'ID',
     },
     {
+      label: () => t('pipeline_runs.block_runs'),
       uuid: 'Block runs',
     },
   ];
@@ -416,6 +453,7 @@ function PipelineRunsTable({
   if (workspaceFormatting) {
     columnFlex.push(1);
     columns.push({
+      label: () => t('pipeline_runs.repo_path'),
       uuid: 'Repo path',
     });
   }
@@ -423,6 +461,7 @@ function PipelineRunsTable({
   if (!hidePipelineColumn) {
     columnFlex.push(1);
     columns.push({
+      label: () => t('pipeline_runs.pipeline'),
       uuid: 'Pipeline',
     });
   }
@@ -430,6 +469,7 @@ function PipelineRunsTable({
   if (!hideTriggerColumn) {
     columnFlex.push(1);
     columns.push({
+      label: () => t('pipeline_runs.trigger'),
       uuid: 'Trigger',
     });
   }
@@ -437,6 +477,7 @@ function PipelineRunsTable({
   if (includePipelineTags) {
     columnFlex.push(null);
     columns.push({
+      label: () => t('pipeline_runs.pipeline_tags'),
       uuid: 'Pipeline tags',
     });
   }
@@ -446,17 +487,21 @@ function PipelineRunsTable({
     ...[
       {
         ...timezoneTooltipProps,
+        label: () => t('pipeline_runs.execution_date'),
         uuid: 'Execution date',
       },
       {
         ...timezoneTooltipProps,
+        label: () => t('pipeline_runs.started_at'),
         uuid: 'Started at',
       },
       {
         ...timezoneTooltipProps,
+        label: () => t('pipeline_runs.completed_at'),
         uuid: 'Completed at',
       },
       {
+        label: () => t('pipeline_runs.execution_time'),
         uuid: 'Execution time',
       },
     ],
@@ -525,7 +570,7 @@ function PipelineRunsTable({
       {pipelineRuns?.length === 0 ? (
         <Spacing px={3} py={1}>
           <Text bold default monospace muted>
-            {emptyMessage}
+            {emptyMessage ?? t('pipeline_runs.no_runs_available')}
           </Text>
         </Spacing>
       ) : (
@@ -554,7 +599,10 @@ function PipelineRunsTable({
             } = pipelineRun;
             deleteButtonRefs.current[id] = createRef();
             const disabled = !id && !status;
-            const blockRunCountTooltipMessage = `${completedBlockRunsCount} out of ${blockRunsCount} block runs completed`;
+            const blockRunCountTooltipMessage = t('pipeline_runs.block_runs_completed_tooltip', {
+              completed: completedBlockRunsCount,
+              total: blockRunsCount,
+            });
 
             const tagsEl = (
               <TagsContainer
@@ -575,7 +623,7 @@ function PipelineRunsTable({
                   <FlexContainer alignItems="center">
                     <Subitem size={ICON_SIZE_SMALL} useStroke />
                     <Button borderRadius={`${BORDER_RADIUS_XXXLARGE}px`} notClickable padding="6px">
-                      <Text muted>{RUN_STATUS_TO_LABEL[status]}</Text>
+                      <Text muted>{getPipelineRunStatusLabel(t, status)}</Text>
                     </Button>
                   </FlexContainer>
                 </Spacing>,
@@ -865,7 +913,7 @@ function PipelineRunsTable({
                       );
                     }}
                     ref={deleteButtonRefs.current[id]}
-                    title="Delete"
+                    title={t('pipeline_runs.delete')}
                   >
                     <Trash default size={ICON_SIZE_SMALL} />
                   </Button>
@@ -881,7 +929,10 @@ function PipelineRunsTable({
                         setDeleteConfirmationOpenIdx(null);
                         deletePipelineRun(id);
                       }}
-                      title={`Are you sure you want to delete this run (id ${id} for trigger "${pipelineScheduleName}")?`}
+                      title={t('pipeline_runs.delete_confirm_title', {
+                        id,
+                        trigger: pipelineScheduleName,
+                      })}
                       top={
                         (confirmDialogueTopOffset || 0) -
                         (index <= 1

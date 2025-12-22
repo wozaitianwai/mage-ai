@@ -139,7 +139,12 @@
     "light_mode": "浅色模式",
     "menu": "菜单",
     "update": "更新",
-    "view_more": "查看更多"
+    "view_more": "查看更多",
+    "apply": "应用",
+    "defaults": "恢复默认",
+    "group": "分组",
+    "grouped_by": "按 {{label}} 分组",
+    "more_actions": "更多操作"
   },
   "pipeline": {
     "new": "新建管道",
@@ -286,6 +291,23 @@
       "pyspark": "PySpark",
       "streaming": "流式",
       "invalid": "无效"
+    },
+    "new_menu": {
+      "standard": "标准（批处理）",
+      "integration": "数据集成",
+      "streaming": "流式",
+      "template": "来自模板",
+      "import_zip": "导入管道 zip",
+      "ai_beta": "使用 AI（测试）"
+    },
+    "configure": {
+      "pipeline": "流水线",
+      "name": "名称",
+      "name_placeholder": "流水线名称...",
+      "description": "描述",
+      "tags": "标签",
+      "tags_placeholder": "例如 tag_1, tag_2",
+      "create": "创建"
     }
   },
   "sync_data": {
@@ -347,6 +369,9 @@
     "save_button": "保存仓库设置"
   },
   "triggers": {
+    "title": "触发器",
+    "sort_by": "排序方式：",
+    "select_column": "选择列",
     "no_triggers": "暂无可用触发器",
     "saved_in_code": "此触发器保存在代码中。",
     "save_triggers_automatically": "自动将触发器保存到代码",
@@ -498,6 +523,7 @@
     "logs": "日志",
     "id": "ID",
     "block_runs": "块运行",
+    "block_runs_completed_tooltip": "已完成 {{completed}} / {{total}} 个块运行",
     "repo_path": "仓库路径",
     "pipeline": "管道",
     "trigger": "触发器",
@@ -590,7 +616,71 @@
     "save_product": "保存全局数据产品",
     "attributes": "全局数据产品属性",
     "triggers": "触发器",
-    "runs": "运行"
+    "runs": "运行",
+    "optional": "（可选）",
+    "unit": "单位",
+    "value": "值",
+    "default_value": "（默认值：{{value}}）",
+    "enter_a_number": "请输入数字",
+    "select_a_value": "请选择值",
+    "outdated_after": {
+      "title": "过期时长",
+      "description": "全局数据产品成功运行完成后，经过多久会被视为过期？",
+      "units": {
+        "seconds": "秒",
+        "weeks": "周",
+        "months": "月",
+        "years": "年"
+      }
+    },
+    "outdated_starting_at": {
+      "title": "过期开始于",
+      "description": "如果距离上一次全局数据产品成功运行已经过去足够长时间，并且该全局数据产品被判定为过期，那么你可以将其配置为在特定日期或时间开始过期。",
+      "example_before": "例如，假设该全局数据产品在运行完成 12 小时后过期。上一次成功运行是昨天 18:00，因此它会在今天 06:00 过期。但是，如果",
+      "example_between": "在",
+      "example_after": "中设置为 17，那么该全局数据产品将不会在 06:00 之后立即再次运行，而是会等到今天 17:00 才运行。",
+      "units": {
+        "second_of_minute": "分钟的秒",
+        "minute_of_hour": "小时的分钟",
+        "hour_of_day": "一天中的小时",
+        "day_of_week": "一周中的星期",
+        "day_of_month": "一月中的日期",
+        "day_of_year": "一年中的日期",
+        "week_of_month": "一月中的周",
+        "week_of_year": "一年中的周",
+        "month_of_year": "一年中的月份"
+      },
+      "days_of_week": {
+        "sunday": "星期日",
+        "monday": "星期一",
+        "tuesday": "星期二",
+        "wednesday": "星期三",
+        "thursday": "星期四",
+        "friday": "星期五",
+        "saturday": "星期六"
+      },
+      "months_of_year": {
+        "january": "一月",
+        "february": "二月",
+        "march": "三月",
+        "april": "四月",
+        "may": "五月",
+        "june": "六月",
+        "july": "七月",
+        "august": "八月",
+        "september": "九月",
+        "october": "十月",
+        "november": "十一月",
+        "december": "十二月"
+      }
+    },
+    "settings": {
+      "title": "输出的数据块",
+      "description": "你在下方选择的代码块输出的数据将作为数据产品，在下游实体从该全局数据产品请求数据时返回。",
+      "helper_text": "在请求该全局数据产品的数据时，所选代码块将返回其最近分区的数据。你可以通过在分区设置中填写一个值来覆盖该行为。例如，将分区值设置为 5，则所选代码块将返回最近 5 个分区的数据；若设置为 0，则会返回所有分区的数据。",
+      "block_uuid": "代码块 UUID",
+      "partitions": "分区数"
+    }
   },
   "toolbar": {
     "filter": "筛选",

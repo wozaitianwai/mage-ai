@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import BlockType from '@interfaces/BlockType';
 import Button from '@oracle/elements/Button';
@@ -31,7 +32,6 @@ import usePrevious from '@utils/usePrevious';
 import { ButtonsStyle } from '@components/CustomTemplates/TemplateDetail/index.style';
 import { PADDING_UNITS, UNITS_BETWEEN_ITEMS_IN_SECTIONS } from '@oracle/styles/units/spacing';
 import { VERTICAL_NAVIGATION_WIDTH } from '@components/Dashboard/index.style';
-import { capitalize } from '@utils/string';
 import { onSuccess } from '@api/utils/response';
 import { sortByKey } from '@utils/array';
 import { useError } from '@context/Error';
@@ -42,6 +42,7 @@ type GlobalDataProductDetailProps = {
 };
 
 function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProductDetailProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const [showError] = useError(null, {}, [], {
     uuid: 'GlobalDataProductDetail',
@@ -79,7 +80,7 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
             } else {
               setObjectAttributesState(gdp);
 
-              toast.success('Global data product successfully saved.', {
+              toast.success(t('global_data_products.success_save'), {
                 position: toast.POSITION.BOTTOM_RIGHT,
                 toastId: 'custom_pipeline_template',
               });
@@ -110,16 +111,23 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
     [dataPipelines],
   );
 
+  const objectTypeLabel = useMemo(() => {
+    if (GlobalDataProductObjectTypeEnum.PIPELINE === objectAttributes?.object_type) {
+      return t('common.pipeline')?.toLowerCase();
+    }
+
+    return objectAttributes?.object_type || t('global_data_products.object_type')?.toLowerCase();
+  }, [objectAttributes?.object_type, t]);
+
   const before = useMemo(
     () => (
       <FlexContainer flexDirection="column" fullHeight>
         <Flex flexDirection="column">
           <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS} px={PADDING_UNITS}>
             <Spacing mb={1}>
-              <Text bold>UUID</Text>
+              <Text bold>{t('global_data_products.uuid')}</Text>
               <Text muted small>
-                Unique identifier for this global data product. This value must be unique across all
-                global data products.
+                {t('global_data_products.uuid_description')}
               </Text>
             </Spacing>
 
@@ -132,7 +140,7 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
                   uuid: e.target.value,
                 }))
               }
-              placeholder="e.g. a unique identifier"
+              placeholder={t('global_data_products.uuid_placeholder')}
               primary
               setContentOnMount
               value={objectAttributes?.uuid || ''}
@@ -141,9 +149,9 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
 
           <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS} px={PADDING_UNITS}>
             <Spacing mb={1}>
-              <Text bold>Object type</Text>
+              <Text bold>{t('global_data_products.object_type')}</Text>
               <Text muted small>
-                Pipeline, block, etc. Currently, only pipeline is supported.
+                {t('global_data_products.object_type_description')}
               </Text>
             </Spacing>
 
@@ -154,13 +162,13 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
                   object_type: e.target.value,
                 }))
               }
-              placeholder="Only pipeline is currently supported"
+              placeholder={t('global_data_products.only_pipeline_supported')}
               primary
               value={objectAttributes?.object_type || ''}
             >
               {[GlobalDataProductObjectTypeEnum.PIPELINE].map(val => (
                 <option key={val} value={val}>
-                  {capitalize(val)}
+                  {t('common.pipeline')}
                 </option>
               ))}
             </Select>
@@ -168,10 +176,11 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
 
           <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS} px={PADDING_UNITS}>
             <Spacing mb={1}>
-              <Text bold>Object UUID</Text>
+              <Text bold>{t('global_data_products.object_uuid')}</Text>
               <Text muted small>
-                The UUID of the {objectAttributes?.object_type || 'object type'} that this global
-                data product represents.
+                {t('global_data_products.object_uuid_description', {
+                  type: objectTypeLabel,
+                })}
               </Text>
             </Spacing>
 
@@ -184,7 +193,7 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
                   object_uuid: e.target.value,
                 }))
               }
-              placeholder="Select object UUID"
+              placeholder={t('global_data_products.select_object_uuid')}
               primary
               value={objectAttributes?.object_uuid || ''}
             >
@@ -199,7 +208,7 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
               objectAttributes?.object_uuid && (
                 <Spacing mt={1}>
                   <Text muted small>
-                    View pipeline{' '}
+                    {t('global_data_products.view_pipeline')}{' '}
                     <NextLink
                       as={`/pipelines/${objectAttributes?.object_uuid}/edit`}
                       href={'/pipelines/[pipeline]/edit'}
@@ -259,8 +268,7 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
                 }
                 primary
               >
-                {isNew && 'Create global data product'}
-                {!isNew && 'Save global data product'}
+                {isNew ? t('global_data_products.create_product') : t('global_data_products.save_product')}
               </Button>
             </FlexContainer>
           </Spacing>
@@ -273,8 +281,10 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
       isLoadingUpdateObject,
       isNew,
       objectAttributes,
+      objectTypeLabel,
       pipelines,
       setObjectAttributes,
+      t,
       updateObject,
     ],
   );
@@ -310,7 +320,7 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
       before={before}
       beforeHeader={
         <Spacing px={PADDING_UNITS}>
-          <Text>Global data product attributes</Text>
+          <Text>{t('global_data_products.attributes')}</Text>
         </Spacing>
       }
       beforeHidden={beforeHidden}
@@ -323,7 +333,7 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
       {!isNew && (
         <>
           <Spacing p={PADDING_UNITS}>
-            <Headline>Triggers</Headline>
+            <Headline>{t('global_data_products.triggers')}</Headline>
           </Spacing>
 
           <Divider light />
@@ -331,7 +341,7 @@ function GlobalDataProductDetail({ globalDataProduct, isNew }: GlobalDataProduct
           <TriggersTable disableActions pipeline={pipeline} pipelineSchedules={pipelineSchedules} />
 
           <Spacing p={PADDING_UNITS}>
-            <Headline>Runs</Headline>
+            <Headline>{t('global_data_products.runs')}</Headline>
           </Spacing>
 
           <Divider light />

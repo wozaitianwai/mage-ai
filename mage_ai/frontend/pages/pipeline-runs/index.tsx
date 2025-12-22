@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import Dashboard from '@components/Dashboard';
 import ErrorsType from '@interfaces/ErrorsType';
@@ -16,7 +17,7 @@ import {
   PIPELINE_RUN_STATUSES_NO_LAST_RUN_FAILED,
   PipelineRunFilterQueryEnum,
   PipelineRunReqQueryParamsType,
-  RUN_STATUS_TO_LABEL,
+  RunStatus,
 } from '@interfaces/PipelineRunType';
 import { UNITS_BETWEEN_ITEMS_IN_SECTIONS } from '@oracle/styles/units/spacing';
 import { filterQuery, queryFromUrl, queryString } from '@utils/url';
@@ -24,6 +25,7 @@ import { sortByKey } from '@utils/array';
 import { storeLocalTimezoneSetting } from '@components/settings/workspace/utils';
 
 function RunListPage() {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const [errors, setErrors] = useState<ErrorsType>(null);
   const q = queryFromUrl();
@@ -33,6 +35,20 @@ function RunListPage() {
     PipelineRunFilterQueryEnum.STATUS,
     PipelineRunFilterQueryEnum.TAG,
   ]), [q]);
+
+  const filterOptionLabelMapping = useMemo(() => ({
+    pipeline_tag: () => t('pipeline_runs.pipeline_tags'),
+    pipeline_uuid: () => t('pipeline_runs.pipeline'),
+    status: () => t('pipeline_runs.status'),
+  }), [t]);
+
+  const runStatusLabelMapping = useMemo(() => ({
+    [RunStatus.CANCELLED]: () => t('pipeline_runs.statuses.cancelled'),
+    [RunStatus.COMPLETED]: () => t('pipeline_runs.statuses.done'),
+    [RunStatus.FAILED]: () => t('pipeline_runs.statuses.failed'),
+    [RunStatus.INITIAL]: () => t('pipeline_runs.statuses.ready'),
+    [RunStatus.RUNNING]: () => t('pipeline_runs.statuses.running'),
+  }), [t]);
 
   const { data: dataProjects } = api.projects.list();
   const project: ProjectType = useMemo(() => dataProjects?.projects?.[0], [dataProjects]);
@@ -74,6 +90,7 @@ function RunListPage() {
 
   const toolbarEl = useMemo(() => (
     <Toolbar
+      filterOptionLabelMapping={filterOptionLabelMapping}
       filterOptions={{
         pipeline_tag: tags.map(({ uuid }) => uuid),
         pipeline_uuid: pipelineUUIDs,
@@ -84,7 +101,7 @@ function RunListPage() {
           ...acc,
           [uuid]: uuid,
         }), {}),
-        status: RUN_STATUS_TO_LABEL,
+        status: runStatusLabelMapping,
       }}
       onClickFilterDefaults={() => {
         router.push('/pipeline-runs');
@@ -98,6 +115,8 @@ function RunListPage() {
     // being reset every time pipeline runs are fetched.
     pipelineUUIDs,
     router,
+    filterOptionLabelMapping,
+    runStatusLabelMapping,
     tags,
   ]);
 
@@ -106,7 +125,7 @@ function RunListPage() {
       errors={errors}
       setErrors={setErrors}
       subheaderChildren={toolbarEl}
-      title="Pipeline runs"
+      title={t('sidebar.pipeline_runs')}
       uuid="pipeline_runs/index"
     >
       {!dataPipelineRuns

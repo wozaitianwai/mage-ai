@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import Dashboard from '@components/Dashboard';
 import FlexContainer from '@oracle/components/FlexContainer';
@@ -24,6 +25,7 @@ import { storeLocalTimezoneSetting } from '@components/settings/workspace/utils'
 
 function TriggerListPage() {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const [errors, setErrors] = useState(null);
 
   const q = queryFromUrl();
@@ -63,16 +65,27 @@ function TriggerListPage() {
     [dataPipelineSchedules],
   );
 
+  const sortLabelMapping: Record<SortQueryParamEnum, string> = useMemo(
+    () => ({
+      [SortQueryParamEnum.CREATED_AT]: t('triggers.headers.created_at'),
+      [SortQueryParamEnum.NAME]: t('triggers.headers.name'),
+      [SortQueryParamEnum.PIPELINE]: t('triggers.headers.pipeline'),
+      [SortQueryParamEnum.STATUS]: t('triggers.headers.active'),
+      [SortQueryParamEnum.TYPE]: t('triggers.headers.type'),
+    }),
+    [t],
+  );
+
   return (
     <Dashboard
       errors={errors}
       setErrors={setErrors}
-      title="Triggers"
+      title={t('triggers.title')}
       uuid="triggers/index"
     >
       <Spacing mx={2} my={1}>
         <FlexContainer alignItems="center">
-          <Text bold default large>Sort by:</Text>
+          <Text bold default large>{t('triggers.sort_by')}</Text>
           <Spacing mr={1} />
           <Select
             compact
@@ -88,12 +101,12 @@ function TriggerListPage() {
               );
             }}
             paddingRight={UNIT * 4}
-            placeholder="Select column"
+            placeholder={t('triggers.select_column')}
             value={orderByQuery || SortQueryParamEnum.CREATED_AT}
           >
             {Object.entries(SORT_QUERY_TO_COLUMN_NAME_MAPPING).map(([sortKey, sortDisplayValue]) => (
               <option key={sortKey} value={sortKey}>
-                {sortDisplayValue}
+                {sortLabelMapping[sortKey as SortQueryParamEnum] || sortDisplayValue}
               </option>
             ))}
           </Select>

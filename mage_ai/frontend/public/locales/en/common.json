@@ -53,10 +53,7 @@
     "utc_counts_note": "Counts are displayed in local time.",
     "view_more": "View more",
     "cancelled": "Cancelled",
-    "completed": "Completed",
-    "failed": "Failed",
-    "initial": "Initial",
-    "running": "Running"
+    "initial": "Initial"
   },
   "common": {
     "welcome": "Welcome to Mage AI",
@@ -142,7 +139,12 @@
     "light_mode": "Light Mode",
     "menu": "Menu",
     "update": "Update",
-    "view_more": "View more"
+    "view_more": "View more",
+    "apply": "Apply",
+    "defaults": "Defaults",
+    "group": "Group",
+    "grouped_by": "Grouped by {{label}}",
+    "more_actions": "More actions"
   },
   "pipeline": {
     "new": "New pipeline",
@@ -240,6 +242,23 @@
     "utc_warning": "Please note that these metrics are based on UTC time."
   },
   "pipelines": {
+    "new_menu": {
+      "standard": "Standard (batch)",
+      "integration": "Data integration",
+      "streaming": "Streaming",
+      "template": "From a template",
+      "import_zip": "Import pipeline zip",
+      "ai_beta": "Using AI (beta)"
+    },
+    "configure": {
+      "pipeline": "pipeline",
+      "name": "Name",
+      "name_placeholder": "Pipeline name...",
+      "description": "Description",
+      "tags": "Tags",
+      "tags_placeholder": "e.g. tag_1, tag_2",
+      "create": "Create"
+    },
     "no_pipelines": "No pipelines available",
     "no_tags": "No tags",
     "per_page": "Per page",
@@ -350,6 +369,9 @@
     "save_button": "Save repository settings"
   },
   "triggers": {
+    "title": "Triggers",
+    "sort_by": "Sort by:",
+    "select_column": "Select column",
     "no_triggers": "No triggers available",
     "saved_in_code": "This trigger is saved in code.",
     "save_triggers_automatically": "Save triggers in code automatically",
@@ -376,25 +398,23 @@
     "add_new_block": "Add a new block to start building your pipeline."
   },
   "preferences": {
+    "pipeline_settings": "Pipeline settings",
+    "pipeline_settings_description": "Global settings that are applied to all pipelines in this project.",
+    "features": "Features",
+    "overridden": "Overridden",
     "project_name": "Project name",
     "project_uuid": "Project UUID",
     "not_required": "Not required",
     "help_improve_mage": "Help improve Mage",
-    "contribute_usage": "Please contribute usage statistics to help improve the developer experience for you and everyone in the community. Learn more",
+    "contribute_usage": "Contribute usage statistics to help us improve the developer experience. Read more",
     "here": "here",
-    "pipeline_settings": "Pipeline settings",
-    "global_settings_description": "Global settings that are applied to all pipelines in this project.",
-    "save_triggers_automatically": "Save triggers in code automatically",
-    "save_triggers_description": "Every time a trigger is created or updated in this pipeline, automatically persist it in code.",
-    "features": "Features",
     "openai": "OpenAI",
-    "api_key_hidden": "API key: ********",
+    "api_key_hidden": "API key hidden",
     "edit": "Edit",
-    "api_key_disabled_demo": "Entering API key is disabled on demo",
     "api_key": "API key",
+    "api_key_disabled_demo": "API key (Disabled in demo)",
     "save_settings": "Save project settings",
-    "cancel": "Cancel",
-    "overridden": "overridden"
+    "cancel": "Cancel"
   },
   "version_control": {
     "title": "Version control",
@@ -412,7 +432,6 @@
     "initialize_git_directory": "Initialize Git directory",
     "enter_directory_hint": "Enter the directory you want to initialize git in. The current project directory is filled in for you. If you want to use that, click the save button.",
     "git_initialized_hint": "If the directory below is blank, the current working directory will be used to initialize git. If git hasn’t been initialized in the directory below, Mage will automatically run git init for you.",
-    "enter_directory_hint": "Enter the directory you want to initialize git in. The current project directoy is filled in for you. If you want to use that, click the save button.",
     "git_directory_label": "Git directory",
     "save": "Save",
     "cancel": "Cancel",
@@ -459,7 +478,6 @@
     "commit_message": "Commit message",
     "commit_files_with_message": "Commit {{count}} {{file}} with message",
     "logs": "Logs",
-    "authenticate": "Authenticate",
     "reset": "Reset",
     "unselect_all": "Unselect all",
     "select_all": "Select all",
@@ -504,6 +522,7 @@
     "logs": "Logs",
     "id": "ID",
     "block_runs": "Block runs",
+    "block_runs_completed_tooltip": "{{completed}} out of {{total}} block runs completed",
     "repo_path": "Repo path",
     "pipeline": "Pipeline",
     "trigger": "Trigger",
@@ -596,7 +615,71 @@
     "save_product": "Save global data product",
     "attributes": "Global data product attributes",
     "triggers": "Triggers",
-    "runs": "Runs"
+    "runs": "Runs",
+    "optional": " (optional)",
+    "unit": "Unit",
+    "value": "Value",
+    "default_value": " (default: {{value}})",
+    "enter_a_number": "Enter a number",
+    "select_a_value": "Select a value",
+    "outdated_after": {
+      "title": "Outdated after",
+      "description": "After the global data product successfully completes running, how long after that will the global data product be outdated?",
+      "units": {
+        "seconds": "seconds",
+        "weeks": "weeks",
+        "months": "months",
+        "years": "years"
+      }
+    },
+    "outdated_starting_at": {
+      "title": "Outdated starting at",
+      "description": "If enough time has passed since the last global data product has ran successfully and the global data product is determined to be outdated, then you can configure it to be outdated at a specific date or time.",
+      "example_before": "For example, let’s say the global data product is outdated after 12 hours. The last successful run was yesterday at 18:00. The global data product will be outdated today at 06:00. However, if the",
+      "example_between": " has a value of 17 for ",
+      "example_after": ", then the global data product won’t run again until today at 17:00.",
+      "units": {
+        "second_of_minute": "Second of minute",
+        "minute_of_hour": "Minute of hour",
+        "hour_of_day": "Hour of day",
+        "day_of_week": "Day of week",
+        "day_of_month": "Day of month",
+        "day_of_year": "Day of year",
+        "week_of_month": "Week of month",
+        "week_of_year": "Week of year",
+        "month_of_year": "Month of year"
+      },
+      "days_of_week": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday"
+      },
+      "months_of_year": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+      }
+    },
+    "settings": {
+      "title": "Block data to output",
+      "description": "The data output from the block(s) you select below will be the data product that is returned when a downstream entity is requesting data from this global data product.",
+      "helper_text": "When requesting data from this global data product, the selected block(s) will return data from its most recent partition. You can override this by adding a value in the partitions setting. For example, if you set the partitions value to 5, then the selected block will return data from its 5 most recent partitions. If you set the partitions value to 0, then all the partitions will be returned.",
+      "block_uuid": "Block UUID",
+      "partitions": "Partitions"
+    }
   },
   "toolbar": {
     "filter": "Filter",
@@ -656,8 +739,7 @@
     "select_block_settings_instruction_1": "Please select a block and then click the settings icon",
     "select_block_settings_instruction_2": "in the top right corner of a block (if applicable).",
     "block_settings_for": "Block settings for",
-    "all_interactions": "All interactions",
-    "interactions": "Interactions"
+    "all_interactions": "All interactions"
   },
   "block_browser": {
     "all_blocks": "All blocks",
@@ -810,25 +892,6 @@
     "save_settings": "Save pipeline settings",
     "hide_all_blocks": "Hide all blocks in notebook",
     "output_block_logs": "When running a block while editing a pipeline, output the block messages to the logs"
-  },
-  "preferences": {
-    "pipeline_settings": "Pipeline settings",
-    "pipeline_settings_description": "Global settings that are applied to all pipelines in this project.",
-    "features": "Features",
-    "overridden": "Overridden",
-    "project_name": "Project name",
-    "project_uuid": "Project UUID",
-    "not_required": "Not required",
-    "help_improve_mage": "Help improve Mage",
-    "contribute_usage": "Contribute usage statistics to help us improve the developer experience. Read more",
-    "here": "here",
-    "openai": "OpenAI",
-    "api_key_hidden": "API key hidden",
-    "edit": "Edit",
-    "api_key": "API key",
-    "api_key_disabled_demo": "API key (Disabled in demo)",
-    "save_settings": "Save project settings",
-    "cancel": "Cancel"
   },
   "features": {
     "add_new_block_v2": "Add new block v2",

@@ -1,4 +1,5 @@
 import NextLink from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 import BlockType from '@interfaces/BlockType';
 import Checkbox from '@oracle/elements/Checkbox';
@@ -23,26 +24,21 @@ function OutdatedStartingAtField({
   originalAttributes,
   setObjectAttributes,
 }: OutdatedStartingAtFieldProps) {
+  const { t } = useTranslation('common');
+
   return (
     <>
       <Spacing mb={1} px={PADDING_UNITS}>
         <Text bold>
-          Block data to output
+          {t('global_data_products.settings.title')}
         </Text>
         <Text muted small>
-          The data output from the block(s) you select below will be the data product
-          that is returned when a downstream entity is requesting data from this
-          global data product.
+          {t('global_data_products.settings.description')}
         </Text>
 
         <div style={{ marginTop: 4 }}>
           <Text muted small>
-            When requesting data from this global data product,
-            the selected block(s) will return data from its most recent partition.
-            You can override this by adding a value in the partitions setting. For example,
-            if you set the partitions value to 5, then the selected block will return data
-            from its 5 most recent partitions. If you set the partitions value to 0, then
-            all the partitions will be returned.
+            {t('global_data_products.settings.helper_text')}
           </Text>
         </div>
       </Spacing>
@@ -55,9 +51,11 @@ function OutdatedStartingAtField({
             uuid: 'selected',
           },
           {
+            label: () => t('global_data_products.settings.block_uuid'),
             uuid: 'Block UUID',
           },
           {
+            label: () => t('global_data_products.settings.partitions'),
             uuid: 'Partitions',
           },
         ]}
@@ -110,9 +108,9 @@ function OutdatedStartingAtField({
                 >
                   {uuid}
                 </Link>
-              </NextLink> {valueOriginal && (
+              </NextLink>{valueOriginal && (
                 <Text inline monospace muted>
-                  (default: {valueOriginal})
+                  {t('global_data_products.default_value', { value: valueOriginal })}
                 </Text>
               )}
             </div>,

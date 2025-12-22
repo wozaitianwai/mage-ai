@@ -1,6 +1,7 @@
 import NextLink from 'next/link';
 import { useMemo } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import GlobalDataProductType, {
   GlobalDataProductObjectTypeEnum,
@@ -23,6 +24,7 @@ function GlobalDataProducts({
   globalDataProducts: globalDataProductsProps,
   onClickRow,
 }: GlobalDataProductsProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
 
   const { data: dataGlobalProducts } = api.global_data_products.list(
@@ -48,7 +50,7 @@ function GlobalDataProducts({
   if (dataGlobalProducts && globalDataProducts?.length === 0) {
     return (
       <Spacing p={PADDING_UNITS}>
-        <Text>There are currently no global data products registered.</Text>
+        <Text>{t('global_data_products.no_products')}</Text>
       </Spacing>
     );
   }
@@ -58,15 +60,19 @@ function GlobalDataProducts({
       columnFlex={[null, null, null, null]}
       columns={[
         {
+          label: () => t('global_data_products.uuid'),
           uuid: 'UUID',
         },
         {
+          label: () => t('global_data_products.object_type'),
           uuid: 'Object type',
         },
         {
+          label: () => t('global_data_products.object_uuid'),
           uuid: 'Object UUID',
         },
         {
+          label: () => t('global_data_products.project'),
           uuid: 'Project',
         },
       ]}
@@ -108,7 +114,10 @@ function GlobalDataProducts({
             {uuid}
           </Text>,
           <Text default key="objectType" monospace>
-            {objectType}
+            {GlobalDataProductObjectTypeEnum.PIPELINE === objectType
+              ? t('common.pipeline')
+              : objectType
+            }
           </Text>,
           <NextLink as={linkProps?.as} href={linkProps?.href || ''} key="objectUUID" passHref>
             <Link
