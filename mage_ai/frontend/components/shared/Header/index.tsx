@@ -52,6 +52,12 @@ import { redirectToUrl } from '@utils/url';
 import { storeLocalTimezoneSetting } from '@components/settings/workspace/utils';
 import { useModal } from '@context/Modal';
 import { useError } from '@context/Error';
+import {
+  getCurrentThemeMode,
+  setCurrentTheme,
+  THEME_MODE_DARK,
+  THEME_MODE_LIGHT,
+} from '@oracle/styles/themes/utils';
 
 export type BreadcrumbType = BreadcrumbTypeOrig;
 
@@ -91,6 +97,7 @@ function Header({
   const [highlightedMenuIndex, setHighlightedMenuIndex] = useState<number>(null);
   const [confirmationDialogueOpen, setConfirmationDialogueOpen] = useState<boolean>(false);
   const [confirmationAction, setConfirmationAction] = useState(null);
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>(null);
 
   const menuRef = useRef(null);
   const projectRef = useRef(null);
@@ -244,14 +251,10 @@ function Header({
     });
   }
 
-  const breadcrumbs = useMemo(() => [
+  const breadcrumbs = [
     ...breadcrumbProjects,
     ...(breadcrumbsProp || []),
-  ], [
-    breadcrumbProjects,
-    breadcrumbsProp,
-    project,
-  ]);
+  ];
   const { pipeline: pipelineUUID } = router.query;
 
   const { latest_version: latestVersion } = project || {};
@@ -313,13 +316,23 @@ function Header({
         uuid: 'user_settings',
       },
       {
-        label: () => 'Light mode',
-        linkProps: {
-          href: 'https://www.mage.ai/build?ref=oss',
-          openNewWindow: true,
+        label: () => (themeMode === 'light' ? 'Dark mode' : 'Light mode'),
+        onClick: () => {
+          const nextMode = themeMode === 'light' ? THEME_MODE_DARK : THEME_MODE_LIGHT;
+          setCurrentTheme(nextMode);
+          setThemeMode(nextMode === THEME_MODE_LIGHT ? 'light' : 'dark');
+
+          if (typeof document !== 'undefined') {
+            document.body.removeAttribute('data-theme');
+            document.body.setAttribute('data-theme', nextMode === THEME_MODE_LIGHT ? 'light' : 'dark');
+          }
+
+          if (typeof window !== 'undefined') {
+            const eventCustom = new CustomEvent(CustomEventUUID.THEME_CHANGED);
+            window.dispatchEvent(eventCustom);
+          }
         },
-        tag: 'Pro',
-        uuid: 'light_mode',
+        uuid: 'theme_mode',
       },
     ];
 
@@ -400,10 +413,13 @@ function Header({
     );
   }, [
     hasAvatarAndNotEmoji,
+    themeContext?.content?.active,
     userFromLocalStorage,
   ]);
 
   useEffect(() => {
+    setThemeMode(getCurrentThemeMode());
+
     const handleState = ({
       detail,
     }) => {
