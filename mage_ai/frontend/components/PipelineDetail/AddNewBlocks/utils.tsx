@@ -82,6 +82,7 @@ export const createDataSourceMenuItems = (
   blockType: BlockTypeEnum,
   blockCallback: (block: BlockRequestPayloadType) => void,
   pipelineType?: PipelineTypeEnum,
+  t?: (key: string, opts?: any) => string,
 ) => {
   const requiresConfigFile = (pipelineType === PipelineTypeEnum.STREAMING)
     && (blockType === BlockTypeEnum.DATA_LOADER || blockType === BlockTypeEnum.DATA_EXPORTER);
@@ -89,7 +90,13 @@ export const createDataSourceMenuItems = (
   return (getDataSourceTypes(pipelineType)[blockType] || [])
     .map((sourceType: DataSourceTypeEnum) => ({
       indent: blockType === BlockTypeEnum.TRANSFORMER,
-      label: () => DATA_SOURCE_TYPE_HUMAN_READABLE_NAME_MAPPING[sourceType],
+      label: () => {
+        const key = `data_source_types.${sourceType.toLowerCase()}`;
+        const translated = t?.(key);
+        return translated && translated !== key
+          ? translated
+          : DATA_SOURCE_TYPE_HUMAN_READABLE_NAME_MAPPING[sourceType];
+      },
       onClick: () => {
         blockCallback({
           config: {
@@ -108,9 +115,10 @@ export const createDataSourceMenuItems = (
 function SQLMenuItems(
   addNewBlock: (block: BlockRequestPayloadType) => void,
   blockType: BlockTypeEnum,
+  t?: (key: string) => string,
 ) {
   return {
-    label: () => 'SQL',
+    label: () => t?.('common.sql') || 'SQL',
     onClick: () => addNewBlock({
       language: BlockLanguageEnum.SQL,
       type: blockType,
@@ -122,9 +130,10 @@ function SQLMenuItems(
 function RMenuItems(
   addNewBlock: (block: BlockRequestPayloadType) => void,
   blockType: BlockTypeEnum,
+  t?: (key: string) => string,
 ) {
   return {
-    label: () => 'R',
+    label: () => t?.('common.r') || 'R',
     onClick: () => addNewBlock({
       language: BlockLanguageEnum.R,
       type: blockType,
@@ -136,9 +145,10 @@ function RMenuItems(
 export const getNonPythonMenuItems = (
   addNewBlock: (block: BlockRequestPayloadType) => void,
   blockType: BlockTypeEnum,
+  t?: (key: string) => string,
 ) => ([
-  SQLMenuItems(addNewBlock, blockType),
-  RMenuItems(addNewBlock, blockType),
+  SQLMenuItems(addNewBlock, blockType, t),
+  RMenuItems(addNewBlock, blockType, t),
 ]);
 
 export function groupBlockTemplates(
@@ -260,6 +270,7 @@ export const getdataSourceMenuItems = (
         [language: string]: FlyoutMenuItemType;
       };
     };
+    t?: (key: string, opts?: any) => string;
     dataIntegrationType?: DataIntegrationTypeEnum;
     languages?: BlockLanguageEnum[];
     onlyCustomTemplate?: boolean;
@@ -286,13 +297,13 @@ export const getdataSourceMenuItems = (
     dataSourceMenuItemsMapping = Object.fromEntries(CONVERTIBLE_BLOCK_TYPES.map(
       (blockType: BlockTypeEnum) => ([
         blockType,
-          createDataSourceMenuItems(blockType, addNewBlock, pipelineType),
+          createDataSourceMenuItems(blockType, addNewBlock, pipelineType, opts?.t),
       ])),
     );
   }
 
   const customTemplate = {
-    label: () => 'Custom template',
+    label: () => opts?.t?.('add_new_blocks.custom_template') || 'Custom template',
     onClick: () => showBrowseTemplates({
       addNewBlock,
       blockType: blockType,
@@ -331,18 +342,18 @@ export const getdataSourceMenuItems = (
           (dataSourceMenuItemsMapping[blockType] || []).concat(additionalTemplates),
           ({ label }) => label(),
         ),
-        label: () => 'Python',
+        label: () => opts?.t?.('common.python') || 'Python',
         uuid: `${blockType}/${BlockLanguageEnum.PYTHON}`,
       },
     ];
 
     if (!languages || languages?.includes(BlockLanguageEnum.SQL)) {
       // @ts-ignore
-      arr.push(SQLMenuItems(addNewBlock, blockType));
+      arr.push(SQLMenuItems(addNewBlock, blockType, opts?.t));
     }
     if (!languages || languages?.includes(BlockLanguageEnum.R)) {
       // @ts-ignore
-      arr.push(RMenuItems(addNewBlock, blockType));
+      arr.push(RMenuItems(addNewBlock, blockType, opts?.t));
     }
 
     if (
@@ -361,10 +372,17 @@ export function createActionMenuItems(
   actions: ActionTypeEnum[],
   axis: AxisEnum,
   blockCallback: (block: BlockRequestPayloadType) => void,
+  t?: (key: string, opts?: any) => string,
 ): FlyoutMenuItemType[] {
   return actions.map((action: ActionTypeEnum) => ({
     indent: true,
-    label: () => ACTION_TYPE_HUMAN_READABLE_MAPPING[axis][action],
+    label: () => {
+      const key = `add_new_blocks.actions.${axis === AxisEnum.COLUMN ? 'column' : 'row'}.${action.toLowerCase()}`;
+      const translated = t?.(key);
+      return translated && translated !== key
+        ? translated
+        : ACTION_TYPE_HUMAN_READABLE_MAPPING[axis][action];
+    },
     onClick: () => {
       blockCallback({
         config: {
@@ -383,6 +401,7 @@ export function createActionMenuGroupings(
   groupings: ActionGroupingEnum[],
   axis: AxisEnum,
   blockCallback: (block: BlockRequestPayloadType) => void,
+  t?: (key: string, opts?: any) => string,
 ): FlyoutMenuItemType[] {
   const menuItems: FlyoutMenuItemType[] = [];
   groupings.forEach((grouping: ActionGroupingEnum) => {
@@ -393,8 +412,13 @@ export function createActionMenuGroupings(
           ACTION_GROUPING_MAPPING[axis][grouping],
           axis,
           blockCallback,
+          t,
         ),
-        label: () => grouping,
+        label: () => {
+          const key = `add_new_blocks.groupings.${addUnderscores(grouping).toLowerCase()}`;
+          const translated = t?.(key);
+          return translated && translated !== key ? translated : grouping;
+        },
         uuid: `${axis}_grouping_${addUnderscores(grouping)}`,
       });
     } else {
@@ -402,6 +426,7 @@ export function createActionMenuGroupings(
         ACTION_GROUPING_MAPPING[axis][grouping],
         axis,
         blockCallback,
+        t,
       );
       menuItems.push(...miscActionMenuItems);
     }

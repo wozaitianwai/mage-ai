@@ -130,6 +130,7 @@ function ButtonItems({
     pipelineType,
     {
       blockTemplatesByBlockType,
+      t,
       v2: true,
     },
   )?.find(({
@@ -147,6 +148,7 @@ function ButtonItems({
     {
       blockTemplatesByBlockType,
       dataIntegrationType: DataIntegrationTypeEnum.SOURCES,
+      t,
       v2: true,
     },
   )?.find(({
@@ -164,6 +166,7 @@ function ButtonItems({
     pipelineType,
     {
       blockTemplatesByBlockType,
+      t,
       v2: true,
     },
   )?.find(({
@@ -181,6 +184,7 @@ function ButtonItems({
     {
       blockTemplatesByBlockType,
       dataIntegrationType: DataIntegrationTypeEnum.DESTINATIONS,
+      t,
       v2: true,
     },
   )?.find(({
@@ -198,6 +202,7 @@ function ButtonItems({
     pipelineType,
     {
       blockTemplatesByBlockType,
+      t,
       v2: true,
     },
   )?.find(({
@@ -214,6 +219,7 @@ function ButtonItems({
     pipelineType,
     {
       blockTemplatesByBlockType,
+      t,
       v2: true,
     },
   )?.find(({
