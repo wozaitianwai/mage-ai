@@ -231,6 +231,7 @@ def add_execution_code(
     widget: bool = False,
 ) -> str:
     escaped_code = code.replace("'''", '"""').replace("\\", "\\\\")
+    escaped_repo_path = repo_path.replace("\\", "\\\\") if repo_path else repo_path
 
     run_settings_json = json.dumps(run_settings or {})
 
@@ -266,7 +267,7 @@ spark = SparkSession.builder.getOrCreate()
         ('pipeline_config_json_encoded', f"'{pipeline_config_json_encoded}'"),
         ('pipeline_uuid', f"'{pipeline_uuid}'"),
         ('repo_config_json_encoded', f"'{repo_config_json_encoded}'"),
-        ('repo_path', f"'{repo_path}'"),
+        ('repo_path', f"'{escaped_repo_path}'"),
         ('run_incomplete_upstream', run_incomplete_upstream),
         ('run_settings_json', f"'{run_settings_json}'"),
         ('run_tests', run_tests),
@@ -312,6 +313,7 @@ def get_block_output_process_code(
         BlockType.TRANSFORMER,
     ]:
         return None
+    escaped_repo_path = repo_path.replace("\\", "\\\\") if repo_path else repo_path
     return f"""%%local
 from mage_ai.data_preparation.models.constants import BlockStatus
 from mage_ai.data_preparation.models.pipeline import Pipeline
@@ -321,7 +323,7 @@ import pandas
 block_uuid=\'{block_uuid}\'
 pipeline = Pipeline(
     uuid=\'{pipeline_uuid}\',
-    repo_path=\'{repo_path}\',
+    repo_path=\'{escaped_repo_path}\',
 )
 block = pipeline.get_block(block_uuid)
 variable_mapping = dict(df=df)
@@ -348,6 +350,7 @@ import os
 spark = SparkSession.builder.master(os.getenv('SPARK_MASTER_HOST', 'local')).getOrCreate()
 """
 
+    escaped_repo_path = repo_path.replace("\\", "\\\\") if repo_path else repo_path
     return f"""
 from mage_ai.data_preparation.models.pipeline import Pipeline
 import asyncio
@@ -357,7 +360,7 @@ import asyncio
 def execute_pipeline():
     pipeline = Pipeline(
         uuid=\'{pipeline_uuid}\',
-        repo_path=\'{repo_path}\',
+        repo_path=\'{escaped_repo_path}\',
         config={pipeline_config},
         repo_config={repo_config},
     )
