@@ -148,8 +148,13 @@ export const getMoreActionsItems = (
     }) => Promise<any>;
     blocks?: BlockType[];
     pipeline?: PipelineType;
+    t?: (key: string) => string;
   },
 ): FlyoutMenuItemType[] => {
+  const translate = opts?.t;
+  const tr = (key: string, fallback: string) => (
+    translate ? translate(key) : fallback
+  );
   const {
     configuration,
     downstream_blocks: downstreamBlocks,
@@ -201,15 +206,27 @@ export const getMoreActionsItems = (
       items.push(...[
         {
           label: () => isDBT
-            ? 'Execute and run all upstream blocks'
-            : 'Execute with all upstream blocks',
+            ? tr(
+                'pipeline_detail.code_block.execute_and_run_all_upstream_blocks',
+                'Execute and run all upstream blocks',
+              )
+            : tr(
+                'pipeline_detail.code_block.execute_with_all_upstream_blocks',
+                'Execute with all upstream blocks',
+              ),
           onClick: () => runBlock({ block, runUpstream: true }),
           uuid: 'execute_upstream',
         },
         {
           label: () => isDBT
-            ? 'Execute and run incomplete upstream blocks'
-            : 'Execute with incomplete upstream blocks',
+            ? tr(
+                'pipeline_detail.code_block.execute_and_run_incomplete_upstream_blocks',
+                'Execute and run incomplete upstream blocks',
+              )
+            : tr(
+                'pipeline_detail.code_block.execute_with_incomplete_upstream_blocks',
+                'Execute with incomplete upstream blocks',
+              ),
           onClick: () => runBlock({ block, runIncompleteUpstream: true }),
           uuid: 'execute_incomplete_upstream',
         },
@@ -217,7 +234,10 @@ export const getMoreActionsItems = (
 
       if (!isDBT && BlockTypeEnum.GLOBAL_DATA_PRODUCT !== blockType) {
         items.push({
-          label: () => 'Execute block and run tests',
+          label: () => tr(
+            'pipeline_detail.code_block.execute_block_and_run_tests',
+            'Execute block and run tests',
+          ),
           onClick: () => runBlock({ block, runTests: true }),
           uuid: 'run_tests',
         });
@@ -320,7 +340,15 @@ export const getMoreActionsItems = (
         && savePipelineContent
       ) {
         items.push({
-          label: () => dynamic ? 'Disable block as dynamic' : 'Set block as dynamic',
+          label: () => dynamic
+            ? tr(
+                'pipeline_detail.code_block.disable_block_as_dynamic',
+                'Disable block as dynamic',
+              )
+            : tr(
+                'pipeline_detail.code_block.set_block_as_dynamic',
+                'Set block as dynamic',
+              ),
           onClick: () => savePipelineContent({
             block: {
               ...block,
@@ -357,7 +385,9 @@ export const getMoreActionsItems = (
       }
 
       items.push({
-        label: () => has_callback ? 'Remove callback' : 'Add callback',
+        label: () => has_callback
+          ? tr('pipeline_detail.code_block.remove_callback', 'Remove callback')
+          : tr('pipeline_detail.code_block.add_callback', 'Add callback'),
         onClick: () => {
           if (has_callback) {
             return savePipelineContent({
@@ -382,7 +412,7 @@ export const getMoreActionsItems = (
       });
 
       items.push({
-        label: () => 'Replicate block',
+        label: () => tr('pipeline_detail.code_block.replicate_block', 'Replicate block'),
         onClick: () => addNewBlock({
           replicated_block: blockUUID,
         }),
@@ -393,7 +423,10 @@ export const getMoreActionsItems = (
 
   if (isInteractionsEnabled) {
     items.push({
-      label: () => 'Add / Edit interactions',
+      label: () => tr(
+        'pipeline_detail.code_block.add_edit_interactions',
+        'Add / Edit interactions',
+      ),
       onClick: () => {
         opts?.openSidekickView?.(ViewKeyEnum.INTERACTIONS);
       },
@@ -403,19 +436,19 @@ export const getMoreActionsItems = (
 
   items.push(
     {
-      label: () => 'Move up',
+      label: () => tr('pipeline_detail.code_block.move_up', 'Move up'),
       onClick: () => moveBlockInList(MoveMode.Up),
       uuid: 'move_up_ui',
     },
     {
-      label: () => 'Move to top',
+      label: () => tr('pipeline_detail.code_block.move_to_top', 'Move to top'),
       onClick: () => moveBlockInList(MoveMode.Top),
       uuid: 'move_to_top_ui',
     },
   );
 
   items.push({
-    label: () => 'Delete block',
+    label: () => tr('pipeline_detail.code_block.delete_block', 'Delete block'),
     onClick: () => {
       deleteBlock(block);
       setOutputCollapsed(false);

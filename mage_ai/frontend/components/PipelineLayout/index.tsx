@@ -3,6 +3,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import ClickOutside from '@oracle/components/ClickOutside';
 import ErrorPopup from '@components/ErrorPopup';
@@ -24,7 +25,6 @@ import {
 } from '@storage/localStorage';
 import { NavigationItem } from '@components/Dashboard/VerticalNavigation';
 import { PAGE_NAME_EDIT } from '@components/PipelineDetail/constants';
-import { capitalize } from '@utils/string';
 import { useWindowSize } from '@utils/sizes';
 
 type PipelineLayoutProps = {
@@ -90,6 +90,7 @@ function PipelineLayout({
   setErrors,
   setMainContainerWidth,
 }: PipelineLayoutProps) {
+  const { t } = useTranslation('common');
   const {
     width: widthWindow,
   } = useWindowSize();
@@ -155,7 +156,7 @@ function PipelineLayout({
   const headerMemo = useMemo(() => {
     const breadcrumbs: BreadcrumbType[] = [
       {
-        label: () => 'Pipelines',
+        label: () => t('sidebar.pipelines'),
         linkProps: {
           as: '/pipelines',
           href: '/pipelines',
@@ -179,7 +180,7 @@ function PipelineLayout({
         breadcrumbs.push(...[
           {
             bold: true,
-            label: () => capitalize(page),
+            label: () => t('common.edit'),
           },
         ]);
       }
@@ -193,6 +194,7 @@ function PipelineLayout({
   }, [
     page,
     pipeline,
+    t,
   ]);
 
   return (

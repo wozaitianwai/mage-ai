@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import BlockType, { BlockLanguageEnum, BlockTypeEnum, StatusTypeEnum } from '@interfaces/BlockType';
 import FlyoutMenu from '@oracle/components/FlyoutMenu';
-import { CHART_TYPES } from '@interfaces/ChartBlockType';
+import { CHART_TYPES, ChartTypeEnum } from '@interfaces/ChartBlockType';
 import {
   CHART_TEMPLATES,
   DEFAULT_SETTINGS_BY_CHART_TYPE,
@@ -46,6 +46,24 @@ function AddChartMenu({
   topOffset,
 }: AddChartMenuProps) {
   const { t } = useTranslation('common');
+  const chartTypeLabels = useMemo(() => ({
+    [ChartTypeEnum.BAR_CHART]: t('pipeline_detail.code_block.chart_types.bar_chart'),
+    [ChartTypeEnum.HISTOGRAM]: t('pipeline_detail.code_block.chart_types.histogram'),
+    [ChartTypeEnum.LINE_CHART]: t('pipeline_detail.code_block.chart_types.line_chart'),
+    [ChartTypeEnum.PIE_CHART]: t('pipeline_detail.code_block.chart_types.pie_chart'),
+    [ChartTypeEnum.TABLE]: t('pipeline_detail.code_block.chart_types.table'),
+    [ChartTypeEnum.TIME_SERIES_BAR_CHART]:
+      t('pipeline_detail.code_block.chart_types.time_series_bar_chart'),
+    [ChartTypeEnum.TIME_SERIES_LINE_CHART]:
+      t('pipeline_detail.code_block.chart_types.time_series_line_chart'),
+  }), [t]);
+  const chartTemplateLabelKeys = useMemo(() => ({
+    '% of missing values': 'pipeline_detail.code_block.chart_templates.missing_values_percentage',
+    'Unique values': 'pipeline_detail.code_block.chart_templates.unique_values',
+    'Most frequent values': 'pipeline_detail.code_block.chart_templates.most_frequent_values',
+    'Summary overview': 'pipeline_detail.code_block.chart_templates.summary_overview',
+    'Feature profiles': 'pipeline_detail.code_block.chart_templates.feature_profiles',
+  }), []);
   const chartMenuItems = useMemo(() => CHART_TYPES.map((chartType: string) => {
     const widget = {
       configuration: {
@@ -67,7 +85,8 @@ function AddChartMenu({
     }
 
     return {
-      label: () => capitalizeRemoveUnderscoreLower(chartType),
+      label: () => chartTypeLabels[chartType as ChartTypeEnum]
+        || capitalizeRemoveUnderscoreLower(chartType),
       onClick: () => addWidget({
         ...widget,
         configuration: {
@@ -99,12 +118,15 @@ function AddChartMenu({
   }), [
     addWidget,
     block,
+    chartTypeLabels,
     runBlock,
   ]);
   const chartTemplateMenuItems = useMemo(() => CHART_TEMPLATES.map(({
     label,
     widgetTemplate,
   }) => {
+    const templateLabel = label?.();
+    const labelKey = chartTemplateLabelKeys?.[templateLabel];
     const widget = {
       ...widgetTemplate({
         block,
@@ -115,7 +137,7 @@ function AddChartMenu({
     };
 
     return {
-      label,
+      label: () => labelKey ? t(labelKey) : templateLabel,
       onClick: () => addWidget(widget, {
         onCreateCallback: (widget: BlockType) => {
           if (block && BlockLanguageEnum.SQL !== block.language) {
@@ -134,12 +156,14 @@ function AddChartMenu({
           }
         },
       }),
-      uuid: label(),
+      uuid: templateLabel,
     };
   }), [
     addWidget,
     block,
+    chartTemplateLabelKeys,
     runBlock,
+    t,
   ]);
 
   const items = [
