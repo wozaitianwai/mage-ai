@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { AxisBottom, AxisLeft } from '@visx/axis';
 import { BarStack } from '@visx/shape';
 import { GridRows } from '@visx/grid';
 import { Group } from '@visx/group';
 import { LegendOrdinal } from '@visx/legend';
+import { ThemeContext } from 'styled-components';
 import { Tooltip, defaultStyles, useTooltip } from '@visx/tooltip';
 import { localPoint } from '@visx/event';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
@@ -13,6 +14,7 @@ import ParentSize from '@visx/responsive/lib/components/ParentSize';
 import Text from '@oracle/elements/Text';
 import YAxisLabelContainer from './shared/YAxisLabelContainer';
 import dark from '@oracle/styles/themes/dark';
+import { ThemeType } from '@oracle/styles/themes/constants';
 import { BORDER_RADIUS_LARGE } from '@oracle/styles/units/borders';
 import { FONT_FAMILY_REGULAR } from '@oracle/styles/fonts/primary';
 import { UNIT } from '@oracle/styles/units/spacing';
@@ -70,6 +72,7 @@ function BarStackChart({
   xLabelFormat,
   yLabelFormat,
 }: BarStackChartProps) {
+  const themeContext: ThemeType = useContext(ThemeContext);
   const {
     hideTooltip,
     showTooltip,
@@ -124,7 +127,7 @@ function BarStackChart({
     <div style={{ position: 'relative', zIndex: 2 }}>
       <svg height={height} width={width}>
         <rect
-          fill={backgroundColor || dark.background.chartBlock}
+          fill={backgroundColor || (themeContext || dark).background.chartBlock}
           height={height}
           rx={14}
           width={width}
@@ -135,7 +138,7 @@ function BarStackChart({
           height={yMax}
           left={margin.left}
           scale={yScale}
-          stroke="black"
+          stroke={(themeContext || dark).borders.medium}
           strokeOpacity={0.2}
           top={margin.top}
           width={xMax}
@@ -184,10 +187,10 @@ function BarStackChart({
           left={margin.left}
           numTicks={numYTicks}
           scale={yScale}
-          stroke={dark.content.muted}
+          stroke={(themeContext || dark).content.muted}
           tickFormat={label => yLabelFormat ? yLabelFormat(label) : formatNumberLabel(label)}
           tickLabelProps={() => ({
-            fill: dark.content.muted,
+            fill: (themeContext || dark).content.muted,
             fontFamily: FONT_FAMILY_REGULAR,
             fontSize: 11,
             textAnchor: 'end',
@@ -199,13 +202,14 @@ function BarStackChart({
           hideTicks
           left={margin.left}
           scale={xScale}
-          stroke={dark.content.muted}
+          stroke={(themeContext || dark).content.muted}
           tickFormat={xLabelFormat}
           tickLabelProps={() => ({
-            fill: dark.content.muted,
+            fill: (themeContext || dark).content.muted,
             fontFamily: FONT_FAMILY_REGULAR,
             fontSize: 11,
             textAnchor: 'middle',
+            transform: 'translate(0,2.5)',
           })}
           top={yMax + margin.top}
         />
@@ -234,7 +238,7 @@ function BarStackChart({
           left={tooltipLeft}
           style={{
             ...defaultStyles,
-            backgroundColor: dark.background.page,
+            backgroundColor: (themeContext || dark).background.page,
             borderRadius: `${BORDER_RADIUS_LARGE}px`,
             padding: '.3rem .4rem',
           }}

@@ -248,7 +248,6 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
           </Spacing>
           <Spacing mt={1}>
             <BarStackChart
-              backgroundColor={dark.background.panel}
               colors={BAR_STACK_COLORS}
               data={ungroupedPipelineRunData}
               getXValue={data => data['date']}

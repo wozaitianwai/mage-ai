@@ -2,6 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
+import dark from '@oracle/styles/themes/dark';
+
 const SwitcherContainer = styled.div`
   display: flex;
   align-items: center;
@@ -9,20 +11,22 @@ const SwitcherContainer = styled.div`
 `;
 
 const LanguageButton = styled.button<{ $active?: boolean }>`
-  background: ${({ $active }) => ($active ? 'var(--primary-color, #6B50D8)' : 'transparent')};
-  border: 1px solid ${({ $active }) => ($active ? 'var(--primary-color, #6B50D8)' : 'var(--border-color, #3a3a3a)')};
+  background: ${({ $active, theme }) => ($active ? (theme.interactive || dark.interactive).linkPrimary : 'transparent')};
+  border: 1px solid ${({ $active, theme }) => ($active ? (theme.interactive || dark.interactive).linkPrimary : (theme.borders || dark.borders).medium)};
   border-radius: 4px;
-  color: ${({ $active }) => ($active ? '#fff' : 'var(--text-color, #fff)')};
+  color: ${({ $active, theme }) => ($active ? (theme.monotone || dark.monotone).white : (theme.content || dark.content).active)};
   cursor: pointer;
   font-size: 12px;
   padding: 4px 8px;
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? 'var(--primary-color, #6B50D8)' : 'rgba(107, 80, 216, 0.2)')};
-    border-color: var(--primary-color, #6B50D8);
+    background: ${({ $active, theme }) => ($active ? (theme.interactive || dark.interactive).linkPrimaryHover : (theme.interactive || dark.interactive).hoverBackground)};
+    border-color: ${({ theme }) => (theme.interactive || dark.interactive).linkPrimary};
+    color: ${({ $active, theme }) => ($active ? (theme.monotone || dark.monotone).white : (theme.content || dark.content).active)};
   }
 `;
+
 
 interface LanguageSwitcherProps {
   className?: string;

@@ -240,7 +240,7 @@ export const SHARED_STYLES = css<TextProps>`
   `}
 
   ${props => props.disabled && `
-    color: ${(props.theme.content || dark.content).disabled};
+    color: ${(props.theme.content || dark.content).disabled} !important;
   `}
 
   ${props => props.cyan && `

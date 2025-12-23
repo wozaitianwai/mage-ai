@@ -1,4 +1,5 @@
 export type ThemeType = {
+  type?: 'dark' | 'light';
   accent: {
     alert: string;
     blue: string;

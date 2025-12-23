@@ -674,6 +674,8 @@
     }
   },
   "pipeline_detail": {
+    "show_all": "显示全部",
+    "hide_all": "隐藏全部",
     "unsaved_changes": "您有未保存的更改。",
     "add_new_block": "添加一个新块以开始构建您的管道。",
     "error_loading_pipeline": "加载管道出错",

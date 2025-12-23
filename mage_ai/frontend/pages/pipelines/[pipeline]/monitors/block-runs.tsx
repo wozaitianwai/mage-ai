@@ -117,7 +117,7 @@ function BlockRunsMonitor({
       subheader={
         <FlexContainer>
           <Select
-            backgroundColor={dark.interactive.defaultBackground}
+            backgroundColor={(theme || dark).interactive.defaultBackground}
             label={t('pipeline_detail.monitors.trigger_label')}
             onChange={e => {
               const val = e.target.value;

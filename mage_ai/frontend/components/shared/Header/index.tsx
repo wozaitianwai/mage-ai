@@ -52,6 +52,7 @@ import { redirectToUrl } from '@utils/url';
 import { storeLocalTimezoneSetting } from '@components/settings/workspace/utils';
 import { useModal } from '@context/Modal';
 import { useError } from '@context/Error';
+import { ThemeType } from '@oracle/styles/themes/constants';
 import {
   getCurrentThemeMode,
   setCurrentTheme,
@@ -87,7 +88,7 @@ function Header({
     uuid: 'shared/Header',
   });
 
-  const themeContext = useContext(ThemeContext);
+  const themeContext = useContext(ThemeContext) as ThemeType;
   const router = useRouter();
   const userFromLocalStorage = getUser(router?.basePath);
 
@@ -97,7 +98,6 @@ function Header({
   const [highlightedMenuIndex, setHighlightedMenuIndex] = useState<number>(null);
   const [confirmationDialogueOpen, setConfirmationDialogueOpen] = useState<boolean>(false);
   const [confirmationAction, setConfirmationAction] = useState(null);
-  const [themeMode, setThemeMode] = useState<'dark' | 'light'>(null);
 
   const menuRef = useRef(null);
   const projectRef = useRef(null);
@@ -316,11 +316,10 @@ function Header({
         uuid: 'user_settings',
       },
       {
-        label: () => (themeMode === 'light' ? 'Dark mode' : 'Light mode'),
+        label: () => (themeContext?.type === 'light' ? 'Dark mode' : 'Light mode'),
         onClick: () => {
-          const nextMode = themeMode === 'light' ? THEME_MODE_DARK : THEME_MODE_LIGHT;
+          const nextMode = themeContext?.type === 'light' ? THEME_MODE_DARK : THEME_MODE_LIGHT;
           setCurrentTheme(nextMode);
-          setThemeMode(nextMode === THEME_MODE_LIGHT ? 'light' : 'dark');
 
           if (typeof document !== 'undefined') {
             document.body.removeAttribute('data-theme');
@@ -418,8 +417,6 @@ function Header({
   ]);
 
   useEffect(() => {
-    setThemeMode(getCurrentThemeMode());
-
     const handleState = ({
       detail,
     }) => {

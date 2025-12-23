@@ -195,3 +195,6 @@ test_data*
 # User requested ignore
 modle/
 test_project/
+
+
+.trae/

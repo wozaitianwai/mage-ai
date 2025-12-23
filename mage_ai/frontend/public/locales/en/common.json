@@ -611,6 +611,8 @@
     }
   },
   "pipeline_detail": {
+    "show_all": "Show all",
+    "hide_all": "Hide all",
     "unsaved_changes": "You have unsaved changes.",
     "add_new_block": "Add a new block to start building your pipeline.",
     "error_loading_pipeline": "Error loading pipeline",

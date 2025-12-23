@@ -380,7 +380,7 @@ const LineSeries = withTooltip<LineSeriesProps>(
                   <Threshold
                     {...curveProps}
                     aboveAreaProps={{
-                      fill: dark.brand.earth400,
+                      fill: theme.brand.earth400,
                       fillOpacity: 0.3,
                     }}
                     belowAreaProps={{

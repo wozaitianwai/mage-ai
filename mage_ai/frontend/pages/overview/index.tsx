@@ -679,7 +679,7 @@ def d(df):
       title={t('sidebar.overview')}
       uuid="overview/index"
     >
-      <PageSectionHeader backgroundColor={dark.background.panel} ref={refSubheader}>
+      <PageSectionHeader ref={refSubheader}>
         <Spacing py={2}>
           <FlexContainer alignItems="center">
             <Spacing ml={3}>{addButtonEl}</Spacing>
