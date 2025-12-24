@@ -38,6 +38,7 @@
     "pipeline_runs_completed_daily": "每日已完成运行",
     "pipeline_runs_failed_daily": "每日失败运行",
     "running_pipelines": "正在运行的管道",
+    "local_time": "本地时间",
     "total_pipeline_runs": "总管道运行次数",
     "all": "全部",
     "latest_pipeline_run_failures": "最近管道运行失败",
@@ -2029,7 +2030,7 @@
   "server_time": {
     "current_time": "当前时间",
     "universal_time": "世界标准时间",
-    "display_local_timezone": "显示本地时区（需刷新）",
+    "display_local_timezone": "显示本地时区",
     "display_local_timezone_disabled": "显示本地时区（必须在平台首选项中更改）",
     "include_seconds": "当前时间包含秒"
   }

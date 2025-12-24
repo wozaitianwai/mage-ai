@@ -38,6 +38,7 @@
     "pipeline_runs_completed_daily": "Completed pipeline runs daily",
     "pipeline_runs_failed_daily": "Failed pipeline runs daily",
     "running_pipelines": "Running pipelines",
+    "local_time": "Local time",
     "total_pipeline_runs": "total pipeline runs",
     "all": "All",
     "latest_pipeline_run_failures": "Latest pipeline run failures",
@@ -1966,7 +1967,7 @@
   "server_time": {
     "current_time": "Current Time",
     "universal_time": "Universal Time",
-    "display_local_timezone": "Display local timezone (requires refresh)",
+    "display_local_timezone": "Display local timezone",
     "display_local_timezone_disabled": "Display local timezone (must be changed in platform preferences)",
     "include_seconds": "Include seconds in current time"
   }

@@ -1,9 +1,31 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import moment from 'moment';
+import 'moment/locale/zh-cn';
 
 import zhTranslation from '../public/locales/zh/common.json';
 import enTranslation from '../public/locales/en/common.json';
+
+const mapMomentLocale = (language?: string) => {
+  if (!language) {
+    return 'en';
+  }
+
+  const normalized = language.toLowerCase();
+  if (normalized.startsWith('zh')) {
+    return 'zh-cn';
+  }
+  if (normalized.startsWith('en')) {
+    return 'en';
+  }
+
+  return normalized;
+};
+
+const syncMomentLocale = (language?: string) => {
+  moment.locale(mapMomentLocale(language));
+};
 
 i18n
   .use(LanguageDetector)
@@ -28,5 +50,8 @@ i18n
       escapeValue: false,
     },
   });
+
+syncMomentLocale(i18n.language);
+i18n.on('languageChanged', syncMomentLocale);
 
 export default i18n;

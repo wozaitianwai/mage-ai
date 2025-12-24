@@ -1,6 +1,7 @@
 import { ICON_SIZE_MEDIUM } from '@oracle/styles/units/icons';
 import { LOCAL_STORAGE_KEY_DISPLAY_LOCAL_TIMEZONE } from '@storage/constants';
 import { get, set } from '@storage/localStorage';
+import { CustomEventUUID } from '@utils/events/constants';
 
 export const LOCAL_TIMEZONE_TOOLTIP_PROPS = {
   block: true,
@@ -21,7 +22,16 @@ export function shouldDisplayLocalTimezone(): boolean {
 
 export function storeLocalTimezoneSetting(displayLocalTimezone: boolean): boolean {
   if (typeof displayLocalTimezone !== 'undefined') {
+    const previousValue = shouldDisplayLocalTimezone();
     set(LOCAL_STORAGE_KEY_DISPLAY_LOCAL_TIMEZONE, displayLocalTimezone);
+
+    if (typeof window !== 'undefined' && previousValue !== displayLocalTimezone) {
+      window.dispatchEvent(new CustomEvent(CustomEventUUID.LOCAL_TIMEZONE_CHANGED, {
+        detail: {
+          displayLocalTimezone,
+        },
+      }));
+    }
   }
 
   return displayLocalTimezone;

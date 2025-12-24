@@ -6,7 +6,10 @@ import dateutil.parser
 from sqlalchemy.sql import func
 
 from mage_ai.data_preparation.models.pipeline import Pipeline
-from mage_ai.orchestration.db.functions import format_datetime
+from mage_ai.orchestration.db.functions import (
+    format_datetime,
+    parse_timezone_offset_minutes,
+)
 from mage_ai.orchestration.db.models.schedules import (
     BlockRun,
     PipelineRun,
@@ -39,6 +42,7 @@ class MonitorStats:
         pipeline_uuid: str = None,
         start_time: str = None,
         end_time: str = None,
+        timezone_offset: str = None,
         **kwargs,
     ) -> Dict:
         if end_time is None:
@@ -53,6 +57,7 @@ class MonitorStats:
             pipeline_uuid=pipeline_uuid,
             start_time=start_time,
             end_time=end_time,
+            timezone_offset=timezone_offset,
         ), kwargs)
         if stats_type == MonitorStatsType.PIPELINE_RUN_COUNT:
             return self.get_pipeline_run_count(**new_kwargs)
@@ -97,6 +102,7 @@ class MonitorStats:
         end_time: datetime = None,
         group_by_pipeline_type: Union[str, bool] = False,
         pipeline_schedule_id: int = None,
+        timezone_offset: str = None,
         **kwargs,
     ) -> Dict:
         now = datetime.utcnow().timestamp()
@@ -113,7 +119,7 @@ class MonitorStats:
                     'year',
                     'month',
                     'day',
-                ]).label('ds_created_at'),
+                ], timezone_offset=timezone_offset).label('ds_created_at'),
             ).
             join(PipelineSchedule, PipelineRun.pipeline_schedule_id == PipelineSchedule.id)
         )
@@ -194,6 +200,7 @@ class MonitorStats:
         pipeline_uuid: str = None,
         start_time: datetime = None,
         end_time: datetime = None,
+        timezone_offset: str = None,
         **kwargs,
     ) -> Dict:
         now = datetime.utcnow().timestamp()
@@ -205,7 +212,7 @@ class MonitorStats:
                 'year',
                 'month',
                 'day',
-            ]).label('ds_created_at'),
+            ], timezone_offset=timezone_offset).label('ds_created_at'),
         ]
 
         if pipeline_uuid:
@@ -247,6 +254,7 @@ class MonitorStats:
         pipeline_schedule_id: int = None,
         pipeline_uuid: str = None,
         start_time: datetime = None,
+        timezone_offset: str = None,
         **kwargs,
     ) -> Dict:
         now = datetime.utcnow().timestamp()
@@ -259,7 +267,7 @@ class MonitorStats:
                 'year',
                 'month',
                 'day',
-            ]).label('ds_created_at'),
+            ], timezone_offset=timezone_offset).label('ds_created_at'),
         ]
         filter_query = []
 
@@ -319,6 +327,7 @@ class MonitorStats:
         pipeline_uuid: str = None,
         start_time: datetime = None,
         end_time: datetime = None,
+        timezone_offset: str = None,
         **kwargs,
     ) -> Dict:
         block_runs = self.__filter_block_runs(
@@ -336,7 +345,7 @@ class MonitorStats:
                 return 0
             return sum(runtime_list) / len(runtime_list)
 
-        return self.__cal_block_run_stats(block_runs, __stats_func)
+        return self.__cal_block_run_stats(block_runs, __stats_func, timezone_offset)
 
     def __filter_block_runs(
         self,
@@ -372,13 +381,19 @@ class MonitorStats:
     def __cal_block_run_stats(
         self,
         block_runs: List[BlockRun],
-        stats_func: Callable
+        stats_func: Callable,
+        timezone_offset: str = None,
     ) -> Dict:
+        offset_minutes = parse_timezone_offset_minutes(timezone_offset)
         block_runs_by_uuid = group_by(lambda b: b.block_uuid, block_runs)
         block_run_stats = dict()
         for uuid, sub_block_runs in block_runs_by_uuid.items():
             sub_block_runs_by_date = group_by(
-                lambda b: b.created_at.strftime('%Y-%m-%d'),
+                lambda b: (
+                    (b.created_at + timedelta(minutes=offset_minutes)).strftime('%Y-%m-%d')
+                    if offset_minutes is not None
+                    else b.created_at.strftime('%Y-%m-%d')
+                ),
                 sub_block_runs,
             )
             sub_block_runs_stats = {k: stats_func(v) for k, v in sub_block_runs_by_date.items()}

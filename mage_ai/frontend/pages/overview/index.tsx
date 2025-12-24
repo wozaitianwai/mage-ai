@@ -137,6 +137,15 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
   const [addButtonMenuOpen, setAddButtonMenuOpen] = useState<boolean>(false);
   const [errors, setErrors] = useState<ErrorsType>(null);
 
+  const { data: dataProjects, mutate: fetchProjects } = api.projects.list();
+  const project: ProjectType = useMemo(() => dataProjects?.projects?.[0], [dataProjects]);
+  const displayLocalTimezone = useMemo(
+    () => !!storeLocalTimezoneSetting(project?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE]),
+    [project?.features],
+  );
+  const timezoneOffset = useMemo(() => moment().format('Z'), []);
+  const displayLocalTimezoneRef = useRef(displayLocalTimezone);
+
   const timePeriod = selectedTab?.uuid;
   const timePeriodLabel = useMemo(() => {
     if (TimePeriodEnum.TODAY === timePeriod) {
@@ -154,16 +163,28 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
     return capitalize(TIME_PERIOD_DISPLAY_MAPPING[timePeriod]) || timePeriod;
   }, [t, timePeriod]);
 
+  const timeZoneLabel = displayLocalTimezone ? t('dashboard.local_time') : 'UTC';
+
   const startDateString = useMemo(
-    () => getStartDateStringFromPeriod(timePeriod, { isoString: true }),
-    [timePeriod],
+    () => getStartDateStringFromPeriod(timePeriod, {
+      isoString: true,
+      localTime: displayLocalTimezone,
+    }),
+    [displayLocalTimezone, timePeriod],
   );
   const monitorStatsQueryParams = useMemo(
-    () => ({
-      group_by_pipeline_type: 1,
-      start_time: startDateString,
-    }),
-    [startDateString],
+    () =>
+      displayLocalTimezone
+        ? {
+            group_by_pipeline_type: 1,
+            start_time: startDateString,
+            timezone_offset: timezoneOffset,
+          }
+        : {
+            group_by_pipeline_type: 1,
+            start_time: startDateString,
+          },
+    [displayLocalTimezone, startDateString, timezoneOffset],
   );
 
   const [monitorStats, setMonitorStats] = useState();
@@ -224,6 +245,15 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
     }
   }, [allTabs, fetchMonitorStats, selectedTab, tab]);
 
+  useEffect(() => {
+    if (displayLocalTimezoneRef.current !== displayLocalTimezone) {
+      displayLocalTimezoneRef.current = displayLocalTimezone;
+      if (mountedRef.current) {
+        fetchMonitorStats();
+      }
+    }
+  }, [displayLocalTimezone, fetchMonitorStats]);
+
   const { data: dataPipelineRuns } = api.pipeline_runs.list(
     {
       _limit: 50,
@@ -251,8 +281,11 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
   } = groupedPipelineRuns;
 
   const dateRange = useMemo(
-    () => getDateRange(TIME_PERIOD_INTERVAL_MAPPING[timePeriod] + 1),
-    [timePeriod],
+    () =>
+      getDateRange(TIME_PERIOD_INTERVAL_MAPPING[timePeriod] + 1, {
+        localTime: displayLocalTimezone,
+      }),
+    [displayLocalTimezone, timePeriod],
   );
   const allPipelineRunData = useMemo(
     () => getAllPipelineRunDataGrouped(monitorStats, dateRange),
@@ -264,8 +297,9 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
     () =>
       getFullDateRangeString(TIME_PERIOD_INTERVAL_MAPPING[timePeriod], {
         endDateOnly: timePeriod === TimePeriodEnum.TODAY,
+        localTime: displayLocalTimezone,
       }),
-    [timePeriod],
+    [displayLocalTimezone, timePeriod],
   );
 
   const useCreatePipelineMutation = onSuccessCallback =>
@@ -287,13 +321,6 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
     { isLoading: boolean },
   ] = useCreatePipelineMutation((pipelineUUID: string) =>
     router.push('/pipelines/[pipeline]/edit', `/pipelines/${pipelineUUID}/edit`),
-  );
-
-  const { data: dataProjects, mutate: fetchProjects } = api.projects.list();
-  const project: ProjectType = useMemo(() => dataProjects?.projects?.[0], [dataProjects]);
-  const displayLocalTimezone = useMemo(
-    () => storeLocalTimezoneSetting(project?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE]),
-    [project?.features],
   );
 
   const [showCreatePipelineModal, hideCreatePipelineModal] = useModal(
@@ -708,7 +735,7 @@ def d(df):
         <>
           <Spacing mx={3} my={2}>
             <Headline level={4}>
-              {`${timePeriodLabel || capitalize(timePeriod)} (UTC): ${selectedDateRange}`}
+              {`${timePeriodLabel || capitalize(timePeriod)} (${timeZoneLabel}): ${selectedDateRange}`}
             </Headline>
 
             <Spacing mt={2}>
@@ -746,7 +773,9 @@ def d(df):
                     top: 10,
                   }}
                   tooltipLeftOffset={TOOLTIP_LEFT_OFFSET}
-                  xLabelFormat={label => moment(label).format('MMM DD')}
+                  xLabelFormat={label =>
+                    (displayLocalTimezone ? moment(label) : moment.utc(label)).format('MMM DD')
+                  }
                 />
               </Spacing>
             </Spacing>

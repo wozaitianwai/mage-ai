@@ -33,6 +33,7 @@ import {
   storeIncludeServerTimeSeconds,
 } from '../../storage/serverTime';
 import { useError } from '@context/Error';
+import { CustomEventUUID } from '@utils/events/constants';
 
 const DISPLAYED_TIME_ZONES = [TimeZoneEnum.UTC, TimeZoneEnum.LOCAL];
 
@@ -146,6 +147,26 @@ function ServerTimeDropdown({
     // Immediately update the time display when "Include seconds" is toggled
     updateTimes();
   }, [includeServerTimeSeconds, updateTimes]);
+
+  useEffect(() => {
+    const handleTimezoneChange = (event: Event) => {
+      const detail = (event as CustomEvent<{ displayLocalTimezone?: boolean }>)?.detail;
+      if (typeof detail?.displayLocalTimezone === 'boolean') {
+        setDisplayLocalTimezone(detail.displayLocalTimezone);
+        return;
+      }
+
+      setDisplayLocalTimezone(shouldDisplayLocalTimezone());
+    };
+
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    window.addEventListener(CustomEventUUID.LOCAL_TIMEZONE_CHANGED, handleTimezoneChange);
+
+    return () => window.removeEventListener(CustomEventUUID.LOCAL_TIMEZONE_CHANGED, handleTimezoneChange);
+  }, []);
 
   if (!times) return null;
 
