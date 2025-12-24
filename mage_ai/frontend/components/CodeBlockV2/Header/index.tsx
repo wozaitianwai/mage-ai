@@ -1,5 +1,5 @@
 import * as osPath from 'path';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 
 import ButtonTabs, { TabType } from '@oracle/components/Tabs/ButtonTabs';
@@ -64,6 +64,7 @@ function CodeBlockHeader({
     type,
     uuid,
   } = block;
+  const chevronRef = useRef(null);
 
   useEffect(() => {
     setSubheaderVisible(subheaderVisibleDefault
@@ -487,6 +488,7 @@ function CodeBlockHeader({
           <CSSTransition
             classNames="chevron-down"
             in
+            nodeRef={chevronRef}
             timeout={400}
           >
             <KeyboardShortcutButton
@@ -497,6 +499,7 @@ function CodeBlockHeader({
               onClick={() => {
                 setSubheaderVisible(!subheaderVisible)
               }}
+              ref={chevronRef}
               uuid={`KeyboardShortcutButton/${uuid}/subheader/menu/button`}
             >
               <Spacing py={1}>

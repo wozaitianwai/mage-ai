@@ -692,6 +692,88 @@
     "sidekick": {
       "dependency_tree": "依赖树"
     },
+        "chart_block": {
+      "update_chart_name": "更新图表名称",
+      "source_block": "来源块",
+      "run_chart_block": "运行图表块",
+      "edit_chart": "编辑图表",
+      "delete_chart": "删除图表",
+      "select_chart_type": "选择图表类型",
+      "chart_width": "图表宽度",
+      "width_options": {
+        "half": "1/2 宽度",
+        "full": "全宽"
+      },
+      "custom_chart_code": "自定义图表代码",
+      "custom_chart_code_description": {
+        "line1": "编写自定义逻辑，将数据映射为图表输入值。",
+        "line2": "仅在未选择任何列或指标时才会执行此代码。"
+      },
+      "variables_available": "你可以在代码中使用的变量：",
+      "variables_required": "你必须定义的变量：",
+      "metrics": {
+        "title": "指标",
+        "description": "选择一列以及一个聚合函数。",
+        "aggregation": "聚合",
+        "column": "列"
+      },
+      "options": {
+        "chart_style": {
+          "horizontal": "水平",
+          "vertical": "垂直"
+        },
+        "sort_direction": {
+          "none": "默认",
+          "ascending": "升序",
+          "descending": "降序"
+        },
+        "time_interval": {
+          "original": "原始",
+          "second": "秒",
+          "minute": "分钟",
+          "hour": "小时",
+          "day": "天",
+          "week": "周",
+          "month": "月",
+          "year": "年"
+        }
+      },
+      "labels": {
+        "hide_x_grid_lines": "隐藏 X 网格线",
+        "hide_y_grid_lines": "隐藏 Y 网格线",
+        "smooth_y_line_curves": "平滑 Y 线曲线",
+        "x_axis_label_format": "X 轴标签格式",
+        "y_axis_label_format": "Y 轴标签格式",
+        "x_tooltip_format": "X 提示格式",
+        "y_tooltip_format": "Y 提示格式",
+        "time_column": "时间列",
+        "time_interval": "时间间隔",
+        "metrics": "指标",
+        "group_by_columns": "按列分组",
+        "chart_style": "图表样式",
+        "sort_direction": "排序方向",
+        "variable_name_of_x_axis_values": "X 轴值变量名",
+        "variable_name_of_y_axis_values": "Y 轴值变量名",
+        "number_column_for_chart": "用于图表的数值列",
+        "number_of_buckets": "分桶数量",
+        "variable_name_of_values": "数值变量名",
+        "number_column_to_group_by": "用于分组的数值列",
+        "labels_of_lines_in_chart_comma_separated": "曲线标签（用逗号分隔）",
+        "column_for_chart": "用于图表的列",
+        "number_of_slices": "切片数量",
+        "columns": "列",
+        "max_number_of_rows": "最大行数",
+        "order_by_column": "排序列",
+        "variable_name_of_columns": "列变量名",
+        "variable_name_of_rows": "行变量名",
+        "of_missing_values": "缺失值百分比",
+        "unique_values": "唯一值",
+        "most_frequent_values": "最常见值",
+        "summary_overview": "汇总概览",
+        "feature_profiles": "特征概览"
+      }
+    },
+
   "add_block": {
     "base_template_generic": "基础模板（通用）",
     "data_integrations": "数据集成",

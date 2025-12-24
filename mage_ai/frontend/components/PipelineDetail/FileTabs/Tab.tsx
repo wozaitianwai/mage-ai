@@ -51,6 +51,9 @@ function FileTab({
   themeContext,
 }: FileTabProps & FileTabPropsInternal) {
   const [focused, setFocused] = useState<boolean>(false);
+  const isDark = (themeContext || dark)?.type === 'dark';
+  const useMutedText = !selected && !isDark;
+  const useDefaultText = !selected && isDark;
 
   const {
     BlockIcon,
@@ -151,7 +154,13 @@ function FileTab({
 
               <Spacing mr={1} />
 
-              <Text monospace muted={!selected} noWrapping small>
+              <Text
+                default={useDefaultText}
+                monospace
+                muted={useMutedText}
+                noWrapping
+                small
+              >
                 {renderTabTitle ? renderTabTitle(filePath) : filePath}
               </Text>
             </FlexContainer>

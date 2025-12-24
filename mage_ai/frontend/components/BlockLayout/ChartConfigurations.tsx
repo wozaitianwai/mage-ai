@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Chip from '@oracle/components/Chip';
 import FlexContainer from '@oracle/components/FlexContainer';
@@ -12,10 +13,15 @@ import TextInput from '@oracle/elements/Inputs/TextInput';
 import {
   AGGREGATE_FUNCTIONS,
   CHART_TYPES,
+  ChartStyleEnum,
   ChartTypeEnum,
   ConfigurationType,
+  SortOrderEnum,
   VARIABLE_NAMES,
+  VARIABLE_NAME_CHART_STYLE,
+  VARIABLE_NAME_TIME_INTERVAL,
   VARIABLE_NAME_WIDTH_PERCENTAGE,
+  VARIABLE_NAME_Y_SORT_ORDER,
 } from '@interfaces/ChartBlockType';
 import {
   CONFIGURATIONS_BY_CHART_TYPE,
@@ -30,6 +36,12 @@ import { PADDING_UNITS } from 'oracle/styles/units/spacing';
 import { dig, setNested } from '@utils/hash';
 import BlockLayoutItemType from '@interfaces/BlockLayoutItemType';
 
+const chartLabelKey = (labelValue: string) =>
+  labelValue
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '');
+
 function ChartConfigurations({
   block,
   updateConfiguration,
@@ -37,10 +49,55 @@ function ChartConfigurations({
   block: BlockLayoutItemType;
   updateConfiguration: (configuration: ConfigurationType, options?: { autoRun?: boolean, skip_render?: boolean }) => void;
 }) {
+  const { t } = useTranslation('common');
   const { data, configuration } = block || {};
   const { chart_type: chartType } = configuration || {};
   const { columns } = data || {};
   const configurationOptions = CONFIGURATIONS_BY_CHART_TYPE[chartType];
+  const optionLabel = useMemo(
+    () =>
+      (uuid: string, value: string | null) => {
+        if (uuid === VARIABLE_NAME_CHART_STYLE) {
+          if (value === ChartStyleEnum.HORIZONTAL) {
+            return t('pipeline_detail.chart_block.options.chart_style.horizontal', {
+              defaultValue: value,
+            });
+          }
+          if (value === ChartStyleEnum.VERTICAL) {
+            return t('pipeline_detail.chart_block.options.chart_style.vertical', {
+              defaultValue: value,
+            });
+          }
+        }
+
+        if (uuid === VARIABLE_NAME_Y_SORT_ORDER) {
+          if (value === null) {
+            return t('pipeline_detail.chart_block.options.sort_direction.none', {
+              defaultValue: 'none',
+            });
+          }
+          if (value === SortOrderEnum.ASCENDING) {
+            return t('pipeline_detail.chart_block.options.sort_direction.ascending', {
+              defaultValue: value,
+            });
+          }
+          if (value === SortOrderEnum.DESCENDING) {
+            return t('pipeline_detail.chart_block.options.sort_direction.descending', {
+              defaultValue: value,
+            });
+          }
+        }
+
+        if (uuid === VARIABLE_NAME_TIME_INTERVAL && value) {
+          return t(`pipeline_detail.chart_block.options.time_interval.${value}`, {
+            defaultValue: value,
+          });
+        }
+
+        return value;
+      },
+    [t],
+  );
 
   const {
     code: configurationOptionsElsForCode,
@@ -55,6 +112,11 @@ function ChartConfigurations({
           ...acc,
           [key]: arr.map(
             ({ autoRun, description, label, monospace, options, settings = {}, type, uuid }) => {
+              const labelValue = label();
+              const labelKey = chartLabelKey(labelValue);
+              const labelText = t(`pipeline_detail.chart_block.labels.${labelKey}`, {
+                defaultValue: capitalize(labelValue),
+              });
               const renderWithLabelDescription = (
                 elInit?: JSX.Element,
                 opts?: {
@@ -93,7 +155,7 @@ function ChartConfigurations({
               const sharedProps = {
                 fullWidth: true,
                 key: uuid,
-                label: capitalize(label()),
+                label: labelText,
                 monospace: monospace,
                 // onBlur: () => setSelectedBlock(block),
                 onChange: e =>
@@ -179,9 +241,9 @@ function ChartConfigurations({
 
                 el = (
                   <>
-                    <Text bold>Metrics</Text>
+                    <Text bold>{t('pipeline_detail.chart_block.metrics.title')}</Text>
                     <Text muted small>
-                      Select a column and an aggregation function.
+                      {t('pipeline_detail.chart_block.metrics.description')}
                     </Text>
                     <MultiSelect
                       onChange={(values, { resetValues, setValues }) => {
@@ -210,7 +272,12 @@ function ChartConfigurations({
                         }
                       }}
                     >
-                      <Select {...sharedProps} label="aggregation">
+                      <Select
+                        {...sharedProps}
+                        label={t('pipeline_detail.chart_block.metrics.aggregation', {
+                          defaultValue: 'aggregation',
+                        })}
+                      >
                         {sortByKey(AGGREGATE_FUNCTIONS, v => v).map((val: string) => (
                           <option key={val} value={val}>
                             {val}
@@ -218,7 +285,12 @@ function ChartConfigurations({
                         ))}
                       </Select>
 
-                      <Select {...sharedProps} label="column">
+                      <Select
+                        {...sharedProps}
+                        label={t('pipeline_detail.chart_block.metrics.column', {
+                          defaultValue: 'column',
+                        })}
+                      >
                         {sortByKey(columns || [], v => v).map((val: string) => (
                           <option key={val} value={val}>
                             {val}
@@ -327,9 +399,9 @@ function ChartConfigurations({
               } else if (options) {
                 el = (
                   <Select {...sharedProps}>
-                    {options.map((val: string) => (
-                      <option key={val} value={val}>
-                        {val}
+                    {options.map((val: string | null) => (
+                      <option key={`${uuid}-${String(val)}`} value={val}>
+                        {optionLabel(uuid, val)}
                       </option>
                     ))}
                   </Select>
@@ -390,6 +462,7 @@ function ChartConfigurations({
       configurationOptions,
       // dataBlock,
       // setSelectedBlock,
+      t,
       updateConfiguration,
     ],
   );

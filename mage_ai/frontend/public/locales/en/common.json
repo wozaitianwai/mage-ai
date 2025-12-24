@@ -629,6 +629,87 @@
     "sidekick": {
       "dependency_tree": "Dependency tree"
     },
+    "chart_block": {
+      "update_chart_name": "Update chart name",
+      "source_block": "Source block",
+      "run_chart_block": "Run chart block",
+      "edit_chart": "Edit chart",
+      "delete_chart": "Delete chart",
+      "select_chart_type": "Select chart type",
+      "chart_width": "Chart width",
+      "width_options": {
+        "half": "1/2 width",
+        "full": "Full width"
+      },
+      "custom_chart_code": "Custom chart code",
+      "custom_chart_code_description": {
+        "line1": "Write custom logic mapping data to input values for your chart.",
+        "line2": "This code is only executed if you do not have any columns or metrics selected."
+      },
+      "variables_available": "Variables you can use in your code:",
+      "variables_required": "Variables that you must define:",
+      "metrics": {
+        "title": "Metrics",
+        "description": "Select a column and an aggregation function.",
+        "aggregation": "aggregation",
+        "column": "column"
+      },
+      "options": {
+        "chart_style": {
+          "horizontal": "horizontal",
+          "vertical": "vertical"
+        },
+        "sort_direction": {
+          "none": "none",
+          "ascending": "ascending",
+          "descending": "descending"
+        },
+        "time_interval": {
+          "original": "original",
+          "second": "second",
+          "minute": "minute",
+          "hour": "hour",
+          "day": "day",
+          "week": "week",
+          "month": "month",
+          "year": "year"
+        }
+      },
+      "labels": {
+        "hide_x_grid_lines": "Hide X grid lines",
+        "hide_y_grid_lines": "Hide Y grid lines",
+        "smooth_y_line_curves": "Smooth Y line curves",
+        "x_axis_label_format": "X axis label format",
+        "y_axis_label_format": "Y axis label format",
+        "x_tooltip_format": "X tooltip format",
+        "y_tooltip_format": "Y tooltip format",
+        "time_column": "Time column",
+        "time_interval": "Time interval",
+        "metrics": "Metrics",
+        "group_by_columns": "Group by columns",
+        "chart_style": "Chart style",
+        "sort_direction": "Sort direction",
+        "variable_name_of_x_axis_values": "Variable name of X-axis values",
+        "variable_name_of_y_axis_values": "Variable name of Y-axis values",
+        "number_column_for_chart": "Number column for chart",
+        "number_of_buckets": "Number of buckets",
+        "variable_name_of_values": "Variable name of values",
+        "number_column_to_group_by": "Number column to group by",
+        "labels_of_lines_in_chart_comma_separated": "Labels of lines in chart (comma separated)",
+        "column_for_chart": "Column for chart",
+        "number_of_slices": "Number of slices",
+        "columns": "Columns",
+        "max_number_of_rows": "Max number of rows",
+        "order_by_column": "Order by column",
+        "variable_name_of_columns": "Variable name of columns",
+        "variable_name_of_rows": "Variable name of rows",
+        "of_missing_values": "% of missing values",
+        "unique_values": "Unique values",
+        "most_frequent_values": "Most frequent values",
+        "summary_overview": "Summary overview",
+        "feature_profiles": "Feature profiles"
+      }
+    },
   "add_block": {
     "base_template_generic": "Base template (generic)",
     "data_integrations": "Data integrations",

@@ -3421,6 +3421,17 @@ function PipelineDetailPage({
     selectedTab,
   ]);
 
+  const editBeforeTabs = useMemo(() => (
+    EDIT_BEFORE_TABS.map((tab: TabType) => ({
+      ...tab,
+      label: () => (
+        EDIT_BEFORE_TAB_ALL_FILES.uuid === tab.uuid
+          ? t('block_browser.tabs.all_files')
+          : t('block_browser.tabs.current_blocks')
+      ),
+    }))
+  ), [t]);
+
   const buttonTabs = useMemo(() => (
     <Spacing px={1}>
       <ButtonTabs
@@ -3429,12 +3440,13 @@ function PipelineDetailPage({
           setSelectedTab(tab);
         }}
         selectedTabUUID={selectedTab?.uuid}
-        tabs={EDIT_BEFORE_TABS}
+        tabs={editBeforeTabs}
         underlineColor={(themeContext || dark).accent.purple}
         underlineStyle
       />
     </Spacing>
   ), [
+    editBeforeTabs,
     setSelectedTab,
     selectedTab,
     themeContext,
