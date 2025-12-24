@@ -252,7 +252,7 @@ function PipelineSchedules({
               overflow
             >
               <Text>
-                This pipeline has no runtime variables.
+                {t('triggers.edit.runtime_variables.none')}
               </Text>
 
               {!isViewerRole &&
@@ -263,10 +263,11 @@ function PipelineSchedules({
                     passHref
                   >
                     <Link primary>
-                      Click here
+                      {t('triggers.edit.runtime_variables.add_link')}
                     </Link>
-                  </NextLink> <Text inline>
-                    to add variables to this pipeline.
+                  </NextLink>{' '}
+                  <Text inline>
+                    {t('triggers.edit.runtime_variables.add_text')}
                   </Text>
                 </Spacing>
               }
