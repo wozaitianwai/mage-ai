@@ -38,6 +38,7 @@
     "pipeline_runs_completed_daily": "Completed pipeline runs daily",
     "pipeline_runs_failed_daily": "Failed pipeline runs daily",
     "running_pipelines": "Running pipelines",
+    "local_time": "Local time",
     "total_pipeline_runs": "total pipeline runs",
     "all": "All",
     "latest_pipeline_run_failures": "Latest pipeline run failures",
@@ -611,6 +612,8 @@
     }
   },
   "pipeline_detail": {
+    "show_all": "Show all",
+    "hide_all": "Hide all",
     "unsaved_changes": "You have unsaved changes.",
     "add_new_block": "Add a new block to start building your pipeline.",
     "error_loading_pipeline": "Error loading pipeline",
@@ -626,6 +629,87 @@
     },
     "sidekick": {
       "dependency_tree": "Dependency tree"
+    },
+    "chart_block": {
+      "update_chart_name": "Update chart name",
+      "source_block": "Source block",
+      "run_chart_block": "Run chart block",
+      "edit_chart": "Edit chart",
+      "delete_chart": "Delete chart",
+      "select_chart_type": "Select chart type",
+      "chart_width": "Chart width",
+      "width_options": {
+        "half": "1/2 width",
+        "full": "Full width"
+      },
+      "custom_chart_code": "Custom chart code",
+      "custom_chart_code_description": {
+        "line1": "Write custom logic mapping data to input values for your chart.",
+        "line2": "This code is only executed if you do not have any columns or metrics selected."
+      },
+      "variables_available": "Variables you can use in your code:",
+      "variables_required": "Variables that you must define:",
+      "metrics": {
+        "title": "Metrics",
+        "description": "Select a column and an aggregation function.",
+        "aggregation": "aggregation",
+        "column": "column"
+      },
+      "options": {
+        "chart_style": {
+          "horizontal": "horizontal",
+          "vertical": "vertical"
+        },
+        "sort_direction": {
+          "none": "none",
+          "ascending": "ascending",
+          "descending": "descending"
+        },
+        "time_interval": {
+          "original": "original",
+          "second": "second",
+          "minute": "minute",
+          "hour": "hour",
+          "day": "day",
+          "week": "week",
+          "month": "month",
+          "year": "year"
+        }
+      },
+      "labels": {
+        "hide_x_grid_lines": "Hide X grid lines",
+        "hide_y_grid_lines": "Hide Y grid lines",
+        "smooth_y_line_curves": "Smooth Y line curves",
+        "x_axis_label_format": "X axis label format",
+        "y_axis_label_format": "Y axis label format",
+        "x_tooltip_format": "X tooltip format",
+        "y_tooltip_format": "Y tooltip format",
+        "time_column": "Time column",
+        "time_interval": "Time interval",
+        "metrics": "Metrics",
+        "group_by_columns": "Group by columns",
+        "chart_style": "Chart style",
+        "sort_direction": "Sort direction",
+        "variable_name_of_x_axis_values": "Variable name of X-axis values",
+        "variable_name_of_y_axis_values": "Variable name of Y-axis values",
+        "number_column_for_chart": "Number column for chart",
+        "number_of_buckets": "Number of buckets",
+        "variable_name_of_values": "Variable name of values",
+        "number_column_to_group_by": "Number column to group by",
+        "labels_of_lines_in_chart_comma_separated": "Labels of lines in chart (comma separated)",
+        "column_for_chart": "Column for chart",
+        "number_of_slices": "Number of slices",
+        "columns": "Columns",
+        "max_number_of_rows": "Max number of rows",
+        "order_by_column": "Order by column",
+        "variable_name_of_columns": "Variable name of columns",
+        "variable_name_of_rows": "Variable name of rows",
+        "of_missing_values": "% of missing values",
+        "unique_values": "Unique values",
+        "most_frequent_values": "Most frequent values",
+        "summary_overview": "Summary overview",
+        "feature_profiles": "Feature profiles"
+      }
     },
   "add_block": {
     "base_template_generic": "Base template (generic)",
@@ -753,7 +837,52 @@
       "pipelines_count_one": "{{count}} pipeline",
       "pipelines_count_other": "{{count}} pipelines",
       "add_chart": "Add chart",
-      "custom_charts": "Custom charts"
+      "custom_charts": "Custom charts",
+      "ai_actions": "AI actions",
+      "more_actions": "More actions",
+      "run_block": "Run block",
+      "run_command": "Run command",
+      "compile_preview": "Compile & preview",
+      "interrupt_kernel": "Interrupt kernel",
+      "convert_block": "Convert block",
+      "close_editor": "Close editor",
+      "edit": "Edit",
+      "execute_block": "Execute block",
+      "execute_with_upstream_blocks": "Execute with upstream blocks",
+      "execute_with_all_upstream_blocks": "Execute with all upstream blocks",
+      "execute_with_incomplete_upstream_blocks": "Execute with incomplete upstream blocks",
+      "execute_block_and_run_tests": "Execute block and run tests",
+      "execute_and_run_all_upstream_blocks": "Execute and run all upstream blocks",
+      "execute_and_run_incomplete_upstream_blocks": "Execute and run incomplete upstream blocks",
+      "set_block_as_dynamic": "Set block as dynamic",
+      "disable_block_as_dynamic": "Disable block as dynamic",
+      "add_callback": "Add callback",
+      "remove_callback": "Remove callback",
+      "replicate_block": "Replicate block",
+      "add_edit_interactions": "Add / Edit interactions",
+      "move_up": "Move up",
+      "move_to_top": "Move to top",
+      "delete_block": "Delete block",
+      "document_block_beta": "Document block (beta)",
+      "document_pipeline_beta": "Document pipeline and all blocks (beta)",
+      "add_comments_beta": "Add comments in code (beta)",
+      "view_edit_block_settings": "View and edit settings for this block",
+      "chart_types": {
+        "bar_chart": "Bar chart",
+        "histogram": "Histogram",
+        "line_chart": "Line chart",
+        "pie_chart": "Pie chart",
+        "table": "Table",
+        "time_series_bar_chart": "Time series bar chart",
+        "time_series_line_chart": "Time series line chart"
+      },
+      "chart_templates": {
+        "missing_values_percentage": "% of missing values",
+        "unique_values": "Unique values",
+        "most_frequent_values": "Most frequent values",
+        "summary_overview": "Summary overview",
+        "feature_profiles": "Feature profiles"
+      }
     },
     "edit": {
       "stale_pipeline_title": "Your pipeline may be stale.",
@@ -1838,7 +1967,7 @@
   "server_time": {
     "current_time": "Current Time",
     "universal_time": "Universal Time",
-    "display_local_timezone": "Display local timezone (requires refresh)",
+    "display_local_timezone": "Display local timezone",
     "display_local_timezone_disabled": "Display local timezone (must be changed in platform preferences)",
     "include_seconds": "Include seconds in current time"
   }

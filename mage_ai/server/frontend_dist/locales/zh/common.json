@@ -38,6 +38,7 @@
     "pipeline_runs_completed_daily": "每日已完成运行",
     "pipeline_runs_failed_daily": "每日失败运行",
     "running_pipelines": "正在运行的管道",
+    "local_time": "本地时间",
     "total_pipeline_runs": "总管道运行次数",
     "all": "全部",
     "latest_pipeline_run_failures": "最近管道运行失败",
@@ -674,6 +675,8 @@
     }
   },
   "pipeline_detail": {
+    "show_all": "显示全部",
+    "hide_all": "隐藏全部",
     "unsaved_changes": "您有未保存的更改。",
     "add_new_block": "添加一个新块以开始构建您的管道。",
     "error_loading_pipeline": "加载管道出错",
@@ -690,6 +693,88 @@
     "sidekick": {
       "dependency_tree": "依赖树"
     },
+        "chart_block": {
+      "update_chart_name": "更新图表名称",
+      "source_block": "来源块",
+      "run_chart_block": "运行图表块",
+      "edit_chart": "编辑图表",
+      "delete_chart": "删除图表",
+      "select_chart_type": "选择图表类型",
+      "chart_width": "图表宽度",
+      "width_options": {
+        "half": "1/2 宽度",
+        "full": "全宽"
+      },
+      "custom_chart_code": "自定义图表代码",
+      "custom_chart_code_description": {
+        "line1": "编写自定义逻辑，将数据映射为图表输入值。",
+        "line2": "仅在未选择任何列或指标时才会执行此代码。"
+      },
+      "variables_available": "你可以在代码中使用的变量：",
+      "variables_required": "你必须定义的变量：",
+      "metrics": {
+        "title": "指标",
+        "description": "选择一列以及一个聚合函数。",
+        "aggregation": "聚合",
+        "column": "列"
+      },
+      "options": {
+        "chart_style": {
+          "horizontal": "水平",
+          "vertical": "垂直"
+        },
+        "sort_direction": {
+          "none": "默认",
+          "ascending": "升序",
+          "descending": "降序"
+        },
+        "time_interval": {
+          "original": "原始",
+          "second": "秒",
+          "minute": "分钟",
+          "hour": "小时",
+          "day": "天",
+          "week": "周",
+          "month": "月",
+          "year": "年"
+        }
+      },
+      "labels": {
+        "hide_x_grid_lines": "隐藏 X 网格线",
+        "hide_y_grid_lines": "隐藏 Y 网格线",
+        "smooth_y_line_curves": "平滑 Y 线曲线",
+        "x_axis_label_format": "X 轴标签格式",
+        "y_axis_label_format": "Y 轴标签格式",
+        "x_tooltip_format": "X 提示格式",
+        "y_tooltip_format": "Y 提示格式",
+        "time_column": "时间列",
+        "time_interval": "时间间隔",
+        "metrics": "指标",
+        "group_by_columns": "按列分组",
+        "chart_style": "图表样式",
+        "sort_direction": "排序方向",
+        "variable_name_of_x_axis_values": "X 轴值变量名",
+        "variable_name_of_y_axis_values": "Y 轴值变量名",
+        "number_column_for_chart": "用于图表的数值列",
+        "number_of_buckets": "分桶数量",
+        "variable_name_of_values": "数值变量名",
+        "number_column_to_group_by": "用于分组的数值列",
+        "labels_of_lines_in_chart_comma_separated": "曲线标签（用逗号分隔）",
+        "column_for_chart": "用于图表的列",
+        "number_of_slices": "切片数量",
+        "columns": "列",
+        "max_number_of_rows": "最大行数",
+        "order_by_column": "排序列",
+        "variable_name_of_columns": "列变量名",
+        "variable_name_of_rows": "行变量名",
+        "of_missing_values": "缺失值百分比",
+        "unique_values": "唯一值",
+        "most_frequent_values": "最常见值",
+        "summary_overview": "汇总概览",
+        "feature_profiles": "特征概览"
+      }
+    },
+
   "add_block": {
     "base_template_generic": "基础模板（通用）",
     "data_integrations": "数据集成",
@@ -815,9 +900,54 @@
       "block_used_in_pipelines": "此代码块被 {{count}} 个管道使用。",
       "pipelines_count_one": "{{count}} 个管道",
       "pipelines_count_other": "{{count}} 个管道",
-      "add_chart": "添加图表",
-      "custom_charts": "自定义图表"
-    },
+        "add_chart": "添加图表",
+        "custom_charts": "自定义图表",
+        "ai_actions": "AI 操作",
+        "more_actions": "更多操作",
+        "run_block": "运行代码块",
+        "run_command": "运行命令",
+        "compile_preview": "编译并预览",
+        "interrupt_kernel": "中断内核",
+        "convert_block": "转换代码块",
+        "close_editor": "关闭编辑器",
+        "edit": "编辑",
+        "execute_block": "执行代码块",
+        "execute_with_upstream_blocks": "与上游代码块一起执行",
+        "execute_with_all_upstream_blocks": "与全部上游代码块一起执行",
+        "execute_with_incomplete_upstream_blocks": "与未完成的上游代码块一起执行",
+        "execute_block_and_run_tests": "执行代码块并运行测试",
+        "execute_and_run_all_upstream_blocks": "执行并运行全部上游代码块",
+        "execute_and_run_incomplete_upstream_blocks": "执行并运行未完成的上游代码块",
+        "set_block_as_dynamic": "将代码块设为动态",
+        "disable_block_as_dynamic": "取消代码块动态",
+        "add_callback": "添加回调",
+        "remove_callback": "移除回调",
+        "replicate_block": "复制代码块",
+        "add_edit_interactions": "添加/编辑交互",
+        "move_up": "上移",
+        "move_to_top": "移到顶部",
+        "delete_block": "删除代码块",
+        "document_block_beta": "生成代码块文档（测试版）",
+        "document_pipeline_beta": "生成管道及所有代码块文档（测试版）",
+        "add_comments_beta": "为代码添加注释（测试版）",
+        "view_edit_block_settings": "查看并编辑此代码块设置",
+        "chart_types": {
+          "bar_chart": "柱状图",
+          "histogram": "直方图",
+          "line_chart": "折线图",
+          "pie_chart": "饼图",
+          "table": "表格",
+          "time_series_bar_chart": "时间序列柱状图",
+          "time_series_line_chart": "时间序列折线图"
+        },
+        "chart_templates": {
+          "missing_values_percentage": "缺失值占比",
+          "unique_values": "唯一值",
+          "most_frequent_values": "最常见值",
+          "summary_overview": "概要汇总",
+          "feature_profiles": "特征分析"
+        }
+      },
     "edit": {
       "stale_pipeline_title": "你的管道可能已过期。",
       "stale_pipeline_subtitle": "该管道可能在另一个标签页中打开。在此处保存更改可能会覆盖另一个标签页中对此管道所做的更改。请谨慎操作。",
@@ -1900,7 +2030,7 @@
   "server_time": {
     "current_time": "当前时间",
     "universal_time": "世界标准时间",
-    "display_local_timezone": "显示本地时区（需刷新）",
+    "display_local_timezone": "显示本地时区",
     "display_local_timezone_disabled": "显示本地时区（必须在平台首选项中更改）",
     "include_seconds": "当前时间包含秒"
   }
