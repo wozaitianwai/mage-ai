@@ -2,6 +2,7 @@ import NextLink from 'next/link';
 import { ThemeContext } from 'styled-components';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import AuthToken from '@api/utils/AuthToken';
 import Breadcrumbs, { BreadcrumbType as BreadcrumbTypeOrig } from '@components/Breadcrumbs';
@@ -30,7 +31,7 @@ import useCustomDesign from '@utils/models/customDesign/useCustomDesign';
 import useDelayFetch from '@api/utils/useDelayFetch';
 import useProject from '@utils/models/project/useProject';
 import { BLUE_TRANSPARENT, YELLOW } from '@oracle/styles/colors/main';
-import { BranchAlt, MageProLetters, Planet, Slack, UFO } from '@oracle/icons';
+import { BranchAlt } from '@oracle/icons';
 import {
   ButtonInputStyle,
   CUSTOM_LOGO_HEIGHT,
@@ -87,6 +88,7 @@ function Header({
   const [showError] = useError(null, {}, [], {
     uuid: 'shared/Header',
   });
+  const { t } = useTranslation('common');
 
   const themeContext = useContext(ThemeContext) as ThemeType;
   const router = useRouter();
@@ -309,14 +311,18 @@ function Header({
     ? []
     : [
       {
-        label: () => 'Settings',
+        label: () => t?.('sidebar.settings') || 'Settings',
         linkProps: {
           href: '/settings/workspace/preferences',
         },
         uuid: 'user_settings',
       },
       {
-        label: () => (themeContext?.type === 'light' ? 'Dark mode' : 'Light mode'),
+        label: () => (
+          themeContext?.type === 'light'
+            ? t?.('common.dark_mode') || 'Dark mode'
+            : t?.('common.light_mode') || 'Light mode'
+        ),
         onClick: () => {
           const nextMode = themeContext?.type === 'light' ? THEME_MODE_DARK : THEME_MODE_LIGHT;
           setCurrentTheme(nextMode);
@@ -338,7 +344,7 @@ function Header({
   if (REQUIRE_USER_AUTHENTICATION()) {
     userDropdown.push(
       {
-        label: () => 'Sign out',
+        label: () => t?.('header.sign_out') || 'Sign out',
         onClick: () => logout(),
         uuid: 'sign_out',
       });
@@ -534,6 +540,7 @@ function Header({
               <LanguageSwitcher />
             </Spacing>
 
+            {/*
             <Spacing ml={1}>
               <KeyboardShortcutButton
                 beforeElement={<Slack />}
@@ -573,6 +580,7 @@ function Header({
                 Try
               </KeyboardShortcutButton>
             </Spacing>
+            */}
 
             {menuItems &&
               <>

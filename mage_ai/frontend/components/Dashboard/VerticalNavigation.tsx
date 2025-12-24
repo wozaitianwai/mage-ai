@@ -84,6 +84,7 @@ const DEFAULT_NAV_ITEMS = ({
         href: '/terminal',
       },
     },
+    /*
     {
       Icon: Rocket,
       id: 'deployments',
@@ -94,6 +95,7 @@ const DEFAULT_NAV_ITEMS = ({
       },
       tag: 'Pro',
     },
+    */
     {
       Icon: Settings,
       id: 'settings',
