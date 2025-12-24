@@ -11,6 +11,7 @@ import moment from 'moment';
 import { toast } from 'react-toastify';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation, Trans } from 'react-i18next';
 
 import BookmarkValues from '../BookmarkValues';
 import Button from '@oracle/elements/Button';
@@ -117,6 +118,20 @@ type EditProps = {
   variables?: PipelineVariableType[];
 };
 
+type LinkWrapperProps = {
+  as: string;
+  children?: React.ReactNode;
+  href: string;
+};
+
+const LinkWrapper = ({ as, children, href }: LinkWrapperProps) => (
+  <NextLink as={as} href={href} passHref>
+    <Link openNewWindow xsmall>
+      {children}
+    </Link>
+  </NextLink>
+);
+
 function Edit({
   creatingWithLimitation: creatingWithLimitationProp,
   errors,
@@ -128,6 +143,7 @@ function Edit({
   variables,
   useCreateScheduleMutation,
 }: EditProps) {
+  const { t } = useTranslation('common');
   const {
     project,
   } = useProject();
@@ -790,7 +806,7 @@ function Edit({
       <Alphabet default />
       <Spacing mr={1} />
       <Text default>
-        Trigger name
+        {t('triggers.edit.trigger_name.label')}
       </Text>
     </FlexContainer>,
     <TextInput
@@ -803,10 +819,10 @@ function Edit({
           name: e.target.value,
         }));
       }}
-      placeholder="Name this trigger"
+      placeholder={t('triggers.edit.trigger_name.placeholder')}
       value={name}
     />,
-  ]), [name]);
+  ]), [name, t]);
   const triggerDescriptionRowEl = useMemo(() => ([
     <FlexContainer
       alignItems="center"
@@ -815,7 +831,7 @@ function Edit({
       <Alphabet default />
       <Spacing mr={1} />
       <Text default>
-        Trigger description
+        {t('triggers.edit.trigger_description.label')}
       </Text>
     </FlexContainer>,
     <TextInput
@@ -828,10 +844,10 @@ function Edit({
           description: e.target.value,
         }));
       }}
-      placeholder="Description"
+      placeholder={t('triggers.edit.trigger_description.placeholder')}
       value={description}
     />,
-  ]), [description]);
+  ]), [description, t]);
   const detailsMemo = useMemo(() => {
     const rows = [
       triggerNameRowEl,
@@ -844,7 +860,7 @@ function Edit({
           <Schedule default size={1.5 * UNIT} />
           <Spacing mr={1} />
           <Text default>
-            Frequency
+            {t('triggers.edit.frequency.label')}
           </Text>
         </FlexContainer>,
         <div key="frequency_input">
@@ -858,7 +874,7 @@ function Edit({
                 schedule_interval: interval,
               }));
             }}
-            placeholder="Choose the frequency to run"
+            placeholder={t('triggers.edit.frequency.placeholder')}
             value={scheduleInterval}
           >
             {Object.values(ScheduleIntervalEnum).reduce((acc, value) => {
@@ -876,7 +892,7 @@ function Edit({
             }, [])}
             {!creatingWithLimitation && (
               <option key="custom" value="custom">
-                custom
+                {t('triggers.edit.frequency.custom')}
               </option>
             )}
           </Select>
@@ -884,9 +900,11 @@ function Edit({
           {!creatingWithLimitation && (
             <Spacing mt={1} p={1}>
               <Text muted small>
-                If you don&#39;t see the frequency option you need, select <Text inline monospace small>
-                  custom
-                </Text> and enter CRON syntax.
+                <Trans i18nKey="triggers.edit.frequency.custom_help" t={t}>
+                  If you don&#39;t see the frequency option you need, select <Text inline monospace small>
+                    custom
+                  </Text> and enter CRON syntax.
+                </Trans>
               </Text>
             </Spacing>
           )}
@@ -926,8 +944,8 @@ function Edit({
         <CalendarDate default size={1.5 * UNIT} />
         <Spacing mr={1} />
         <Text default>
-          {showLandingTime && 'Pipeline complete by'}
-          {!showLandingTime && 'Start date and time'}
+          {showLandingTime && t('triggers.edit.pipeline_complete_by')}
+          {!showLandingTime && t('triggers.edit.start_date_and_time.label')}
         </Text>
       </FlexContainer>,
 
@@ -942,7 +960,7 @@ function Edit({
               <TextInput
                 monospace
                 onClick={() => setShowCalendar(val => !val)}
-                placeholder="YYYY-MM-DD HH:MM"
+                placeholder={t('triggers.edit.start_date_and_time.placeholder')}
                 value={date
                   ? getDatetimeFromDateAndTime(
                     date,
@@ -991,7 +1009,7 @@ function Edit({
             <Code default size={1.5 * UNIT} />
             <Spacing mr={1} />
             <Text default>
-              Cron expression
+              {t('triggers.edit.cron_expression.label')}
             </Text>
           </FlexContainer>,
           <div key="cron_expression_input">
@@ -1001,13 +1019,13 @@ function Edit({
                 e.preventDefault();
                 setCustomInterval(e.target.value);
               }}
-              placeholder="* * * * *"
+              placeholder={t('triggers.edit.cron_expression.placeholder')}
               value={customInterval}
             />
 
             <Spacing mt={1} p={1}>
               <Text monospace xsmall>
-                [minute] [hour] [day(month)] [month] [day(week)]
+                {t('triggers.edit.cron_expression.help')}
               </Text>
 
               <Spacing mb="2px" />
@@ -1021,7 +1039,7 @@ function Edit({
                     small
                   >
                     {cronExpressionInvalid
-                      ? 'Invalid cron expression. Please check the cron syntax.'
+                      ? t('triggers.edit.cron_expression.invalid')
                       : <>&#34;{readableCronExpression}&#34;</>
                     }
                   </Text>
@@ -1031,17 +1049,10 @@ function Edit({
               {displayLocalTimezone && (
                 <>
                   <Text bold inline small warning>
-                    Note:&nbsp;
+                    {t('triggers.edit.cron_expression.timezone_note_title')}&nbsp;
                   </Text>
                   <Text inline small>
-                    If you have the display_local_timezone setting enabled, the local cron expression
-                    above will match your local timezone only
-                    <br />
-                    if the minute and hour values are single
-                    values without any special characters, such as the comma, hyphen, or slash.
-                    <br />
-                    You can still use cron expressions with special characters for the minute/hour
-                    values, but it will be based in UTC time.
+                    {t('triggers.edit.cron_expression.timezone_note')}
                   </Text>
                 </>
               )}
@@ -1055,7 +1066,7 @@ function Edit({
       <>
         <Spacing mb={2} px={PADDING_UNITS}>
           <Headline>
-            Settings
+            {t('triggers.edit.settings')}
           </Headline>
         </Spacing>
 
@@ -1105,8 +1116,8 @@ function Edit({
     <>
       <Spacing mb={PADDING_UNITS} px={PADDING_UNITS}>
         <Headline>
-          Settings
-        </Headline>
+            {t('triggers.edit.settings')}
+          </Headline>
       </Spacing>
 
       <Divider light short />
@@ -1121,22 +1132,20 @@ function Edit({
 
       <Spacing mb={2} mt={5} px={PADDING_UNITS}>
         <Headline>
-          Events
+          {t('triggers.edit.events.title')}
         </Headline>
 
         <Text muted>
-          Add 1 or more event that will trigger this pipeline to run.
-          <br />
-          If you add more than 1 event,
-          this pipeline will trigger if any of the events are received.
+          {t('triggers.edit.events.description')}
         </Text>
 
         <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
           <Text bold large>
-            AWS events
+            {t('triggers.edit.events.aws_events')}
           </Text>
 
           <Text muted>
+            <Trans i18nKey="triggers.edit.events.aws_events_help" t={t}>
             In order to retrieve all the possible AWS events you can trigger your pipeline from,
             <br />
             you’ll need to set 3 environment variables (<Link
@@ -1146,6 +1155,7 @@ function Edit({
             >
               more info here
             </Link>):
+            </Trans>
           </Text>
 
           <Spacing mt={1}>
@@ -1268,7 +1278,7 @@ function Edit({
           onClick={() => setEventMatchers(prev => prev.concat({}))}
           outline
         >
-          Add event matcher
+          {t('triggers.edit.events.add_event_matcher')}
         </Button>
       </Spacing>
     </>
@@ -1288,7 +1298,7 @@ function Edit({
       <>
         <Spacing mb={PADDING_UNITS} px={PADDING_UNITS}>
           <Headline>
-            Settings
+            {t('triggers.edit.settings')}
           </Headline>
         </Spacing>
 
@@ -1304,13 +1314,15 @@ function Edit({
 
         <Spacing mb={2} mt={5} px={PADDING_UNITS}>
           <Headline>
-            Endpoint
+            {t('triggers.edit.endpoint.title')}
           </Headline>
 
           <Text muted>
+            <Trans i18nKey="triggers.edit.endpoint.description" t={t}>
             Make a <Text bold inline monospace>
               POST
             </Text> request to the following endpoint:
+            </Trans>
           </Text>
 
           <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
@@ -1331,7 +1343,7 @@ function Edit({
                 />
               </Spacing>
               <Text muted>
-                Show alternative endpoint to pass token in headers
+                {t('triggers.edit.endpoint.show_alternative')}
               </Text>
             </FlexContainer>
           </Spacing>
@@ -1340,12 +1352,11 @@ function Edit({
         {useHeaderUrl && (
           <Spacing mb={2} mt={5} px={PADDING_UNITS}>
             <Headline>
-              Headers
+              {t('triggers.edit.headers.title')}
             </Headline>
 
             <Text muted>
-              You will need to include the following headers in your request to authenticate
-              with the server.
+              {t('triggers.edit.headers.description')}
             </Text>
 
             <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
@@ -1370,12 +1381,11 @@ function Edit({
 
         <Spacing mb={2} mt={5} px={PADDING_UNITS}>
           <Headline>
-            Payload
+            {t('triggers.edit.payload.title')}
           </Headline>
 
           <Text muted>
-            You can optionally include runtime variables in your request payload.
-            These runtime variables are accessible from within each pipeline block.
+            {t('triggers.edit.payload.description')}
           </Text>
 
           <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
@@ -1411,7 +1421,7 @@ function Edit({
 
         <Spacing mb={2} mt={5} px={PADDING_UNITS}>
           <Headline>
-            Sample cURL command
+            {t('triggers.edit.curl_command')}
           </Headline>
 
           <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
@@ -1483,7 +1493,7 @@ function Edit({
     <Spacing py={PADDING_UNITS}>
       <Spacing mb={UNITS_BETWEEN_SECTIONS} px={PADDING_UNITS}>
         <Headline>
-          Run settings
+          {t('triggers.edit.run_settings.title')}
         </Headline>
 
         <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
@@ -1491,11 +1501,11 @@ function Edit({
             <>
               <Spacing mb={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
                 <Text>
-                  Set a timeout for each run of this trigger (optional)
+                  {t('triggers.edit.run_settings.timeout')}
                 </Text>
                 <Spacing mb={1} />
                 <TextInput
-                  label="Timeout (in seconds)"
+                  label={t('triggers.edit.run_settings.timeout_label')}
                   onChange={e => setSettings(prev => ({
                     ...prev,
                     timeout: e.target.value,
@@ -1508,7 +1518,7 @@ function Edit({
               </Spacing>
               <Spacing mb={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
                 <Text>
-                  Status for runs that exceed the timeout (default: failed)
+                  {t('triggers.edit.run_settings.timeout_status')}
                 </Text>
                 <Spacing mb={1} />
                 <Select
@@ -1521,14 +1531,14 @@ function Edit({
                       timeout_status: e.target.value,
                     }));
                   }}
-                  placeholder="Timeout status"
+                  placeholder={t('triggers.edit.run_settings.timeout_status_placeholder')}
                   value={settings?.timeout_status}
                 >
                   <option value={RunStatus.FAILED}>
-                    Failed
+                    {t('triggers.edit.run_settings.status_failed')}
                   </option>
                   <option value={RunStatus.CANCELLED}>
-                    Cancelled
+                    {t('triggers.edit.run_settings.status_cancelled')}
                   </option>
                 </Select>
               </Spacing>
@@ -1550,7 +1560,7 @@ function Edit({
               />
             </Spacing>
             <Text default monospace>
-              Configure trigger SLA
+              {t('triggers.edit.run_settings.sla_configure')}
             </Text>
           </FlexContainer>
 
@@ -1565,7 +1575,7 @@ function Edit({
                   <CalendarDate default size={1.5 * UNIT} />
                   <Spacing mr={1} />
                   <Text default>
-                    SLA
+                    {t('triggers.edit.run_settings.sla_label')}
                   </Text>
                 </FlexContainer>,
                 <FlexContainer key="sla_input_detail">
@@ -1581,7 +1591,7 @@ function Edit({
                           slaAmount: e.target.value,
                         }));
                       }}
-                      placeholder="Time"
+                      placeholder={t('triggers.edit.run_settings.sla_time_placeholder')}
                       value={schedule?.['slaAmount']}
                     />
                   </Flex>
@@ -1597,13 +1607,13 @@ function Edit({
                           slaUnit: e.target.value,
                         }));
                       }}
-                      placeholder="Select time unit"
+                      placeholder={t('triggers.edit.run_settings.sla_unit_placeholder')}
                       small
                       value={schedule?.['slaUnit']}
                     >
                       {Object.keys(TIME_UNIT_TO_SECONDS).map(unit => (
                         <option key={unit} value={unit}>
-                          {`${unit}(s)`}
+                          {t(`triggers.edit.run_settings.sla_unit_${unit}`)}
                         </option>
                       ))}
                     </Select>
@@ -1618,7 +1628,7 @@ function Edit({
           <FlexContainer alignItems="center">
             <Checkbox
               checked={settings?.allow_blocks_to_fail}
-              label="Keep running pipeline even if blocks fail"
+              label={t('triggers.edit.run_settings.keep_running')}
               onClick={() => setSettings(prev => ({
                 ...prev,
                 allow_blocks_to_fail: !settings?.allow_blocks_to_fail,
@@ -1633,7 +1643,7 @@ function Edit({
               <FlexContainer alignItems="center">
                 <Checkbox
                   checked={settings?.skip_if_previous_running}
-                  label="Skip run if previous run still in progress"
+                  label={t('triggers.edit.run_settings.skip_if_previous_running')}
                   onClick={() => setSettings(prev => ({
                     ...prev,
                     skip_if_previous_running: !settings?.skip_if_previous_running,
@@ -1645,7 +1655,7 @@ function Edit({
               <FlexContainer alignItems="center">
                 <Checkbox
                   checked={settings?.create_initial_pipeline_run}
-                  label="Create initial pipeline run if start date is before current execution period"
+                  label={t('triggers.edit.run_settings.create_initial_run')}
                   onClick={() => setSettings(prev => ({
                     ...prev,
                     create_initial_pipeline_run: !settings?.create_initial_pipeline_run,
@@ -1660,13 +1670,13 @@ function Edit({
       <Spacing mb={UNITS_BETWEEN_SECTIONS} >
         <Spacing px={PADDING_UNITS}>
           <Headline>
-            Runtime variables
+            {t('triggers.edit.runtime_variables.title')}
           </Headline>
 
           {isEmptyObject(formattedVariables) && (
             <Spacing mt={1}>
               <Text default>
-                This pipeline has no runtime variables.
+                {t('triggers.edit.runtime_variables.none')}
               </Text>
               <NextLink
                 as={`/pipelines/${pipelineUUID}/edit?sideview=variables`}
@@ -1674,10 +1684,10 @@ function Edit({
                 passHref
               >
                 <Link primary>
-                  Click here
+                  {t('triggers.edit.runtime_variables.add_link')}
                 </Link>
               </NextLink> <Text default inline>
-                to add variables to this pipeline.
+                {t('triggers.edit.runtime_variables.add_text')}
               </Text>
             </Spacing>
           )}
@@ -1689,6 +1699,7 @@ function Edit({
             // @ts-ignore
             originalVariables={pipelineSchedule?.variables}
             runtimeVariables={runtimeVariables}
+            t={t}
             setRuntimeVariables={setRuntimeVariables}
           />
         </Spacing>
@@ -1698,7 +1709,7 @@ function Edit({
         <Spacing mb={UNITS_BETWEEN_SECTIONS}>
           <Spacing px={PADDING_UNITS}>
             <Headline>
-              Override bookmark values
+              {t('triggers.edit.bookmark_values')}
             </Headline>
           </Spacing>
 
@@ -1754,8 +1765,9 @@ function Edit({
       tags,
     ]);
 
-  const triggerTypesForPipeline = useMemo(() => getTriggerTypes(isStreamingPipeline), [
+  const triggerTypesForPipeline = useMemo(() => getTriggerTypes(t, isStreamingPipeline), [
     isStreamingPipeline,
+    t,
   ]);
 
   const triggerInteractionsMemo = useMemo(() => (
@@ -1857,7 +1869,7 @@ function Edit({
           outline
           sameColorAsText
         >
-          Cancel and go back
+          {t('triggers.edit.buttons.cancel_and_go_back')}
         </Button>
       );
 
@@ -1866,7 +1878,7 @@ function Edit({
           onClick={onSave}
           primary
         >
-          Save trigger
+          {t('triggers.edit.buttons.save_trigger')}
         </Button>
       );
     } else if (SUBHEADER_TAB_SETTINGS.uuid === selectedSubheaderTabUUID) {
@@ -1875,92 +1887,92 @@ function Edit({
           onClick={() => onCancel?.()}
           secondary
         >
-          Cancel and go back
+          {t('triggers.edit.buttons.cancel_and_go_back')}
         </Button>
       );
 
       buttonNext = (
-        <Button
-          afterIcon={<PaginateArrowRight />}
-          onClick={() => setSelectedSubheaderTabUUID(SUBHEADER_TAB_CUSTOMIZE.uuid)}
-          primary
-        >
-          Next: Customize
-        </Button>
-      );
-    } else if (SUBHEADER_TAB_CUSTOMIZE.uuid === selectedSubheaderTabUUID) {
-      buttonPrevious = (
-        <Button
-          beforeIcon={<PaginateArrowLeft />}
-          onClick={() => setSelectedSubheaderTabUUID(SUBHEADER_TAB_SETTINGS.uuid)}
-          secondary
-        >
-          Back: Settings
-        </Button>
-      );
+            <Button
+              afterIcon={<PaginateArrowRight />}
+              onClick={() => setSelectedSubheaderTabUUID(SUBHEADER_TAB_CUSTOMIZE.uuid)}
+              primary
+            >
+              {t('triggers.edit.buttons.next_customize')}
+            </Button>
+          );
+        } else if (SUBHEADER_TAB_CUSTOMIZE.uuid === selectedSubheaderTabUUID) {
+          buttonPrevious = (
+            <Button
+              beforeIcon={<PaginateArrowLeft />}
+              onClick={() => setSelectedSubheaderTabUUID(SUBHEADER_TAB_SETTINGS.uuid)}
+              secondary
+            >
+              {t('triggers.edit.buttons.back_settings')}
+            </Button>
+          );
 
-      buttonNext = (
-        <Button
-          afterIcon={<PaginateArrowRight />}
-          onClick={() => setSelectedSubheaderTabUUID(SUBHEADER_TAB_REVIEW.uuid)}
-          primary
-        >
-          Next: Review
-        </Button>
-      );
-    } else if (SUBHEADER_TAB_REVIEW.uuid === selectedSubheaderTabUUID) {
-      buttonPrevious = (
-        <Button
-          beforeIcon={<PaginateArrowLeft />}
-          onClick={() => setSelectedSubheaderTabUUID(SUBHEADER_TAB_CUSTOMIZE.uuid)}
-          secondary
-        >
-          Back: Customize
-        </Button>
-      );
+          buttonNext = (
+            <Button
+              afterIcon={<PaginateArrowRight />}
+              onClick={() => setSelectedSubheaderTabUUID(SUBHEADER_TAB_REVIEW.uuid)}
+              primary
+            >
+              {t('triggers.edit.buttons.next_review')}
+            </Button>
+          );
+        } else if (SUBHEADER_TAB_REVIEW.uuid === selectedSubheaderTabUUID) {
+          buttonPrevious = (
+            <Button
+              beforeIcon={<PaginateArrowLeft />}
+              onClick={() => setSelectedSubheaderTabUUID(SUBHEADER_TAB_CUSTOMIZE.uuid)}
+              secondary
+            >
+              {t('triggers.edit.buttons.back_customize')}
+            </Button>
+          );
 
-      buttonNext = (
-        <FlexContainer
-          alignItems="center"
-        >
-          <Button
-            beforeIcon={<Lightning />}
-            loading={isLoadingCreateSchedule}
-            onClick={() => createSchedule()}
-            primary
-          >
-            {pipelineScheduleID ? 'Save trigger' : 'Create trigger'}
-          </Button>
-
-          {!pipelineScheduleID && (
-            <>
-              <Spacing mr={PADDING_UNITS} />
-
-              <ToggleSwitch
-                checked={isScheduleActive}
-                compact
-                onCheck={(valFunc: (val: boolean) => boolean) => setSchedule(prev => ({
-                  ...prev,
-                  status: valFunc(isScheduleActive)
-                    ? ScheduleStatusEnum.ACTIVE
-                    : ScheduleStatusEnum.INACTIVE,
-                }))}
-              />
-
-              <Spacing mr={1} />
-
-              <Text
-                default={isScheduleActive}
-                muted={!isScheduleActive}
-                small
+          buttonNext = (
+            <FlexContainer
+              alignItems="center"
+            >
+              <Button
+                beforeIcon={<Lightning />}
+                loading={isLoadingCreateSchedule}
+                onClick={() => createSchedule()}
+                primary
               >
-                Set trigger to be active immediately after creating
-              </Text>
-            </>
-          )}
-        </FlexContainer>
-      );
-    }
+                {pipelineScheduleID ? t('triggers.edit.buttons.save_trigger') : t('triggers.edit.buttons.create_trigger')}
+              </Button>
+
+              {!pipelineScheduleID && (
+                <>
+                  <Spacing mr={PADDING_UNITS} />
+
+                  <ToggleSwitch
+                    checked={isScheduleActive}
+                    compact
+                    onCheck={(valFunc: (val: boolean) => boolean) => setSchedule(prev => ({
+                      ...prev,
+                      status: valFunc(isScheduleActive)
+                        ? ScheduleStatusEnum.ACTIVE
+                        : ScheduleStatusEnum.INACTIVE,
+                    }))}
+                  />
+
+                  <Spacing mr={1} />
+
+                  <Text
+                    default={isScheduleActive}
+                    muted={!isScheduleActive}
+                    small
+                  >
+                    {t('triggers.edit.active_toggle')}
+                  </Text>
+                </>
+              )}
+            </FlexContainer>
+          );
+        }
 
     return (
       <Spacing p={PADDING_UNITS}>
@@ -2044,7 +2056,7 @@ function Edit({
                 outline
                 primary
               >
-                Save changes
+                {t('triggers.edit.buttons.save_changes')}
               </Button>
 
               <Spacing mr={PADDING_UNITS} />
@@ -2058,7 +2070,7 @@ function Edit({
                 outline
                 sameColorAsText
               >
-                Cancel
+                {t('triggers.edit.buttons.cancel')}
               </Button>
 
               {saveInCodeAutomaticallyToggled && (
@@ -2066,21 +2078,26 @@ function Edit({
                   <Spacing mr={PADDING_UNITS} />
 
                   <Text default xsmall>
-                    This trigger will automatically be persisted in code.
-                    <br />
-                    To change this behavior, update the <NextLink
-                      as={`/pipelines/${pipelineUUID}/settings`}
-                      href={'/pipelines/[pipeline]/settings'}
-                      passHref
-                    >
-                      <Link openNewWindow xsmall>pipeline’s settings</Link>
-                    </NextLink> or <NextLink
-                      as="/settings/workspace/preferences"
-                      href="/settings/workspace/preferences"
-                      passHref
-                    >
-                      <Link openNewWindow xsmall>project settings</Link>
-                    </NextLink>.
+                    <Trans
+                      components={[
+                        <React.Fragment key="0" />,
+                        <br key="1" />,
+                        <React.Fragment key="2" />,
+                        <LinkWrapper
+                          as={`/pipelines/${pipelineUUID}/settings`}
+                          href={'/pipelines/[pipeline]/settings'}
+                          key="3"
+                        />,
+                        <React.Fragment key="4" />,
+                        <LinkWrapper
+                          as="/settings/workspace/preferences"
+                          href="/settings/workspace/preferences"
+                          key="5"
+                        />,
+                      ]}
+                      i18nKey="triggers.edit.save_in_code"
+                      t={t}
+                    />
                   </Text>
                 </>
               )}
@@ -2088,7 +2105,7 @@ function Edit({
           )
         }
         subheaderNoPadding={creatingWithLimitation || shouldShowInteractions}
-        title={() => pipelineSchedule?.name ? `Edit ${pipelineSchedule?.name}` : 'New trigger'}
+        title={() => pipelineSchedule?.name ? t('triggers.edit.title_edit', { name: pipelineSchedule?.name }) : t('triggers.edit.title_new')}
         uuid="triggers/edit"
       >
         <div ref={containerRef}>
@@ -2109,11 +2126,11 @@ function Edit({
               <Spacing p={PADDING_UNITS}>
                 <Spacing mb={2}>
                   <Headline>
-                    Trigger type
+                    {t('triggers.edit.trigger_type.label')}
                   </Headline>
 
                   <Text muted>
-                    How would you like this pipeline to be triggered?
+                    {t('triggers.edit.trigger_type.description')}
                   </Text>
                 </Spacing>
 
@@ -2151,7 +2168,7 @@ function Edit({
                         <CardStyle selected={selected}>
                           <FlexContainer alignItems="center">
                             <Flex>
-                              <input checked={selected} type="radio" />
+                              <input checked={selected} readOnly type="radio" />
                             </Flex>
 
                             <Spacing mr={PADDING_UNITS} />
@@ -2195,11 +2212,11 @@ function Edit({
                 <Spacing mt={UNITS_BETWEEN_SECTIONS} px={PADDING_UNITS}>
                   <Spacing mb={2}>
                     <Headline>
-                      Tags
+                      {t('triggers.edit.tags.title')}
                     </Headline>
 
                     <Text muted>
-                      Add or remove tags from this trigger.
+                      {t('triggers.edit.tags.description')}
                     </Text>
                   </Spacing>
 

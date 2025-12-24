@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import Flex from '@oracle/components/Flex';
@@ -40,6 +41,7 @@ function ConfigurePipeline({
   onSave,
   pipelineType,
 }: ConfigurePipelineProps) {
+  const { t } = useTranslation('common');
   const Icon = PIPELINE_TYPE_ICON_MAPPING[pipelineType];
   const refNameTextInput = useRef(null);
   const [pipelineAttributes, setPipelineAttributes] = useState<{
@@ -99,7 +101,7 @@ function ConfigurePipeline({
           justifyContent="space-between"
         >
           <Text bold cyan largeLg>
-            {`${PIPELINE_TYPE_LABEL_MAPPING[pipelineType]} pipeline`}
+            {`${t(`pipeline_type.${pipelineType}`) || PIPELINE_TYPE_LABEL_MAPPING[pipelineType]} ${t('pipelines.configure.pipeline')}`}
           </Text>
           <Icon fill={dark.accent.cyan} size={10 * UNIT} />
         </FlexContainer>
@@ -107,7 +109,7 @@ function ConfigurePipeline({
 
       <RowStyle lightBackground>
         <Text default>
-          Name
+          {t('pipelines.configure.name')}
         </Text>
         <TextInput
           alignRight
@@ -121,7 +123,7 @@ function ConfigurePipeline({
             }));
           }}
           paddingVertical={UNIT}
-          placeholder="Pipeline name..."
+          placeholder={t('pipelines.configure.name_placeholder')}
           ref={refNameTextInput}
           value={pipelineAttributes?.name || ''}
         />
@@ -129,7 +131,7 @@ function ConfigurePipeline({
 
       <RowStyle lightBackground>
         <Text default>
-          Description
+          {t('pipelines.configure.description')}
         </Text>
         <Spacing ml={9} />
         <Spacing fullWidth px={2} py={1}>
@@ -148,7 +150,7 @@ function ConfigurePipeline({
 
       <RowStyle lightBackground>
         <Text default>
-          Tags
+          {t('pipelines.configure.tags')}
         </Text>
         <TextInput
           alignRight
@@ -163,7 +165,7 @@ function ConfigurePipeline({
             }));
           }}
           paddingVertical={UNIT}
-          placeholder="e.g. tag_1, tag_2"
+          placeholder={t('pipelines.configure.tags_placeholder')}
           value={pipelineAttributes?.tags || ''}
         />
       </RowStyle>
@@ -175,7 +177,7 @@ function ConfigurePipeline({
               fullWidth
               onClick={onClose}
             >
-              Cancel
+              {t('preferences.cancel')}
             </Button>
           </Flex>
 
@@ -191,7 +193,7 @@ function ConfigurePipeline({
               primary
               uuid="ConfigurePipeline/CreatePipeline"
             >
-              Create
+              {t('pipelines.configure.create')}
             </KeyboardShortcutButton>
           </Flex>
         </FlexContainer>

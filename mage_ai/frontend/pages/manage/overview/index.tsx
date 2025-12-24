@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import moment from 'moment';
+import { useTranslation } from 'react-i18next';
 
 import BarStackChart from '@components/charts/BarStack';
 import ButtonTabs, { TabType } from '@oracle/components/Tabs/ButtonTabs';
@@ -44,7 +45,11 @@ import { formatNumber } from '@utils/number';
 import { getAllPipelineRunDataGrouped } from '@components/PipelineRun/shared/utils';
 import { goToWithQuery } from '@utils/routing';
 import { onSuccess } from '@api/utils/response';
-import { storeLocalTimezoneSetting } from '@components/settings/workspace/utils';
+import {
+  shouldDisplayLocalTimezone,
+  storeLocalTimezoneSetting,
+} from '@components/settings/workspace/utils';
+import { CustomEventUUID } from '@utils/events/constants';
 
 const SHARED_WIDGET_SPACING_PROPS = {
   mt: 2,
@@ -56,11 +61,32 @@ const SHARED_FETCH_OPTIONS = {
 };
 
 function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
+  const { t } = useTranslation('common');
   const abortRef = useRef(null);
   const mountedRef = useRef(false);
   const refSubheader = useRef(null);
 
-  const allTabs = useMemo(() => TIME_PERIOD_TABS, []);
+  const timePeriodTabs = useMemo(
+    () =>
+      TIME_PERIOD_TABS.map(tab => ({
+        ...tab,
+        label: () => {
+          if (TimePeriodEnum.TODAY === tab.uuid) {
+            return t('header.today');
+          }
+          if (TimePeriodEnum.WEEK === tab.uuid) {
+            return t('header.last_7_days');
+          }
+          if (TimePeriodEnum.MONTH === tab.uuid) {
+            return t('header.last_30_days');
+          }
+
+          return tab?.label ? tab.label() : tab.uuid;
+        },
+      })),
+    [t],
+  );
+  const allTabs = useMemo(() => timePeriodTabs, [timePeriodTabs]);
   const [selectedTab, setSelectedTabState] = useState<TabType>(
     allTabs.find(
       ({ uuid }) => uuid === (tab ? tab : get(LOCAL_STORAGE_KEY_OVERVIEW_TAB_SELECTED)?.uuid),
@@ -68,18 +94,32 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
   );
 
   const [errors, setErrors] = useState<ErrorsType>(null);
+  const [displayLocalTimezone, setDisplayLocalTimezone] = useState<boolean>(
+    shouldDisplayLocalTimezone(),
+  );
 
   const timePeriod = selectedTab?.uuid;
 
   const startDateString = useMemo(
-    () => getStartDateStringFromPeriod(timePeriod, { isoString: true }),
-    [timePeriod],
+    () =>
+      getStartDateStringFromPeriod(timePeriod, {
+        isoString: true,
+        localTime: displayLocalTimezone,
+      }),
+    [displayLocalTimezone, timePeriod],
   );
+  const timezoneOffset = useMemo(() => moment().format('Z'), []);
   const monitorStatsQueryParams = useMemo(
-    () => ({
-      start_time: startDateString,
-    }),
-    [startDateString],
+    () =>
+      displayLocalTimezone
+        ? {
+            start_time: startDateString,
+            timezone_offset: timezoneOffset,
+          }
+        : {
+            start_time: startDateString,
+          },
+    [displayLocalTimezone, startDateString, timezoneOffset],
   );
 
   const [monitorStats, setMonitorStats] = useState();
@@ -156,8 +196,11 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
   );
 
   const dateRange = useMemo(
-    () => getDateRange(TIME_PERIOD_INTERVAL_MAPPING[timePeriod] + 1),
-    [timePeriod],
+    () =>
+      getDateRange(TIME_PERIOD_INTERVAL_MAPPING[timePeriod] + 1, {
+        localTime: displayLocalTimezone,
+      }),
+    [displayLocalTimezone, timePeriod],
   );
   const allPipelineRunData = useMemo(
     () => getAllPipelineRunDataGrouped(monitorStats, dateRange, true),
@@ -170,16 +213,57 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
     () =>
       getFullDateRangeString(TIME_PERIOD_INTERVAL_MAPPING[timePeriod], {
         endDateOnly: timePeriod === TimePeriodEnum.TODAY,
+        localTime: displayLocalTimezone,
       }),
-    [timePeriod],
+    [displayLocalTimezone, timePeriod],
   );
 
   const { data: dataProjects } = api.projects.list();
   const project: ProjectType = useMemo(() => dataProjects?.projects?.[0], [dataProjects]);
-  const displayLocalTimezone = useMemo(
-    () => storeLocalTimezoneSetting(project?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE]),
-    [project?.features],
-  );
+  const timePeriodLabel = useMemo(() => {
+    if (TimePeriodEnum.TODAY === timePeriod) {
+      return t('header.today');
+    }
+
+    if (TimePeriodEnum.WEEK === timePeriod) {
+      return t('header.last_7_days');
+    }
+
+    if (TimePeriodEnum.MONTH === timePeriod) {
+      return t('header.last_30_days');
+    }
+
+    return capitalize(TIME_PERIOD_DISPLAY_MAPPING[timePeriod]) || timePeriod;
+  }, [t, timePeriod]);
+  const timeZoneLabel = displayLocalTimezone ? t('dashboard.local_time') : 'UTC';
+
+  useEffect(() => {
+    if (typeof project?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE] !== 'undefined') {
+      storeLocalTimezoneSetting(project?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE]);
+      setDisplayLocalTimezone(shouldDisplayLocalTimezone());
+    }
+  }, [project?.features]);
+
+  useEffect(() => {
+    const handleTimezoneChange = (event: Event) => {
+      const detail = (event as CustomEvent<{ displayLocalTimezone?: boolean }>)?.detail;
+      if (typeof detail?.displayLocalTimezone === 'boolean') {
+        setDisplayLocalTimezone(detail.displayLocalTimezone);
+        return;
+      }
+
+      setDisplayLocalTimezone(shouldDisplayLocalTimezone());
+    };
+
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    window.addEventListener(CustomEventUUID.LOCAL_TIMEZONE_CHANGED, handleTimezoneChange);
+
+    return () =>
+      window.removeEventListener(CustomEventUUID.LOCAL_TIMEZONE_CHANGED, handleTimezoneChange);
+  }, []);
 
   const utcTooltipEl = useMemo(
     () =>
@@ -187,18 +271,18 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
         <Spacing ml="4px">
           <Tooltip
             {...SHARED_UTC_TOOLTIP_PROPS}
-            label="Please note that these counts are based on UTC time."
+            label={t('dashboard.utc_counts_note')}
           />
         </Spacing>
       ) : null,
-    [displayLocalTimezone],
+    [displayLocalTimezone, t],
   );
 
   return (
     <WorkspacesDashboard
       breadcrumbs={[
         {
-          label: () => 'Workspaces',
+          label: () => t('settings_dashboard.workspace'),
           linkProps: {
             as: '/manage',
             href: '/manage',
@@ -206,7 +290,7 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
         },
         {
           bold: true,
-          label: () => 'Overview',
+          label: () => t('sidebar.overview'),
         },
       ]}
       errors={errors}
@@ -230,25 +314,21 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
 
       <Spacing mx={3} my={2}>
         <Headline level={4}>
-          {timePeriod === TimePeriodEnum.TODAY &&
-            `${capitalize(TimePeriodEnum.TODAY)} (UTC): ${selectedDateRange}`}
-          {timePeriod !== TimePeriodEnum.TODAY &&
-            `${capitalize(TIME_PERIOD_DISPLAY_MAPPING[timePeriod])} (UTC): ${selectedDateRange}`}
+          {`${timePeriodLabel || capitalize(timePeriod)} (${timeZoneLabel}): ${selectedDateRange}`}
         </Headline>
 
         <Spacing mt={2}>
           <Spacing ml={2}>
             <FlexContainer alignItems="center">
               <Text bold large>
-                {isValidatingMonitorStats ? '--' : formatNumber(totalPipelineRunCount)} total
-                pipeline runs
+                {isValidatingMonitorStats ? '--' : formatNumber(totalPipelineRunCount)}{' '}
+                {t('dashboard.total_pipeline_runs')}
               </Text>
               {utcTooltipEl}
             </FlexContainer>
           </Spacing>
           <Spacing mt={1}>
             <BarStackChart
-              backgroundColor={dark.background.panel}
               colors={BAR_STACK_COLORS}
               data={ungroupedPipelineRunData}
               getXValue={data => data['date']}
@@ -261,7 +341,9 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
                 top: 10,
               }}
               tooltipLeftOffset={TOOLTIP_LEFT_OFFSET}
-              xLabelFormat={label => moment(label).format('MMM DD')}
+              xLabelFormat={label =>
+                (displayLocalTimezone ? moment(label) : moment.utc(label)).format('MMM DD')
+              }
             />
           </Spacing>
         </Spacing>

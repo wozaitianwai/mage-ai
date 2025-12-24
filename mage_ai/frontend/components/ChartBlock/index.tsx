@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ThemeContext } from 'styled-components';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import AutocompleteItemType from '@interfaces/AutocompleteItemType';
 import BlockType, {
@@ -37,10 +38,15 @@ import usePrevious from '@utils/usePrevious';
 import {
   AGGREGATE_FUNCTIONS,
   CHART_TYPES,
+  ChartStyleEnum,
   ChartTypeEnum,
   ConfigurationType,
+  SortOrderEnum,
   VARIABLE_NAMES,
+  VARIABLE_NAME_CHART_STYLE,
+  VARIABLE_NAME_TIME_INTERVAL,
   VARIABLE_NAME_WIDTH_PERCENTAGE,
+  VARIABLE_NAME_Y_SORT_ORDER,
 } from '@interfaces/ChartBlockType';
 import {
   CONFIGURATIONS_BY_CHART_TYPE,
@@ -64,6 +70,12 @@ import { indexBy, remove, sortByKey } from '@utils/array';
 import { isEmptyObject } from '@utils/hash';
 import { onSuccess } from '@api/utils/response';
 import { useKeyboardContext } from '@context/Keyboard';
+
+const chartLabelKey = (labelValue: string) =>
+  labelValue
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '');
 
 export type ChartPropsShared = {
   autocompleteItems: AutocompleteItemType[];
@@ -130,6 +142,7 @@ function ChartBlock(
 ) {
   const refChartContainer = useRef(null);
   const themeContext = useContext(ThemeContext);
+  const { t } = useTranslation('common');
 
   const { data: dataBlock } = api.blocks.pipelines.detail(
     encodeURIComponent(pipeline?.uuid),
@@ -150,6 +163,65 @@ function ChartBlock(
 
   const configurationOptions = CONFIGURATIONS_BY_CHART_TYPE[chartType];
   const defaultSettings = DEFAULT_SETTINGS_BY_CHART_TYPE[chartType];
+  const chartTypeLabels = useMemo(
+    () => ({
+      [ChartTypeEnum.BAR_CHART]: t('pipeline_detail.code_block.chart_types.bar_chart'),
+      [ChartTypeEnum.HISTOGRAM]: t('pipeline_detail.code_block.chart_types.histogram'),
+      [ChartTypeEnum.LINE_CHART]: t('pipeline_detail.code_block.chart_types.line_chart'),
+      [ChartTypeEnum.PIE_CHART]: t('pipeline_detail.code_block.chart_types.pie_chart'),
+      [ChartTypeEnum.TABLE]: t('pipeline_detail.code_block.chart_types.table'),
+      [ChartTypeEnum.TIME_SERIES_BAR_CHART]: t(
+        'pipeline_detail.code_block.chart_types.time_series_bar_chart',
+      ),
+      [ChartTypeEnum.TIME_SERIES_LINE_CHART]: t(
+        'pipeline_detail.code_block.chart_types.time_series_line_chart',
+      ),
+    }),
+    [t],
+  );
+  const optionLabel = useCallback(
+    (uuid: string, value: string | null) => {
+      if (uuid === VARIABLE_NAME_CHART_STYLE) {
+        if (value === ChartStyleEnum.HORIZONTAL) {
+          return t('pipeline_detail.chart_block.options.chart_style.horizontal', {
+            defaultValue: value,
+          });
+        }
+        if (value === ChartStyleEnum.VERTICAL) {
+          return t('pipeline_detail.chart_block.options.chart_style.vertical', {
+            defaultValue: value,
+          });
+        }
+      }
+
+      if (uuid === VARIABLE_NAME_Y_SORT_ORDER) {
+        if (value === null) {
+          return t('pipeline_detail.chart_block.options.sort_direction.none', {
+            defaultValue: 'none',
+          });
+        }
+        if (value === SortOrderEnum.ASCENDING) {
+          return t('pipeline_detail.chart_block.options.sort_direction.ascending', {
+            defaultValue: value,
+          });
+        }
+        if (value === SortOrderEnum.DESCENDING) {
+          return t('pipeline_detail.chart_block.options.sort_direction.descending', {
+            defaultValue: value,
+          });
+        }
+      }
+
+      if (uuid === VARIABLE_NAME_TIME_INTERVAL && value) {
+        return t(`pipeline_detail.chart_block.options.time_interval.${value}`, {
+          defaultValue: value,
+        });
+      }
+
+      return value;
+    },
+    [t],
+  );
   const blocksOfType = useMemo(
     () =>
       blocks?.filter(({ type }: BlockType) =>
@@ -405,7 +477,7 @@ function ChartBlock(
             preventDefault
             small
           >
-            <Text color={blockColor} monospace small>
+            <Text color={blockColor} inline monospace small>
               {blockUUID}
             </Text>
           </Link>
@@ -500,11 +572,16 @@ function ChartBlock(
         (acc, [key, arr]) => ({
           ...acc,
           [key]: arr.map(({ autoRun, label, monospace, options, settings = {}, type, uuid }) => {
+            const labelValue = label();
+            const labelKey = chartLabelKey(labelValue);
+            const labelText = t(`pipeline_detail.chart_block.labels.${labelKey}`, {
+              defaultValue: capitalize(labelValue),
+            });
             let el;
             const sharedProps = {
               fullWidth: true,
               key: uuid,
-              label: capitalize(label()),
+              label: labelText,
               monospace: monospace,
               onBlur: () => setSelectedBlock(block),
               onChange: (e) =>
@@ -608,9 +685,9 @@ function ChartBlock(
 
               el = (
                 <>
-                  <Text bold>Metrics</Text>
+                  <Text bold>{t('pipeline_detail.chart_block.metrics.title')}</Text>
                   <Text muted small>
-                    Select a column and an aggregation function.
+                    {t('pipeline_detail.chart_block.metrics.description')}
                   </Text>
                   <MultiSelect
                     onChange={(values, { resetValues, setValues }) => {
@@ -637,9 +714,14 @@ function ChartBlock(
                           resetValues();
                         }
                       }
-                    }}
-                  >
-                    <Select {...sharedProps} label="aggregation">
+                      }}
+                    >
+                    <Select
+                      {...sharedProps}
+                      label={t('pipeline_detail.chart_block.metrics.aggregation', {
+                        defaultValue: 'aggregation',
+                      })}
+                    >
                       {sortByKey(AGGREGATE_FUNCTIONS, (v) => v).map((val: string) => (
                         <option key={val} value={val}>
                           {val}
@@ -647,7 +729,12 @@ function ChartBlock(
                       ))}
                     </Select>
 
-                    <Select {...sharedProps} label="column">
+                    <Select
+                      {...sharedProps}
+                      label={t('pipeline_detail.chart_block.metrics.column', {
+                        defaultValue: 'column',
+                      })}
+                    >
                       {sortByKey(columns, (v) => v).map((val: string) => (
                         <option key={val} value={val}>
                           {val}
@@ -699,9 +786,9 @@ function ChartBlock(
             } else if (options) {
               el = (
                 <Select {...sharedProps}>
-                  {options.map((val: string) => (
-                    <option key={val} value={val}>
-                      {val}
+                  {options.map((val: string | null) => (
+                    <option key={`${uuid}-${String(val)}`} value={val}>
+                      {optionLabel(uuid, val)}
                     </option>
                   ))}
                 </Select>
@@ -721,7 +808,16 @@ function ChartBlock(
           noCode: [],
         },
       ),
-    [block, configuration, configurationOptions, dataBlock, setSelectedBlock, updateConfiguration],
+    [
+      block,
+      configuration,
+      configurationOptions,
+      dataBlock,
+      optionLabel,
+      setSelectedBlock,
+      t,
+      updateConfiguration,
+    ],
   );
 
   const [updateBlock]: any = useMutation(
@@ -823,7 +919,7 @@ function ChartBlock(
                     sameColorAsText
                     small
                   >
-                    Update chart name
+                    {t('pipeline_detail.chart_block.update_chart_name')}
                   </Link>
                 </>
               )}
@@ -844,7 +940,7 @@ function ChartBlock(
                   saveAndRun(widget);
                   setUpstreamBlocks(value);
                 }}
-                placeholder="Source block"
+                placeholder={t('pipeline_detail.chart_block.source_block')}
                 small
                 value={upstreamBlocks?.[0] || ''}
               >
@@ -858,7 +954,13 @@ function ChartBlock(
               <Spacing mr={1} />
 
               {!isInProgress && (
-                <Tooltip appearBefore default label="Run chart block" size={null} widthFitContent>
+                <Tooltip
+                  appearBefore
+                  default
+                  label={t('pipeline_detail.chart_block.run_chart_block')}
+                  size={null}
+                  widthFitContent
+                >
                   <KeyboardShortcutButton
                     blackBorder
                     compact
@@ -880,7 +982,13 @@ function ChartBlock(
 
               <Spacing mr={1} />
 
-              <Tooltip appearBefore default label="Edit chart" size={null} widthFitContent>
+              <Tooltip
+                appearBefore
+                default
+                label={t('pipeline_detail.chart_block.edit_chart')}
+                size={null}
+                widthFitContent
+              >
                 <KeyboardShortcutButton
                   blackBorder
                   compact
@@ -895,7 +1003,13 @@ function ChartBlock(
 
               <Spacing mr={1} />
 
-              <Tooltip appearBefore default label="Delete chart" size={null} widthFitContent>
+              <Tooltip
+                appearBefore
+                default
+                label={t('pipeline_detail.chart_block.delete_chart')}
+                size={null}
+                widthFitContent
+              >
                 <KeyboardShortcutButton
                   blackBorder
                   compact
@@ -949,12 +1063,12 @@ function ChartBlock(
                       saveAndRun(widget);
                       setChartType(value);
                     }}
-                    placeholder="Select chart type"
+                    placeholder={t('pipeline_detail.chart_block.select_chart_type')}
                     value={chartType}
                   >
                     {CHART_TYPES.map((chartType: string) => (
                       <option key={chartType} value={chartType}>
-                        {capitalize(chartType)}
+                        {chartTypeLabels[chartType] || capitalize(chartType)}
                       </option>
                     ))}
                   </Select>
@@ -967,12 +1081,12 @@ function ChartBlock(
                         [VARIABLE_NAME_WIDTH_PERCENTAGE]: e.target.value,
                       })
                     }
-                    placeholder="Chart width"
+                    placeholder={t('pipeline_detail.chart_block.chart_width')}
                     value={configuration?.[VARIABLE_NAME_WIDTH_PERCENTAGE] || 1}
                   >
                     {[
-                      ['1/2 width', 0.5],
-                      ['full width', 1],
+                      [t('pipeline_detail.chart_block.width_options.half'), 0.5],
+                      [t('pipeline_detail.chart_block.width_options.full'), 1],
                     ].map(([label, value]) => (
                       <option key={label} value={value}>
                         {label}
@@ -992,23 +1106,29 @@ function ChartBlock(
           BlockLanguageEnum.SQL !== block.language && (
             <>
               <Spacing my={1} px={1}>
-                <Text bold>Custom chart code</Text>
+                <Text bold>{t('pipeline_detail.chart_block.custom_chart_code')}</Text>
                 <Text muted>
-                  Write custom logic mapping data to input values for your chart.
+                  {t('pipeline_detail.chart_block.custom_chart_code_description.line1')}
                   <br />
-                  This code is only executed if you don’t have any columns or metrics selected.
+                  {t('pipeline_detail.chart_block.custom_chart_code_description.line2')}
                 </Text>
               </Spacing>
 
               <CodeStyle>
                 {upstreamBlocks.length >= 1 && (
                   <CodeHelperStyle>
-                    <Text muted small>
-                      Variables you can use in your code: {availableVariables}
-                    </Text>
-                    <Text muted small>
-                      Variables that you must define: {variablesMustDefine}
-                    </Text>
+                    <div>
+                      <Text inline muted small>
+                        {t('pipeline_detail.chart_block.variables_available')}
+                      </Text>{' '}
+                      {availableVariables}
+                    </div>
+                    <div>
+                      <Text inline muted small>
+                        {t('pipeline_detail.chart_block.variables_required')}
+                      </Text>{' '}
+                      {variablesMustDefine}
+                    </div>
                   </CodeHelperStyle>
                 )}
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import CustomTemplateType, {
   OBJECT_TYPE_BLOCKS,
@@ -23,6 +24,7 @@ function TemplateDetails({
   objectType: objectTypeProp,
   slug: templateUUID,
 }: TemplateDetailsProps) {
+  const { t } = useTranslation('common');
   const { object_type: objectTypeFromUrl } = queryFromUrl();
   const [template, setTemplate] = useState<CustomTemplateType>(null);
 
@@ -50,7 +52,7 @@ function TemplateDetails({
       addProjectBreadcrumbToCustomBreadcrumbs
       breadcrumbs={[
         {
-          label: () => 'Templates',
+          label: () => t('templates.title'),
           linkProps: {
             href: isPipeline ? `/templates?object_type=${OBJECT_TYPE_PIPELINES}` : '/templates',
           },

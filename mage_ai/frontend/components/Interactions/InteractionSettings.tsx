@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Accordion from '@oracle/components/Accordion';
 import AccordionPanel, {
@@ -57,6 +58,7 @@ function InteractionSettings({
   removeBlockInteraction,
   updateInteraction: updateInteractionProp,
 }: InteractionSettingsProps) {
+  const { t } = useTranslation('common');
   const containerRef = useRef(null);
   const refMostRecentlyAddedInput = useRef(null);
   const refMostRecentlyAddedVariable = useRef(null);
@@ -231,7 +233,7 @@ function InteractionSettings({
               <Flex flex={1} flexDirection="column">
                 <Spacing mb={1}>
                   <Text bold default>
-                    Type
+                    {t('sidekick.interaction_settings.type')}
                   </Text>
                 </Spacing>
 
@@ -239,7 +241,7 @@ function InteractionSettings({
                   onChange={e => updateInteractionInputs(inputUUID, {
                     type: e.target.value,
                   })}
-                  placeholder="Choose a type of input"
+                  placeholder={t('sidekick.interaction_settings.choose_input_type')}
                   value={inputType}
                 >
                   {INTERACTION_INPUT_TYPES.map((iType: string) => (
@@ -253,18 +255,18 @@ function InteractionSettings({
               <Spacing mr={UNITS_BETWEEN_ITEMS_IN_SECTIONS} />
 
               <Flex flex={1} flexDirection="column">
-                {InteractionInputTypeEnum.TEXT_FIELD === inputType && (
+               {InteractionInputTypeEnum.TEXT_FIELD === inputType && (
                   <>
                     <Spacing mb={PADDING_UNITS}>
                       <Spacing mb={1}>
                         <Text bold default>
-                          Style {removeUnderscore(inputType)}
+                          {t('sidekick.interaction_settings.style_label', { type: removeUnderscore(inputType) })}
                         </Text>
                       </Spacing>
 
                       <Checkbox
                         checked={style?.multiline}
-                        label="Allow writing multiple lines"
+                        label={t('sidekick.interaction_settings.allow_multiple_lines')}
                         onClick={() => updateInteractionInputs(inputUUID, {
                           style: {
                             ...style,
@@ -277,11 +279,11 @@ function InteractionSettings({
                     <div>
                       <Spacing mb={1}>
                         <Text bold default>
-                          Text field type
+                          {t('sidekick.interaction_settings.text_field_type')}
                         </Text>
                         {style?.multiline && (
                           <Text muted small>
-                            Not available for multiline text field.
+                            {t('sidekick.interaction_settings.not_available_multiline')}
                           </Text>
                         )}
                       </Spacing>
@@ -289,7 +291,7 @@ function InteractionSettings({
                       <Checkbox
                         checked={InteractionInputStyleInputTypeEnum.NUMBER === style?.input_type}
                         disabled={!!style?.multiline}
-                        label="Numbers only"
+                        label={t('sidekick.interaction_settings.numbers_only')}
                         onClick={() => updateInteractionInputs(inputUUID, {
                           style: {
                             ...style,
@@ -310,7 +312,7 @@ function InteractionSettings({
                   <>
                     <Spacing mb={1}>
                       <Text bold default>
-                        Options for {removeUnderscore(inputType)}
+                        {t('sidekick.interaction_settings.options_for', { type: removeUnderscore(inputType) })}
                       </Text>
                     </Spacing>
 
@@ -336,8 +338,8 @@ function InteractionSettings({
 
                           <Spacing mr={PADDING_UNITS} />
 
-                          <Text default>
-                            Label
+                         <Text default>
+                            {t('sidekick.interaction_settings.label_option')}
                           </Text>
 
                           <Spacing mr={1} />
@@ -355,8 +357,8 @@ function InteractionSettings({
 
                           <Spacing mr={PADDING_UNITS} />
 
-                          <Text default>
-                            Value
+                         <Text default>
+                            {t('sidekick.interaction_settings.value')}
                           </Text>
 
                           <Spacing mr={1} />
@@ -387,7 +389,7 @@ function InteractionSettings({
                         })}
                         secondary
                       >
-                        Add option
+                        {t('sidekick.interaction_settings.add_option')}
                       </Button>
                     </Spacing>
                   </>
@@ -460,7 +462,7 @@ function InteractionSettings({
                     <Spacing mr={1} />
 
                     <Text muted={!required} success={required}>
-                      Required
+                      {t('sidekick.interaction_settings.required')}
                     </Text>
                   </FlexContainer>
                 </FlexContainer>
@@ -487,7 +489,7 @@ function InteractionSettings({
               <Flex flex={1} flexDirection="column">
                 <Spacing mb={1}>
                   <Text bold default>
-                    Label
+                    {t('sidekick.interaction_settings.label')}
                   </Text>
                 </Spacing>
 
@@ -501,7 +503,7 @@ function InteractionSettings({
                 <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
                   <Spacing mb={1}>
                     <Text bold default>
-                      Valid data types
+                      {t('sidekick.interaction_settings.valid_data_types')}
                     </Text>
                   </Spacing>
 
@@ -540,7 +542,7 @@ function InteractionSettings({
               <Flex flex={1} flexDirection="column">
                 <Spacing mb={1}>
                   <Text bold default>
-                    Description
+                    {t('sidekick.interaction_settings.description')}
                   </Text>
                 </Spacing>
 
@@ -561,12 +563,11 @@ function InteractionSettings({
                 justifyContent="space-between"
               >
                 <FlexContainer flexDirection="column">
-                  <Text bold default>
-                    Input
+                   <Text bold default>
+                    {t('sidekick.interaction_settings.input')}
                   </Text>
                   <Text muted>
-                    Associate an existing input to this variable or create a new input and
-                    then associate it to this variable.
+                    {t('sidekick.interaction_settings.input_description')}
                   </Text>
                 </FlexContainer>
               </FlexContainer>
@@ -577,7 +578,7 @@ function InteractionSettings({
                   onChange={(e) => {
                     const val = e.target.value;
 
-                    if ('+ Add a new input' === val) {
+                    if (t('sidekick.interaction_settings.add_new_input_inline') === val) {
                       setIsAddingNewInput(true);
                       setMostRecentlyTouchedVariableUUID(variableUUID);
                       setTimeout(() => refNewInputUUID?.current?.focus(), 1);
@@ -587,12 +588,12 @@ function InteractionSettings({
                       });
                     }
                   }}
-                  placeholder="Select an existing input"
+                  placeholder={t('sidekick.interaction_settings.select_existing_input')}
                   value={inputUUID}
                 >
                   <option value="" />
-                  <option value="+ Add a new input">
-                    + Add a new input
+                  <option value={t('sidekick.interaction_settings.add_new_input_inline')}>
+                    {t('sidekick.interaction_settings.add_new_input_inline')}
                   </option>
                   {Object.keys(inputs || {}).map((iUUID: string) => (
                     <option key={iUUID} value={iUUID}>
@@ -611,13 +612,13 @@ function InteractionSettings({
               <Spacing p={PADDING_UNITS}>
                 <Spacing mb={1}>
                   <Text muted rightAligned small uppercase>
-                    Preview
+                    {t('sidekick.interaction_settings.preview')}
                   </Text>
                 </Spacing>
 
                 {!inputSettings?.type && (
                   <Text muted>
-                    Select an input style for {inputUUID} before seeing a preview.
+                    {t('sidekick.interaction_settings.select_input_style_preview', { name: inputUUID })}
                   </Text>
                 )}
                 {inputSettings?.type && (
@@ -697,7 +698,7 @@ function InteractionSettings({
           secondary
           small
         >
-          Add new variable
+          {t('sidekick.interaction_settings.add_new_variable')}
         </Button>
       )}
 
@@ -706,7 +707,7 @@ function InteractionSettings({
           {variableUUIDexists && (
             <>
               <Text danger small>
-                Variable already exists
+                {t('sidekick.interaction_settings.variable_exists')}
               </Text>
 
               <Spacing mr={1} />
@@ -769,7 +770,7 @@ function InteractionSettings({
             primary
             small
           >
-            Create variable
+            {t('sidekick.interaction_settings.create_variable')}
           </Button>
 
           <Spacing mr={1} />
@@ -785,7 +786,7 @@ function InteractionSettings({
             secondary
             small
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
         </>
       )}
@@ -819,7 +820,7 @@ function InteractionSettings({
           secondary
           small
         >
-          Add new input
+          {t('sidekick.interaction_settings.add_new_input')}
         </Button>
       )}
 
@@ -828,7 +829,7 @@ function InteractionSettings({
           {inputUUIDexists && (
             <>
               <Text danger small>
-                Input already exists
+                {t('sidekick.interaction_settings.input_exists')}
               </Text>
 
               <Spacing mr={1} />
@@ -898,7 +899,7 @@ function InteractionSettings({
             primary
             small
           >
-            Create input
+            {t('sidekick.interaction_settings.create_input')}
           </Button>
 
           <Spacing mr={1} />
@@ -914,7 +915,7 @@ function InteractionSettings({
             secondary
             small
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
         </>
       )}
@@ -996,7 +997,7 @@ function InteractionSettings({
             >
               <Spacing mr={PADDING_UNITS} py={1}>
                 <Headline level={5}>
-                  Variables
+                  {t('sidekick.interaction_settings.variables')}
                 </Headline>
               </Spacing>
 
@@ -1025,7 +1026,7 @@ function InteractionSettings({
             >
               <Spacing mr={PADDING_UNITS} py={1}>
                 <Headline level={5}>
-                  Inputs
+                  {t('sidekick.interaction_settings.inputs')}
                 </Headline>
               </Spacing>
 
@@ -1054,7 +1055,7 @@ function InteractionSettings({
             >
               <Spacing mr={PADDING_UNITS} py={1}>
                 <Headline level={5}>
-                  Interaction layout
+                  {t('sidekick.interaction_settings.layout')}
                 </Headline>
               </Spacing>
             </FlexContainer>
@@ -1067,7 +1068,7 @@ function InteractionSettings({
           {!layout?.length && (
             <Spacing px={PADDING_UNITS} pb={PADDING_UNITS}>
               <Text muted>
-                Add at least 1 variable and associate an input to it and see a preview.
+                {t('sidekick.interaction_settings.empty_layout_hint')}
               </Text>
             </Spacing>
           )}

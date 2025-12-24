@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import ClickOutside from '@oracle/components/ClickOutside';
 import ServerTimeButton from './ServerTimeButton';
@@ -32,6 +33,7 @@ import {
   storeIncludeServerTimeSeconds,
 } from '../../storage/serverTime';
 import { useError } from '@context/Error';
+import { CustomEventUUID } from '@utils/events/constants';
 
 const DISPLAYED_TIME_ZONES = [TimeZoneEnum.UTC, TimeZoneEnum.LOCAL];
 
@@ -46,6 +48,7 @@ function ServerTimeDropdown({
   disableTimezoneToggle,
   projectName,
 }: ServerTimeDropdownProps) {
+  const { t } = useTranslation('common');
   const [displayLocalTimezone, setDisplayLocalTimezone] = useState<boolean>(shouldDisplayLocalTimezone());
   const [includeServerTimeSeconds, setIncludeServerTimeSeconds] = useState<boolean>(shouldIncludeServerTimeSeconds());
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
@@ -118,14 +121,14 @@ function ServerTimeDropdown({
       checked: displayLocalTimezone,
       disabled: disableTimezoneToggle,
       label: disableTimezoneToggle
-        ? 'Display local timezone (must be changed in platform preferences)'
-        : 'Display local timezone (requires refresh)',
+        ? t('server_time.display_local_timezone_disabled')
+        : t('server_time.display_local_timezone'),
       onCheck: toggleDisplayLocalServerTime,
       uuid: FeatureUUIDEnum.LOCAL_TIMEZONE,
     },
     {
       checked: includeServerTimeSeconds,
-      label: 'Include seconds in current time',
+      label: t('server_time.include_seconds'),
       onCheck: toggleIncludeServerTimeSeconds,
       uuid: 'current_time_seconds',
     },
@@ -145,6 +148,26 @@ function ServerTimeDropdown({
     updateTimes();
   }, [includeServerTimeSeconds, updateTimes]);
 
+  useEffect(() => {
+    const handleTimezoneChange = (event: Event) => {
+      const detail = (event as CustomEvent<{ displayLocalTimezone?: boolean }>)?.detail;
+      if (typeof detail?.displayLocalTimezone === 'boolean') {
+        setDisplayLocalTimezone(detail.displayLocalTimezone);
+        return;
+      }
+
+      setDisplayLocalTimezone(shouldDisplayLocalTimezone());
+    };
+
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    window.addEventListener(CustomEventUUID.LOCAL_TIMEZONE_CHANGED, handleTimezoneChange);
+
+    return () => window.removeEventListener(CustomEventUUID.LOCAL_TIMEZONE_CHANGED, handleTimezoneChange);
+  }, []);
+
   if (!times) return null;
 
   return (
@@ -162,7 +185,7 @@ function ServerTimeDropdown({
         {!isSmallBreakpoint && showDropdown && (
           <DropdownContainerStyle top={top}>
             <DropdownHeaderStyle>
-              <Text bold muted uppercase>Current Time</Text>
+              <Text bold muted uppercase>{t('server_time.current_time')}</Text>
             </DropdownHeaderStyle>
             <TimeListContainerStyle>
               {DISPLAYED_TIME_ZONES.map((timeZone) => (
@@ -177,7 +200,7 @@ function ServerTimeDropdown({
                       {times.get(timeZone)}
                     </Text>
                     <Text center muted small>
-                      {timeZone === TimeZoneEnum.UTC ? 'Universal Time' : TIME_ZONE_NAMES[timeZone]}
+                      {timeZone === TimeZoneEnum.UTC ? t('server_time.universal_time') : TIME_ZONE_NAMES[timeZone]}
                     </Text>
                   </DropdownCellStyle>
                 </TimeColumnStyle>

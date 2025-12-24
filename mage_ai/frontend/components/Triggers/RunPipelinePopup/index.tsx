@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import BookmarkValues, { BookmarkValuesMapping } from '../BookmarkValues';
 import Button from '@oracle/elements/Button';
@@ -40,6 +41,7 @@ function RunPipelinePopup({
   pipeline,
   variables,
 }: RunPipelinePopupProps) {
+  const { t } = useTranslation('common');
   const [bookmarkValues, setBookmarkValues] = useState<{BookmarkValuesMapping}>(null);
 
   const [enableVariablesOverwrite, setEnableVariablesOverwrite] = useState<boolean>(true);
@@ -75,10 +77,11 @@ function RunPipelinePopup({
 
   const tabs = useMemo(() => blocksWithStreamsMapping
     && Object.keys(blocksWithStreamsMapping || {})?.length >= 1
-      ? getTabs()
+      ? getTabs(t)
       : null,
   [
     blocksWithStreamsMapping,
+    t,
   ]);
 
   useEffect(() => {
@@ -131,7 +134,7 @@ function RunPipelinePopup({
             padding={BUTTON_PADDING}
             primaryAlternate
           >
-            Run now
+            {t('triggers.run_pipeline_popup.run_now')}
           </Button>
           <Spacing mr={1} />
           <Button
@@ -140,13 +143,13 @@ function RunPipelinePopup({
             padding={BUTTON_PADDING}
             secondary
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
         </FlexContainer>
       }
       header={
         <Headline level={5}>
-          Run pipeline now
+          {t('triggers.run_pipeline_popup.title')}
         </Headline>
       }
       maxHeight="90vh"
@@ -156,7 +159,7 @@ function RunPipelinePopup({
           {!tabs?.length && (
             <Spacing p={PADDING_UNITS}>
               <Text default>
-                Creates a new trigger and immediately runs the current pipeline once.
+                {t('triggers.run_pipeline_popup.description')}
               </Text>
             </Spacing>
           )}
@@ -172,7 +175,7 @@ function RunPipelinePopup({
           {tabs?.length >= 1 && (
             <Spacing p={PADDING_UNITS}>
               <Text default>
-                Creates a new trigger and immediately runs the current pipeline once.
+                {t('triggers.run_pipeline_popup.description')}
               </Text>
             </Spacing>
           )}

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import NextLink from 'next/link';
 import moment from 'moment';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 
 import BarStackChart from '@components/charts/BarStack';
 import ErrorsType from '@interfaces/ErrorsType';
@@ -21,9 +22,8 @@ import {
   TOOLTIP_LEFT_OFFSET,
 } from '@components/Monitor/constants';
 import { ChevronRight } from '@oracle/icons';
-import { SCHEDULE_TYPE_TO_LABEL } from '@interfaces/PipelineScheduleType';
+import { ScheduleTypeEnum } from '@interfaces/PipelineScheduleType';
 import { UNIT } from '@oracle/styles/units/spacing';
-import { capitalize } from '@utils/string';
 import { getAllPipelineRunData } from '@components/PipelineRun/shared/utils';
 import { getDateRange } from '@utils/date';
 
@@ -42,6 +42,7 @@ type PipelineRunsMonitorProps = {
 function PipelineRunsMonitor({
   pipeline: pipelineProp,
 }: PipelineRunsMonitorProps) {
+  const { t } = useTranslation('common');
   const pipelineUUID = pipelineProp.uuid;
   const [errors, setErrors] = useState<ErrorsType>(null);
 
@@ -112,16 +113,22 @@ function PipelineRunsMonitor({
     monitorStats,
   ]);
 
+  const scheduleTypeLabelMapping = useMemo(() => ({
+    [ScheduleTypeEnum.API]: t('trigger.api'),
+    [ScheduleTypeEnum.EVENT]: t('trigger.event'),
+    [ScheduleTypeEnum.TIME]: t('trigger.schedule'),
+  }), [t]);
+
   const breadcrumbs = useMemo(() => {
     const arr = [];
 
     arr.push({
       bold: true,
-      label: () => 'Monitors',
+      label: () => t('pipeline_detail.monitors.title'),
     });
 
     return arr;
-  }, []);
+  }, [t]);
 
   return (
     <Monitor
@@ -135,7 +142,7 @@ function PipelineRunsMonitor({
         <Spacing ml={1}>
           <GradientTextStyle>
             <Headline>
-              All pipeline runs
+              {t('pipeline_detail.monitors.all_pipeline_runs')}
             </Headline>
           </GradientTextStyle>
         </Spacing>
@@ -164,7 +171,7 @@ function PipelineRunsMonitor({
                 <Spacing mx={1}>
                   <GradientTextStyle>
                     <Text bold large>
-                      {capitalize(SCHEDULE_TYPE_TO_LABEL[pipelineSchedule?.schedule_type]?.())}
+                      {scheduleTypeLabelMapping[pipelineSchedule?.schedule_type]}
                     </Text>
                   </GradientTextStyle>
                 </Spacing>

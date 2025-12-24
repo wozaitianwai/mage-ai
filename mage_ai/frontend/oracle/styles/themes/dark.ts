@@ -52,6 +52,7 @@ import {
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
+  type: 'dark',
   accent: {
     alert: '#F6540B',
     blue: BLUE_DARK,

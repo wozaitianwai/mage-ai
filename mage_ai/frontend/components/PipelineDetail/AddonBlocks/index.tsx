@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useRouter } from 'next/router';
@@ -21,24 +22,24 @@ import { queryFromUrl } from '@utils/url';
 
 export type AddonBlocksProps = {} & ExtensionProps;
 
-const ADDON_BLOCK_OPTIONS = [
-  {
-    Icon: Callback,
-    name: 'Callbacks',
-    uuid: AddonBlockTypeEnum.CALLBACK,
-  },
-  {
-    Icon: Conditional,
-    name: 'Conditionals',
-    uuid: AddonBlockTypeEnum.CONDITIONAL,
-  },
-];
-
 function AddonBlocks({
   ...props
 }: AddonBlocksProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const [selectedAddonUUID, setSelectedAddonUUID] = useState<string>(null);
+  const addonBlockOptions = useMemo(() => ([
+    {
+      Icon: Callback,
+      name: t('sidekick.addon_blocks.callbacks_name'),
+      uuid: AddonBlockTypeEnum.CALLBACK,
+    },
+    {
+      Icon: Conditional,
+      name: t('sidekick.addon_blocks.conditionals_name'),
+      uuid: AddonBlockTypeEnum.CONDITIONAL,
+    },
+  ]), [t]);
 
   useEffect(() => {
     setSelectedAddonUUID(queryFromUrl()?.addon);
@@ -50,7 +51,7 @@ function AddonBlocks({
       addOnProps = {
         addOnBlockType: BlockTypeEnum.CALLBACK,
         addOnBlocks: props.pipeline?.callbacks,
-        description: 'Run 1 or more callback blocks whenever the main block succeeds or fails.',
+        description: t('sidekick.addon_blocks.callbacks_description'),
         displayBlockName: 'callback',
       };
     }
@@ -58,7 +59,7 @@ function AddonBlocks({
       addOnProps = {
         addOnBlockType: BlockTypeEnum.CONDITIONAL,
         addOnBlocks: props.pipeline?.conditionals,
-        description: 'Run 1 or more conditional blocks to determine whether or not the main block should be run.',
+        description: t('sidekick.addon_blocks.conditionals_description'),
         displayBlockName: 'conditional',
       };
     }
@@ -74,6 +75,7 @@ function AddonBlocks({
   }, [
     props,
     selectedAddonUUID,
+    t,
   ]);
 
   return (
@@ -81,7 +83,7 @@ function AddonBlocks({
       <Spacing p={PADDING_UNITS}>
         {addonDetailEl}
 
-        {!selectedAddonUUID && ADDON_BLOCK_OPTIONS?.map(({
+        {!selectedAddonUUID && addonBlockOptions?.map(({
           name,
           uuid,
           Icon,

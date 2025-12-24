@@ -7,10 +7,10 @@ import light from '@oracle/styles/themes/light';
 import { SHARED_OPTS } from '@api/utils/token';
 
 export const LOCAL_STORAGE_KEY_THEME: 'current_theme' = 'current_theme';
-const LOCAL_STORAGE_KEY_THEME_DARK: number = 0;
-const LOCAL_STORAGE_KEY_THEME_LIGHT: number = 1;
+export const THEME_MODE_DARK: number = 0;
+export const THEME_MODE_LIGHT: number = 1;
 
-export function getCurrentTheme(ctx: any, invertedTheme = 1) {
+function getThemeModeValue(ctx?: any): number {
   let currentTheme;
 
   if (ctx) {
@@ -20,25 +20,27 @@ export function getCurrentTheme(ctx: any, invertedTheme = 1) {
     currentTheme = Cookies.get(LOCAL_STORAGE_KEY_THEME);
   }
 
-  if (Number(currentTheme) === invertedTheme) {
-    if (invertedTheme === LOCAL_STORAGE_KEY_THEME_DARK) {
-      return light;
-    } else {
-      return dark;
-    }
+  const value = Number(currentTheme);
+  if (Number.isFinite(value)) {
+    return value;
   }
 
-  if (invertedTheme === LOCAL_STORAGE_KEY_THEME_LIGHT) {
-    return dark;
-  } else {
-    return light;
-  }
+  return THEME_MODE_DARK;
+}
 
-  return dark;
+export function getCurrentThemeMode(ctx?: any): 'dark' | 'light' {
+  const mode = getThemeModeValue(ctx);
+  return mode === THEME_MODE_LIGHT ? 'light' : 'dark';
+}
+
+export function getCurrentTheme(ctx?: any) {
+  const mode = getThemeModeValue(ctx);
+  return mode === THEME_MODE_LIGHT ? light : dark;
 }
 
 export function getCurrentInvertedTheme(ctx) {
-  return getCurrentTheme(ctx, LOCAL_STORAGE_KEY_THEME_DARK);
+  const mode = getThemeModeValue(ctx);
+  return mode === THEME_MODE_LIGHT ? dark : light;
 }
 
 export function setCurrentTheme(theme) {
@@ -50,8 +52,8 @@ export function toggleTheme() {
   const currentTheme = Cookies.get(LOCAL_STORAGE_KEY_THEME);
 
   return setCurrentTheme(
-    Number(currentTheme) === LOCAL_STORAGE_KEY_THEME_DARK || currentTheme === null
-      ? LOCAL_STORAGE_KEY_THEME_LIGHT
-      : LOCAL_STORAGE_KEY_THEME_DARK,
+    Number(currentTheme) === THEME_MODE_DARK || currentTheme === null
+      ? THEME_MODE_LIGHT
+      : THEME_MODE_DARK,
   );
 }

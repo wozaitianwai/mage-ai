@@ -33,6 +33,7 @@ build_list_endpoint_tests(
     list_count=1,
     resource='project',
     result_keys_to_compare=[
+        'ai_config',
         'features',
         'help_improve_mage',
         'latest_version',
@@ -64,6 +65,7 @@ build_list_endpoint_tests(
     list_count=2,
     resource='project',
     result_keys_to_compare=[
+        'ai_config',
         'features',
         'help_improve_mage',
         'latest_version',
@@ -98,11 +100,13 @@ async def _assert_after_update(self, result, model_before_update, **kwargs):
     before_update = all([
         not all([v for v in model_before_update['features'].values()]),
         not model_before_update['help_improve_mage'],
+        not model_before_update['ai_config'],
         not model_before_update['openai_api_key'],
     ])
     after_update = all([
         all([v for v in model_after_update['features'].values()]),
         model_after_update['help_improve_mage'] == result['help_improve_mage'],
+        model_after_update['ai_config'] == result['ai_config'],
         model_after_update['openai_api_key'] == result['openai_api_key'],
     ])
 
@@ -111,18 +115,31 @@ async def _assert_after_update(self, result, model_before_update, **kwargs):
     return before_update and after_update
 
 
-build_update_endpoint_tests(
-    ProjectAPIEndpointTest,
-    resource='project',
-    get_resource_id=lambda self: self.faker.unique.name(),
-    build_payload=lambda self: dict(
+def _build_payload(self):
+    openai_api_key = self.faker.unique.name()
+    return dict(
         activate_project='project_name',
         help_improve_mage=True,
         features=reduce(lambda obj, key: merge_dict(obj, {
             key.value: True,
         }), [f for f in FeatureUUID], {}),
-        openai_api_key=self.faker.unique.name(),
-    ),
+        ai_config=dict(
+            mode='open_ai',
+            open_ai_config=dict(
+                openai_api_key=openai_api_key,
+                base_url='https://api.openai.com/v1',
+                model='gpt-4o',
+            ),
+        ),
+        openai_api_key=openai_api_key,
+    )
+
+
+build_update_endpoint_tests(
+    ProjectAPIEndpointTest,
+    resource='project',
+    get_resource_id=lambda self: self.faker.unique.name(),
+    build_payload=_build_payload,
     get_model_before_update=_get_model_before_update,
     assert_after_update=_assert_after_update,
     patch_function_settings=[

@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import BlockType, { BlockTypeEnum } from '@interfaces/BlockType';
 import Divider from '@oracle/elements/Divider';
@@ -60,6 +61,7 @@ type PipelineLogsPageProp = {
 function PipelineLogsPage({
   pipeline: pipelineProp,
 }: PipelineLogsPageProp) {
+  const { t } = useTranslation('common');
   const themeContext = useContext(ThemeContext);
   const tableInnerRef = useRef(null);
   const pipelineUUID = pipelineProp.uuid;
@@ -349,7 +351,7 @@ function PipelineLogsPage({
       beforeWidth={20 * UNIT}
       breadcrumbs={[
         {
-          label: () => 'Logs',
+          label: () => t('pipeline_detail.navigation.logs'),
         },
       ]}
       errors={errors}
@@ -357,14 +359,14 @@ function PipelineLogsPage({
       pipeline={pipeline}
       setErrors={setErrors}
       subheader={null}
-      title={({ name }) => `${name} logs`}
+      title={({ name }) => t('logs.pipeline_title', { name })}
       uuid="pipeline/logs"
     >
       <Spacing px={PADDING_UNITS} py={1}>
         <Text>
           {!isLoading && (
             <>
-              {numberWithCommas(filteredLogCount)} logs found
+              {t('logs.logs_found', { count: numberWithCommas(filteredLogCount) })}
               <LogToolbar
                 allPastLogsLoaded={allPastLogsLoaded}
                 loadNewerLogInterval={loadNewerLogInterval}
@@ -375,7 +377,7 @@ function PipelineLogsPage({
               />
             </>
           )}
-          {isLoading && 'Searching...'}
+          {isLoading && t('logs.searching')}
         </Text>
       </Spacing>
 
@@ -405,7 +407,7 @@ function PipelineLogsPage({
             }}
             uuid="logs/toolbar/load_newest"
           >
-            Load latest logs
+            {t('logs.actions.load_latest_logs')}
           </KeyboardShortcutButton>
 
           <Spacing mr={1} />
@@ -422,14 +424,14 @@ function PipelineLogsPage({
             }}
             uuid="logs/toolbar/scroll_to_bottomt"
           >
-            Scroll to bottom
+            {t('logs.actions.scroll_to_bottom')}
           </KeyboardShortcutButton>
 
           <Spacing mr={1} />
 
           <Flex>
             <Text noWrapping>
-              Auto-scroll to new logs
+              {t('logs.actions.auto_scroll_to_new_logs')}
             </Text>
             <Spacing mr={1} />
             <ToggleSwitch

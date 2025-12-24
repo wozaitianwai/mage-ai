@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import Calendar, { TimeType } from '@oracle/components/Calendar';
@@ -68,6 +69,7 @@ function LogToolbar({
   selectedRange,
   setSelectedRange,
 }: LogToolbarProps) {
+  const { t } = useTranslation('common');
   const [showCalendarIndex, setShowCalendarIndex] = useState<number>(null);
   const [startDate, setStartDate] = useState<Date>(null);
   const [startTime, setStartTime] = useState<TimeType>({ hour: '00', minute: '00' });
@@ -132,6 +134,26 @@ function LogToolbar({
     }
   }, [pipelineUUID, saveScrollPosition]);
 
+  const logRangeLabelMapping = useCallback((range: LogRangeEnum) => {
+    if (range === LogRangeEnum.LAST_HOUR) {
+      return t('logs.time_ranges.last_hour');
+    }
+    if (range === LogRangeEnum.LAST_DAY) {
+      return t('logs.time_ranges.last_day');
+    }
+    if (range === LogRangeEnum.LAST_WEEK) {
+      return t('logs.time_ranges.last_week');
+    }
+    if (range === LogRangeEnum.LAST_30_DAYS) {
+      return t('logs.time_ranges.last_30_days');
+    }
+    if (range === LogRangeEnum.CUSTOM_RANGE) {
+      return t('logs.time_ranges.custom_range');
+    }
+
+    return range;
+  }, [t]);
+
   return (
     <Spacing py={1}>
       <FlexContainer alignItems="center">
@@ -144,7 +166,10 @@ function LogToolbar({
           }}
           uuid="logs/load_older_logs"
         >
-          {allPastLogsLoaded ? 'All past logs within range loaded' : 'Load older logs'}
+          {allPastLogsLoaded
+            ? t('logs.toolbar.all_past_loaded')
+            : t('logs.toolbar.load_older_logs')
+          }
         </KeyboardShortcutButton>
 
         <Spacing mr={1} />
@@ -158,7 +183,7 @@ function LogToolbar({
           }}
           uuid="logs/load_newer_logs"
         >
-          Load newer logs
+          {t('logs.toolbar.load_newer_logs')}
         </KeyboardShortcutButton>
 
         <Spacing mr={2} />
@@ -183,12 +208,12 @@ function LogToolbar({
             }
           }}
           paddingRight={UNIT * 4}
-          placeholder="Select time range"
+          placeholder={t('logs.toolbar.select_time_range')}
           value={selectedRange}
         >
           {Object.values(LogRangeEnum).map(range => (
             <option key={range} value={range}>
-              {range}
+              {logRangeLabelMapping(range)}
             </option>
           ))}
         </Select>
@@ -202,7 +227,7 @@ function LogToolbar({
               defaultColor
               onClick={() => setShowCalendarIndex(0)}
               paddingRight={0}
-              placeholder="Start"
+              placeholder={t('logs.toolbar.start')}
               value={startDate
                 ? utcDateFromDateAndTime(startDate, startTime?.hour, startTime?.minute)
                 : ''
@@ -223,7 +248,7 @@ function LogToolbar({
 
             <Spacing px={1}>
               <Text>
-                to
+                {t('logs.toolbar.to')}
               </Text>
             </Spacing>
 
@@ -232,7 +257,7 @@ function LogToolbar({
               defaultColor
               onClick={() => setShowCalendarIndex(1)}
               paddingRight={0}
-              placeholder="End"
+              placeholder={t('logs.toolbar.end')}
               value={endDate
                 ? utcDateFromDateAndTime(endDate, endTime?.hour, endTime?.minute)
                 : ''
@@ -268,7 +293,7 @@ function LogToolbar({
               padding={`${UNIT / 2}px`}
               primary
             >
-              Search
+              {t('common.search')}
             </Button>
           </>
         )}

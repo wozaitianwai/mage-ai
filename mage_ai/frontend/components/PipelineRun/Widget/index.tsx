@@ -1,6 +1,7 @@
 import NextLink from 'next/link';
 import { useMemo } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import FlexContainer from '@oracle/components/FlexContainer';
@@ -25,7 +26,6 @@ import {
   datetimeInLocalTimezone,
 } from '@utils/date';
 import { UNIT } from '@oracle/styles/units/spacing';
-import { capitalize, lowercase } from '@utils/string';
 import { queryFromUrl } from '@utils/url';
 import { shouldDisplayLocalTimezone } from '@components/settings/workspace/utils';
 
@@ -43,14 +43,43 @@ function Widget({
   pipelineRuns = [],
   workspaceFormatting = false,
 }: WidgetProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const q = queryFromUrl();
   const timePeriod = q?.[TAB_URL_PARAM] || TimePeriodEnum.TODAY;
   const displayLocalTimezone = shouldDisplayLocalTimezone();
   const isAllRuns = pipelineType === ALL_PIPELINE_RUNS_TYPE;
-  const pipelineTypeLabel = isAllRuns
-    ? ALL_PIPELINE_RUNS_TYPE
-    : PIPELINE_TYPE_LABEL_MAPPING[pipelineType];
+  const pipelineTypeLabel = useMemo(() => {
+    if (isAllRuns) {
+      return t('dashboard.all');
+    }
+
+    if (pipelineType === PipelineTypeEnum.INTEGRATION) {
+      return t('dashboard.integration');
+    }
+
+    if (pipelineType === PipelineTypeEnum.STREAMING) {
+      return t('dashboard.streaming');
+    }
+
+    return t('dashboard.standard');
+  }, [isAllRuns, pipelineType, t]);
+
+  const timePeriodLabel = useMemo(() => {
+    if (TimePeriodEnum.TODAY === timePeriod) {
+      return t('header.today');
+    }
+
+    if (TimePeriodEnum.WEEK === timePeriod) {
+      return t('header.last_7_days');
+    }
+
+    if (TimePeriodEnum.MONTH === timePeriod) {
+      return t('header.last_30_days');
+    }
+
+    return TIME_PERIOD_DISPLAY_MAPPING[timePeriod] || timePeriod;
+  }, [t, timePeriod]);
   const Icon = PIPELINE_TYPE_ICON_MAPPING[pipelineType];
   const count = pipelineRuns.length;
   const countDisplay = count === 0
@@ -64,13 +93,13 @@ function Widget({
         <Spacing ml="4px">
           <Tooltip
             {...SHARED_UTC_TOOLTIP_PROPS}
-            label="The pipeline run failures are displayed in local time."
+            label={t('dashboard.utc_failures_note')}
             maxWidth={UNIT * 24}
             widthFitContent={false}
           />
         </Spacing>
       ) : null
-  ), [displayLocalTimezone]);
+  ), [displayLocalTimezone, t]);
 
   return (
     <RowDataTable
@@ -84,7 +113,7 @@ function Widget({
             <Link
               sameColorAsText
             >
-              View more
+              {t('dashboard.view_more')}
             </Link>
           </NextLink>
         </FlexContainer>
@@ -96,11 +125,16 @@ function Widget({
             compact
             notClickable
           >
-            {capitalize(pipelineTypeLabel)}
+            {pipelineTypeLabel}
           </Button>
           <Spacing ml={2} />
           <Text bold>
-            Latest {isAllRuns ? '' : `${lowercase(pipelineTypeLabel)} `}pipeline run failures {countDisplay}
+            {isAllRuns
+              ? t('dashboard.latest_pipeline_run_failures')
+              : t('dashboard.latest_type_pipeline_run_failures', {
+                type: pipelineTypeLabel,
+              })
+            } {countDisplay}
           </Text>
           {utcTooltipEl}
         </FlexContainer>
@@ -122,7 +156,15 @@ function Widget({
                 />
                 <Spacing mb={3} />
                 <Text large>
-                  No {isAllRuns ? '' : `${lowercase(pipelineTypeLabel)} `}pipeline run failures for {TIME_PERIOD_DISPLAY_MAPPING[timePeriod]}
+                  {isAllRuns
+                    ? t('dashboard.no_pipeline_run_failures_for_period', {
+                      period: timePeriodLabel,
+                    })
+                    : t('dashboard.no_type_pipeline_run_failures_for_period', {
+                      period: timePeriodLabel,
+                      type: pipelineTypeLabel,
+                    })
+                  }
                 </Text>
               </FlexContainer>
             </Spacing>
@@ -154,7 +196,7 @@ function Widget({
               {workspaceFormatting
                 ? (
                   <Text danger monospace small>
-                    Run created on&nbsp;
+                    {t('dashboard.run_created_on')}&nbsp;
                     {displayLocalTimezone
                       ? datetimeInLocalTimezone(createdAt, displayLocalTimezone)
                       : createdAt
@@ -167,7 +209,7 @@ function Widget({
                     passHref
                   >
                     <Link danger monospace sameColorAsText small>
-                      Run created on&nbsp;
+                      {t('dashboard.run_created_on')}&nbsp;
                       {displayLocalTimezone
                         ? datetimeInLocalTimezone(createdAt, displayLocalTimezone)
                         : createdAt

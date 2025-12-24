@@ -3,6 +3,7 @@ import Spacing from '@oracle/elements/Spacing';
 import Table from '@components/shared/Table';
 import Text from '@oracle/elements/Text';
 import TextInput from '@oracle/elements/Inputs/TextInput';
+import { useTranslation } from 'react-i18next';
 import { PADDING_UNITS } from '@oracle/styles/units/spacing';
 
 type OutdatedAfterFieldProps = {
@@ -16,15 +17,16 @@ function OutdatedAfterField({
   originalAttributes,
   setObjectAttributes,
 }: OutdatedAfterFieldProps) {
+  const { t } = useTranslation('common');
+
   return (
     <>
       <Spacing mb={1} px={PADDING_UNITS}>
         <Text bold>
-          Outdated after
+          {t('global_data_products.outdated_after.title')}
         </Text>
         <Text muted small>
-          After the global data product successfully completes running,
-          how long after that will the global data product be outdated?
+          {t('global_data_products.outdated_after.description')}
         </Text>
       </Spacing>
 
@@ -32,9 +34,11 @@ function OutdatedAfterField({
         columnFlex={[null, 1]}
         columns={[
           {
+            label: () => t('global_data_products.unit'),
             uuid: 'Unit',
           },
           {
+            label: () => t('global_data_products.value'),
             uuid: 'Value',
           },
         ]}
@@ -61,9 +65,9 @@ function OutdatedAfterField({
 
           return [
             <Text default key={`label-${uuid}`} monospace>
-              {uuid} {valueOriginal && (
+              {t(`global_data_products.outdated_after.units.${uuid}`)}{valueOriginal && (
                 <Text inline monospace muted>
-                  (default: {valueOriginal})
+                  {t('global_data_products.default_value', { value: valueOriginal })}
                 </Text>
               )}
             </Text>,
@@ -79,7 +83,7 @@ function OutdatedAfterField({
                   [uuid]: e.target.value?.length === 0 ? null : Number(e.target.value),
                 },
               }))}
-              placeholder="Enter a number"
+              placeholder={t('global_data_products.enter_a_number')}
               primary
               setContentOnMount
               small

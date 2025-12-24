@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import ErrorsType from '@interfaces/ErrorsType';
 import Headline from '@oracle/elements/Headline';
@@ -33,6 +34,7 @@ function Monitor({
   setErrors,
   subheader,
 }: MonitorProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
 
   return (
@@ -44,7 +46,7 @@ function Monitor({
               level={4}
               muted
             >
-              Insights
+              {t('pipeline_detail.monitors.insights')}
             </Headline>
           </Spacing>
           <LinkStyle
@@ -59,7 +61,7 @@ function Monitor({
             selected={MonitorTypeEnum.PIPELINE_RUNS == monitorType}
           >
             <Text>
-              Pipeline runs
+              {t('sidebar.pipeline_runs')}
             </Text>
           </LinkStyle>
           <LinkStyle
@@ -74,7 +76,7 @@ function Monitor({
             selected={MonitorTypeEnum.BLOCK_RUNS == monitorType}
           >
             <Text>
-              Block runs
+              {t('pipeline_runs.block_runs')}
             </Text>
           </LinkStyle>
           <LinkStyle
@@ -89,7 +91,7 @@ function Monitor({
             selected={MonitorTypeEnum.BLOCK_RUNTIME == monitorType}
           >
             <Text>
-              Block runtime
+              {t('pipeline_detail.monitors.block_runtime')}
             </Text>
           </LinkStyle>
         </BeforeStyle>

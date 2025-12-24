@@ -13,6 +13,7 @@ import { HTMLOutputStyle, OutputRowStyle } from 'components/CodeBlock/CodeOutput
 import Text from '@oracle/elements/Text';
 import OutputRenderer from '@components/CodeBlock/CodeOutput/OutputRenderer';
 import { DataTypeEnum } from '@interfaces/KernelOutputType';
+import type { TFunction } from 'i18next';
 import { HEADER_HEIGHT } from '@components/shared/Header/index.style';
 import { PADDING_UNITS } from '@oracle/styles/units/spacing';
 import { TABLE_COLUMN_HEADER_HEIGHT } from '@components/Sidekick/index.style';
@@ -21,14 +22,15 @@ import { createBlockStatus } from '@components/Triggers/utils';
 import { alphabet, hashCode, isJsonString } from '@utils/string';
 import { indexBy, sortByKey } from '@utils/array';
 
-export const TAB_TREE = { uuid: 'Dependency tree' };
-export const TAB_OUTPUT = { uuid: 'Block output' };
-export const TABS = [TAB_OUTPUT, TAB_TREE];
+export const TAB_TREE: TabType = { uuid: 'Dependency tree' };
+export const TAB_OUTPUT: TabType = { uuid: 'Block output' };
+export const TABS: TabType[] = [TAB_OUTPUT, TAB_TREE];
 
 const MAX_COLUMNS = 40;
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default function ({
+  t,
   blockRuns,
   blocks,
   blocksOverride,
@@ -48,6 +50,7 @@ export default function ({
   width,
   ...props
 }: {
+  t?: TFunction;
   blockRuns: BlockRunType[];
   blocks?: BlockType[];
   blocksOverride?: BlockType[];
@@ -79,6 +82,17 @@ export default function ({
   const blocksOverrideMap = indexBy(blocksOverride, ({ uuid }) => uuid);
   const blocksMapping = { ...blocksMap, ...blocksOverrideMap };
   const selectedBlock = blocksMapping?.[selectedRun?.block_uuid?.split?.(':')?.[0]];
+
+  const dependencyTreeLabel = t?.('pipeline_detail.sidekick.dependency_tree') || TAB_TREE.uuid;
+  const blockOutputLabel = t?.('pipeline_detail.block_runs.sidekick.block_output') || TAB_OUTPUT.uuid;
+  const noOutputMessage = t?.('pipeline_detail.block_runs.sidekick.no_output') || 'This block run has no output.';
+  const imageOutputAlt = t?.('pipeline_detail.block_runs.sidekick.image_output_alt') || 'Image from code output';
+  const blockOutputNumberedLabel = (idx: number, letter: string) => (
+    t?.('pipeline_detail.block_runs.sidekick.block_output_numbered', {
+      letter,
+      number: idx,
+    }) || `Block output ${idx}${letter}`
+  );
 
   const arr = [];
   const tabsMoreInner = [];
@@ -112,7 +126,7 @@ export default function ({
 
           const emptyOutputMessageEl = (
             <Spacing key={`output-empty-${idx1}-${idx}`} ml={2}>
-              <Text>This block run has no output.</Text>
+              <Text>{noOutputMessage}</Text>
             </Spacing>
           );
 
@@ -166,7 +180,7 @@ export default function ({
                   overflow: 'auto',
                 }}
               >
-                <img alt="Image from code output" src={`data:image/png;base64, ${textData}`} />
+                <img alt={imageOutputAlt} src={`data:image/png;base64, ${textData}`} />
               </div>
             );
           } else if (DataTypeEnum.TEXT_HTML === dataType && textData) {
@@ -206,6 +220,7 @@ export default function ({
 
             if (idx === 0) {
               tabsMoreInner.push({
+                label: () => blockOutputNumberedLabel(idx + 1, letter),
                 uuid: `Block output ${idx + 1}${letter}`,
               });
             }
@@ -213,6 +228,7 @@ export default function ({
             arr.push(el);
 
             tabsMoreInner.push({
+              label: () => blockOutputNumberedLabel(idx + 1, letter),
               uuid: `Block output ${idx + 1}${letter}`,
             });
           }
@@ -233,8 +249,33 @@ export default function ({
     tabsUse = [TAB_OUTPUT, ...tabsMore.slice(1), TAB_TREE];
   }
 
+  const tabsUseWithLabels = tabsUse.map(tab => {
+    if (tab.uuid === TAB_TREE.uuid) {
+      return {
+        ...tab,
+        label: () => dependencyTreeLabel,
+      };
+    }
+
+    if (tab.uuid === TAB_OUTPUT.uuid) {
+      return {
+        ...tab,
+        label: () => blockOutputLabel,
+      };
+    }
+
+    if (typeof tab.label === 'function') {
+      return tab;
+    }
+
+    return {
+      ...tab,
+      label: () => tab.uuid,
+    };
+  });
+
   const showTabs = selectedTab && setSelectedTab;
-  const idx = tabsUse.findIndex(({ uuid }) => uuid === selectedTab?.uuid);
+  const idx = tabsUseWithLabels.findIndex(({ uuid }) => uuid === selectedTab?.uuid);
   const blockOutputToShow = outputEls[idx];
 
   return (
@@ -252,7 +293,10 @@ export default function ({
                 onClickTab={setSelectedTab}
                 regularSizeText
                 selectedTabUUID={selectedTab?.uuid}
-                tabs={selectedRun ? tabsUse : [TAB_TREE]}
+                tabs={selectedRun ? tabsUseWithLabels : [{
+                  ...TAB_TREE,
+                  label: () => dependencyTreeLabel,
+                }]}
                 underlineStyle
               />
             </Spacing>

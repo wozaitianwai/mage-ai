@@ -4,8 +4,8 @@ import Spacing from '@oracle/elements/Spacing';
 import Table from '@components/shared/Table';
 import Text from '@oracle/elements/Text';
 import TextInput from '@oracle/elements/Inputs/TextInput';
+import { useTranslation } from 'react-i18next';
 import { PADDING_UNITS } from '@oracle/styles/units/spacing';
-import { capitalizeRemoveUnderscoreLower } from '@utils/string';
 import { range } from '@utils/array';
 
 type OutdatedStartingAtFieldProps = {
@@ -19,30 +19,32 @@ function OutdatedStartingAtField({
   originalAttributes,
   setObjectAttributes,
 }: OutdatedStartingAtFieldProps) {
+  const { t } = useTranslation('common');
+
   return (
     <>
       <Spacing mb={1} px={PADDING_UNITS}>
         <Text bold>
-          Outdated starting at <Text inline muted>
-            (optional)
+          {t('global_data_products.outdated_starting_at.title')}
+          <Text inline muted>
+            {t('global_data_products.optional')}
           </Text>
         </Text>
         <Text muted small>
-          If enough time has passed since the last global data product has ran successfully and
-          the global data product is determined to be outdated, then you can configure it to be
-          outdated at a specific date or time.
+          {t('global_data_products.outdated_starting_at.description')}
         </Text>
 
         <div style={{ marginTop: 4 }}>
           <Text muted small>
-            For example, let’s say the global data product is outdated after 12 hours.
-            The last successful run was yesterday at 18:00. The global data product will be
-            outdated today at 06:00. However, if the <Text bold inline muted small>
-              Outdated starting at
-            </Text> has a value of 17
-            for <Text bold inline muted small>
-              Hour of day
-            </Text>, then the global data product won’t run again until today at 17:00.
+            {t('global_data_products.outdated_starting_at.example_before')}
+            <Text bold inline muted small>
+              {t('global_data_products.outdated_starting_at.title')}
+            </Text>
+            {t('global_data_products.outdated_starting_at.example_between')}
+            <Text bold inline muted small>
+              {t('global_data_products.outdated_starting_at.units.hour_of_day')}
+            </Text>
+            {t('global_data_products.outdated_starting_at.example_after')}
           </Text>
         </div>
       </Spacing>
@@ -51,9 +53,11 @@ function OutdatedStartingAtField({
         columnFlex={[null, 1]}
         columns={[
           {
+            label: () => t('global_data_products.unit'),
             uuid: 'Unit',
           },
           {
+            label: () => t('global_data_products.value'),
             uuid: 'Value',
           },
         ]}
@@ -82,16 +86,16 @@ function OutdatedStartingAtField({
           {
             uuid: 'day_of_week',
             values: [
-              'Sunday',
-              'Monday',
-              'Tuesday',
-              'Wednesday',
-              'Thursday',
-              'Friday',
-              'Saturday',
-            ].map((uuid, idx) => ({
-              uuid,
-              value: idx,
+              { key: 'sunday', value: 0 },
+              { key: 'monday', value: 1 },
+              { key: 'tuesday', value: 2 },
+              { key: 'wednesday', value: 3 },
+              { key: 'thursday', value: 4 },
+              { key: 'friday', value: 5 },
+              { key: 'saturday', value: 6 },
+            ].map(({ key, value }) => ({
+              uuid: t(`global_data_products.outdated_starting_at.days_of_week.${key}`),
+              value,
             })),
           },
           {
@@ -125,21 +129,21 @@ function OutdatedStartingAtField({
           {
             uuid: 'month_of_year',
             values: [
-              'January',
-              'February',
-              'March',
-              'April',
-              'May',
-              'June',
-              'July',
-              'August',
-              'September',
-              'October',
-              'November',
-              'December',
-            ].map((month, idx) => ({
-              uuid: month,
-              value: idx + 1,
+              { key: 'january', value: 1 },
+              { key: 'february', value: 2 },
+              { key: 'march', value: 3 },
+              { key: 'april', value: 4 },
+              { key: 'may', value: 5 },
+              { key: 'june', value: 6 },
+              { key: 'july', value: 7 },
+              { key: 'august', value: 8 },
+              { key: 'september', value: 9 },
+              { key: 'october', value: 10 },
+              { key: 'november', value: 11 },
+              { key: 'december', value: 12 },
+            ].map(({ key, value }) => ({
+              uuid: t(`global_data_products.outdated_starting_at.months_of_year.${key}`),
+              value,
             })),
           },
           // @ts-ignore
@@ -178,7 +182,7 @@ function OutdatedStartingAtField({
             inputEl = (
               <Select
                 {...sharedProps}
-                placeholder="Select a value"
+                placeholder={t('global_data_products.select_a_value')}
               >
                 {/* @ts-ignore */}
                 {values.map(({
@@ -195,7 +199,7 @@ function OutdatedStartingAtField({
             inputEl = (
               <TextInput
                 {...sharedProps}
-                placeholder="Enter a number"
+                placeholder={t('global_data_products.enter_a_number')}
                 setContentOnMount
                 type="number"
               />
@@ -204,9 +208,9 @@ function OutdatedStartingAtField({
 
           return [
             <Text default key={`outdated-starting-at-label-${uuid}`} monospace>
-              {capitalizeRemoveUnderscoreLower(uuid)} {valueOriginal && (
+              {t(`global_data_products.outdated_starting_at.units.${uuid}`)}{valueOriginal && (
                 <Text inline monospace muted>
-                  (default: {valueOriginal})
+                  {t('global_data_products.default_value', { value: valueOriginal })}
                 </Text>
               )}
             </Text>,

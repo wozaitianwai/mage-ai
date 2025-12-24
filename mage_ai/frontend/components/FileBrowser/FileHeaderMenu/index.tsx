@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import ClickOutside from '@oracle/components/ClickOutside';
@@ -25,6 +26,7 @@ function FileHeaderMenu({
   setShowHiddenFiles,
   showHiddenFiles,
 }: FileHeaderMenuProps) {
+  const { t } = useTranslation('common');
   const [highlightedIndex, setHighlightedIndex] = useState(null);
   const refView = useRef(null);
 
@@ -40,7 +42,10 @@ function FileHeaderMenu({
           <Spacing mr={1} />
 
           <Text noWrapping>
-            Hidden files
+            {showHiddenFiles
+              ? t('files.header_menu.hide_hidden_files')
+              : t('files.header_menu.show_hidden_files')
+            }
           </Text>
         </FlexContainer>
       ),
@@ -49,7 +54,7 @@ function FileHeaderMenu({
       },
       uuid: 'Hidden files',
     },
-  ], [setShowHiddenFiles, showHiddenFiles]);
+  ], [setShowHiddenFiles, showHiddenFiles, t]);
 
   return (
     <FileHeaderMenuContainerStyle>
@@ -73,7 +78,7 @@ function FileHeaderMenu({
               ref={refView}
             >
               <Text default>
-                View
+                {t('file_header_menu.view')}
               </Text>
             </Button>
 

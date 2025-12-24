@@ -775,16 +775,20 @@ function Table({
                 )}
 
                 <TableStyle
-                  borderCollapseSeparate={borderCollapseSeparate}
-                  columnBorders={columnBorders}
-                >
-                  <>
-                    {(columns?.length >= 1 && !noHeader) && renderHeaderRow({
+                borderCollapseSeparate={borderCollapseSeparate}
+                columnBorders={columnBorders}
+              >
+                {(columns?.length >= 1 && !noHeader) && (
+                  <thead>
+                    {renderHeaderRow({
                       groupIndex: idx,
                     })}
-                    {els}
-                  </>
-                </TableStyle>
+                  </thead>
+                )}
+                <tbody>
+                  {els}
+                </tbody>
+              </TableStyle>
               </div>,
             );
           } else {
@@ -804,12 +808,16 @@ function Table({
                       borderCollapseSeparate={borderCollapseSeparate}
                       columnBorders={columnBorders}
                     >
-                      <>
-                        {(columns?.length >= 1 && !noHeader) && renderHeaderRow({
-                          groupIndex: idx,
-                        })}
+                      {(columns?.length >= 1 && !noHeader) && (
+                        <thead>
+                          {renderHeaderRow({
+                            groupIndex: idx,
+                          })}
+                        </thead>
+                      )}
+                      <tbody>
                         {els}
-                      </>
+                      </tbody>
                     </TableStyle>
                   </AccordionPanel>
                 </Accordion>
@@ -830,8 +838,14 @@ function Table({
             borderCollapseSeparate={borderCollapseSeparate}
             columnBorders={columnBorders}
           >
-            {(columns?.length >= 1 && !noHeader) && renderHeaderRow()}
-            {rowsBefore}
+            {(columns?.length >= 1 && !noHeader) && (
+              <thead>
+                {renderHeaderRow()}
+              </thead>
+            )}
+            <tbody>
+              {rowsBefore}
+            </tbody>
           </TableStyle>
 
           {renderExpandedRowWithObject?.(selectedRowIndexInternal, data)}
@@ -840,10 +854,16 @@ function Table({
             borderCollapseSeparate={borderCollapseSeparate}
             columnBorders={columnBorders}
           >
-            {(columns?.length >= 1 && !noHeader) && renderHeaderRow({
-              showEmptyHeaderCells: true,
-            })}
-            {rowsAfter}
+            {(columns?.length >= 1 && !noHeader) && (
+              <thead>
+                {renderHeaderRow({
+                  showEmptyHeaderCells: true,
+                })}
+              </thead>
+            )}
+            <tbody>
+              {rowsAfter}
+            </tbody>
           </TableStyle>
         </>
       );
@@ -854,8 +874,14 @@ function Table({
         borderCollapseSeparate={borderCollapseSeparate}
         columnBorders={columnBorders}
       >
-        {(columns?.length >= 1 && !noHeader) && renderHeaderRow()}
-        {rowEls}
+        {(columns?.length >= 1 && !noHeader) && (
+          <thead>
+            {renderHeaderRow()}
+          </thead>
+        )}
+        <tbody>
+          {rowEls}
+        </tbody>
       </TableStyle>
     );
   }, [

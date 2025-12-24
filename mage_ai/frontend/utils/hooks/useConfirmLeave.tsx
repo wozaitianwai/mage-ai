@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import FlexContainer from '@oracle/components/FlexContainer';
@@ -16,6 +17,7 @@ const useConfirmLeave = ({
   warningMessage?: string;
 }) => {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const [hasConfirmed, setHasConfirmed] = useState(false);
   const [navigationConfig, setNavigationConfig] = useState<{
     isModalOpen: boolean;
@@ -79,7 +81,7 @@ const useConfirmLeave = ({
             onClick={() => setHasConfirmed(true)}
             primary
           >
-            Leave
+            {t('common.leave')}
           </Button>
 
           <Spacing mr={1} />
@@ -93,13 +95,14 @@ const useConfirmLeave = ({
             }}
             secondary
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
         </FlexContainer>
       </Spacing>
     </Panel>
   ), {
   }, [
+    t,
     warningMessage,
   ], {
     background: true,

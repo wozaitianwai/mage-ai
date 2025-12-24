@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import CustomDesignType from '@interfaces/CustomDesignType';
@@ -102,6 +103,7 @@ function ButtonItems({
   const ref5 = useRef(null);
   const ref6 = useRef(null);
   const ref7 = useRef(null);
+  const { t } = useTranslation('common');
 
   const refsMapping = [
     ref1,
@@ -128,6 +130,7 @@ function ButtonItems({
     pipelineType,
     {
       blockTemplatesByBlockType,
+      t,
       v2: true,
     },
   )?.find(({
@@ -145,6 +148,7 @@ function ButtonItems({
     {
       blockTemplatesByBlockType,
       dataIntegrationType: DataIntegrationTypeEnum.SOURCES,
+      t,
       v2: true,
     },
   )?.find(({
@@ -162,6 +166,7 @@ function ButtonItems({
     pipelineType,
     {
       blockTemplatesByBlockType,
+      t,
       v2: true,
     },
   )?.find(({
@@ -179,6 +184,7 @@ function ButtonItems({
     {
       blockTemplatesByBlockType,
       dataIntegrationType: DataIntegrationTypeEnum.DESTINATIONS,
+      t,
       v2: true,
     },
   )?.find(({
@@ -196,6 +202,7 @@ function ButtonItems({
     pipelineType,
     {
       blockTemplatesByBlockType,
+      t,
       v2: true,
     },
   )?.find(({
@@ -212,6 +219,7 @@ function ButtonItems({
     pipelineType,
     {
       blockTemplatesByBlockType,
+      t,
       v2: true,
     },
   )?.find(({
@@ -226,11 +234,11 @@ function ButtonItems({
   const buildNonPythonItems = useCallback((blockType: BlockTypeEnum) => [
     {
       isGroupingTitle: true,
-      label: () => 'SQL',
+      label: () => t('common.sql'),
       uuid: `${BlockLanguageEnum.SQL}/${blockType}/group`,
     },
     {
-      label: () => 'Base template (generic)',
+      label: () => t('pipeline_detail.add_block.base_template_generic'),
       onClick: () => {
         addNewBlock({
           language: BlockLanguageEnum.SQL,
@@ -241,11 +249,11 @@ function ButtonItems({
     },
     {
       isGroupingTitle: true,
-      label: () => 'R',
+      label: () => t('common.r'),
       uuid: `${BlockLanguageEnum.R}/${blockType}/group`,
     },
     {
-      label: () => 'Base template (generic)',
+      label: () => t('pipeline_detail.add_block.base_template_generic'),
       onClick: () => {
         addNewBlock({
           language: BlockLanguageEnum.R,
@@ -256,13 +264,14 @@ function ButtonItems({
     },
   ], [
     addNewBlock,
+    t,
   ]);
 
   const dataLoaderGroupItems = useMemo(() => {
     const arr = [
       {
         isGroupingTitle: true,
-        label: () => 'Python',
+        label: () => t('common.python'),
         uuid: `${BlockLanguageEnum.PYTHON}${BlockTypeEnum.DATA_LOADER}/group`,
       },
       // @ts-ignore
@@ -277,7 +286,7 @@ function ButtonItems({
       arr.push(...[
         {
           isGroupingTitle: true,
-          label: () => 'Data integrations',
+          label: () => t('pipeline_detail.add_block.data_integrations'),
           uuid: [
             BlockTypeEnum.DATA_LOADER,
             TemplateTypeEnum.DATA_INTEGRATION,
@@ -287,7 +296,7 @@ function ButtonItems({
         {
           // @ts-ignore
           items: itemsDataLoaderSource,
-          label: () => capitalize(DataIntegrationTypeEnum.SOURCES),
+          label: () => t('pipeline_detail.add_block.sources'),
           uuid: [
             BlockTypeEnum.DATA_LOADER,
             TemplateTypeEnum.DATA_INTEGRATION,
@@ -302,13 +311,14 @@ function ButtonItems({
     buildNonPythonItems,
     itemsDataLoader,
     itemsDataLoaderSource,
+    t,
   ]);
 
   const dataExporterGroupItems = useMemo(() => {
     const arr = [
       {
         isGroupingTitle: true,
-        label: () => 'Python',
+        label: () => t('common.python'),
         uuid: `${BlockLanguageEnum.PYTHON}${BlockTypeEnum.DATA_EXPORTER}/group`,
       },
       // @ts-ignore
@@ -318,13 +328,13 @@ function ButtonItems({
       arr.push(...[
         {
           isGroupingTitle: true,
-          label: () => 'Data integrations',
+          label: () => t('pipeline_detail.add_block.data_integrations'),
           uuid: `${BlockTypeEnum.DATA_EXPORTER}/${TemplateTypeEnum.DATA_INTEGRATION}/group`,
         },
         {
           // @ts-ignore
           items: itemsDataExporterDestination,
-          label: () => capitalize(DataIntegrationTypeEnum.DESTINATIONS),
+          label: () => t('pipeline_detail.add_block.destinations'),
           uuid: `${BlockTypeEnum.DATA_EXPORTER}/${TemplateTypeEnum.DATA_INTEGRATION}/${DataIntegrationTypeEnum.DESTINATIONS}`,
         },
       ]);
@@ -335,12 +345,13 @@ function ButtonItems({
     buildNonPythonItems,
     itemsDataExporter,
     itemsDataExporterDestination,
+    t,
   ]);
 
   const itemsCustom = useMemo(() => [
     {
       beforeIcon: <BlockGeneric default size={ICON_SIZE} />,
-      label: () => 'Python block',
+      label: () => t('pipeline_detail.add_block.python_block'),
       onClick: () => {
         addNewBlock({
           language: BlockLanguageEnum.PYTHON,
@@ -351,7 +362,7 @@ function ButtonItems({
     },
     {
       beforeIcon: <BlockGeneric default size={ICON_SIZE} />,
-      label: () => 'SQL block',
+      label: () => t('pipeline_detail.add_block.sql_block'),
       onClick: () => {
         addNewBlock({
           language: BlockLanguageEnum.SQL,
@@ -362,7 +373,7 @@ function ButtonItems({
     },
     {
       beforeIcon: <BlockGeneric default size={ICON_SIZE} />,
-      label: () => 'R block',
+      label: () => t('pipeline_detail.add_block.r_block'),
       onClick: () => {
         addNewBlock({
           language: BlockLanguageEnum.R,
@@ -373,7 +384,7 @@ function ButtonItems({
     },
     {
       beforeIcon: <PenWriting default size={ICON_SIZE} />,
-      label: () => 'Scratchpad',
+      label: () => t('block_type.scratchpad'),
       onClick: () => {
         addNewBlock({
           language: BlockLanguageEnum.PYTHON,
@@ -384,6 +395,7 @@ function ButtonItems({
     },
   ], [
     addNewBlock,
+    t,
   ]);
 
   const itemUUIDs = useMemo(() => {
@@ -423,7 +435,7 @@ function ButtonItems({
     [BlockTypeEnum.CUSTOM]: {
       Icon: BlockBlank,
       items: itemsCustom,
-      tooltip: () => 'Add a blank custom block or scratchpad block',
+      tooltip: () => t('pipeline_detail.add_block.custom_block_tooltip'),
     },
     [BlockTypeEnum.DATA_EXPORTER]: {
       Icon: CircleWithArrowUp,
@@ -436,7 +448,7 @@ function ButtonItems({
       //   />
       // ),
       items: dataExporterGroupItems,
-      label: () => BLOCK_TYPE_NAME_MAPPING[BlockTypeEnum.DATA_EXPORTER],
+      label: () => t(`block_type.${BlockTypeEnum.DATA_EXPORTER}`),
       uuid: `${BlockTypeEnum.DATA_EXPORTER}/${BlockLanguageEnum.PYTHON}`,
     },
     [BlockTypeEnum.SENSOR]: {
@@ -452,12 +464,12 @@ function ButtonItems({
       items: [
         {
           isGroupingTitle: true,
-          label: () => 'Python',
+          label: () => t('common.python'),
           uuid: `${BlockLanguageEnum.PYTHON}${BlockTypeEnum.SENSOR}/group`,
         },
         // @ts-ignore
       ].concat(itemsSensors),
-      label: () => BLOCK_TYPE_NAME_MAPPING[BlockTypeEnum.SENSOR],
+      label: () => t(`block_type.${BlockTypeEnum.SENSOR}`),
       uuid: `${BlockTypeEnum.SENSOR}/${BlockLanguageEnum.PYTHON}`,
     },
     [BlockTypeEnum.DATA_LOADER]: {
@@ -471,7 +483,7 @@ function ButtonItems({
       //   />
       // ),
       items: dataLoaderGroupItems,
-      label: () => BLOCK_TYPE_NAME_MAPPING[BlockTypeEnum.DATA_LOADER],
+      label: () => t(`block_type.${BlockTypeEnum.DATA_LOADER}`),
       uuid: `${BlockTypeEnum.DATA_LOADER}/${BlockLanguageEnum.PYTHON}`,
     },
     [BlockTypeEnum.DBT]: {
@@ -485,7 +497,7 @@ function ButtonItems({
       //   />
       // ),
       items: itemsDBT,
-      label: () => 'dbt',
+      label: () => t(`block_type.${BlockTypeEnum.DBT}`),
     },
     [BlockTypeEnum.GLOBAL_DATA_PRODUCT]: {
       Icon: HexagonAll,
@@ -508,7 +520,7 @@ function ButtonItems({
           type: BlockTypeEnum.MARKDOWN,
         });
       },
-      tooltip: () => 'Add a markdown block for documentation',
+      tooltip: () => t('pipeline_detail.add_block.markdown_block_tooltip'),
     },
     [BlockTypeEnum.TRANSFORMER]: {
       Icon: FrameBoxSelection,
@@ -523,12 +535,12 @@ function ButtonItems({
       items: [
         {
           isGroupingTitle: true,
-          label: () => 'Python',
+          label: () => t('common.python'),
           uuid: [BlockLanguageEnum.PYTHON, BlockTypeEnum.TRANSFORMER, 'group'].join('/'),
         },
         // @ts-ignore
       ].concat(itemsTransformer).concat(buildNonPythonItems(BlockTypeEnum.TRANSFORMER)),
-      label: () => BLOCK_TYPE_NAME_MAPPING[BlockTypeEnum.TRANSFORMER],
+      label: () => t(`block_type.${BlockTypeEnum.TRANSFORMER}`),
       uuid: [BlockLanguageEnum.PYTHON, BlockTypeEnum.TRANSFORMER].join('/'),
     },
     [ITEMS_MORE]: {
@@ -572,20 +584,20 @@ function ButtonItems({
           DataIntegrationTypeEnum.SOURCES,
         ].join('/')]: 504,
       },
-      label: () => 'All blocks',
-      tooltip: () => 'Add a block from a template',
+      label: () => t('block_browser.all_blocks'),
+      tooltip: () => t('pipeline_detail.add_block.add_from_template_tooltip'),
     },
     [ITEM_BROWSE_TEMPLATES]: {
       Icon: TemplateShapes,
       // beforeIcon: <TemplateShapes default size={ICON_SIZE} />,
-      label: () => 'Browse templates',
+      label: () => t('pipeline_detail.add_block.browse_templates'),
       onClick: () => showBrowseTemplates({
         addNewBlock,
       }),
     },
     [ITEM_AI]: {
       Icon: AIStarsAlt,
-      label: () => 'AI Code',
+      label: () => t('pipeline_detail.add_block.ai_code'),
       linkProps: {
         href: 'https://www.mage.ai/ai?ref=oss',
         openNewWindow: true,
@@ -595,7 +607,7 @@ function ButtonItems({
     [ITEM_CREATE_TEMPLATE]: {
       Icon: ArrowsAdjustingFrameSquare,
       // beforeIcon: <ArrowsAdjustingFrameSquare default size={ICON_SIZE} />,
-      label: () => 'Create new template',
+      label: () => t('pipeline_detail.add_block.create_new_template'),
       onClick: () => showBrowseTemplates({
         addNew: true,
         addNewBlock,
@@ -606,7 +618,9 @@ function ButtonItems({
     [k]: {
       Icon: BLOCK_TYPE_ICON_MAPPING[k],
       index,
-      label: () => BLOCK_TYPE_NAME_MAPPING[k],
+      label: () => t(`block_type.${k}`, {
+        defaultValue: BLOCK_TYPE_NAME_MAPPING[k],
+      }),
       onClick: (e) => {
         e?.preventDefault();
         // @ts-ignore
@@ -629,6 +643,7 @@ function ButtonItems({
     setButtonMenuOpenIndex,
     showBrowseTemplates,
     showGlobalDataProducts,
+    t,
   ]);
 
   const buildButton = useCallback(({

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import AutocompleteDropdown from '@components/AutocompleteDropdown';
 import BlockType, { BlockTypeEnum } from '@interfaces/BlockType';
@@ -95,6 +96,7 @@ function Browser({
   onClickAction,
   setFocused: setFocusedProp,
 }: BrowserProps) {
+  const { t } = useTranslation('common');
   const mainContainerRef = useRef(null);
   const refHeaderBefore = useRef(null);
   const refSearch = useRef(null);
@@ -267,9 +269,9 @@ function Browser({
 
   useEffect(() => {
     if (defaultBlockType) {
-      setSelectedTabState(TABS_MAPPING[FileContextTab.BLOCKS]);
+      setSelectedTabState(TABS_MAPPING(t)[FileContextTab.BLOCKS]);
       setSelectedLinks([
-        NAV_LINKS?.find(({
+        NAV_LINKS(t)?.find(({
           uuid,
         }) => ((uuid as unknown) as BlockTypeEnum) === defaultBlockType),
       ]);
@@ -467,7 +469,7 @@ function Browser({
                   onBlur={() => setTimeout(() => setFocused(false), 150)}
                   onChange={e => setSearchText(e.target.value)}
                   onFocus={() => setFocused(true)}
-                  placeholder="Search a file..."
+                  placeholder={t('block_browser.search_file_placeholder')}
                   primary
                   ref={refSearch}
                   small
@@ -544,7 +546,7 @@ function Browser({
                         arr.push(buildNavLinks(cacheItems)?.find(({
                           uuid,
                         }) => uuid === cacheItem?.item?.project?.uuid));
-                        arr.push(NAV_LINKS?.find(({
+                        arr.push(NAV_LINKS(t)?.find(({
                           uuid,
                         }) => ((uuid as unknown) as BlockTypeEnum) === BlockTypeEnum.DBT));
                       }

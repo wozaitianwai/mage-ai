@@ -2,6 +2,7 @@ import { MutateFunction, useMutation } from 'react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import moment from 'moment';
+import { useTranslation } from 'react-i18next';
 
 import AIControlPanel from '@components/AI/ControlPanel';
 import AddButton from '@components/shared/AddButton';
@@ -78,9 +79,14 @@ import { getAllPipelineRunDataGrouped } from '@components/PipelineRun/shared/uti
 import { getNewPipelineButtonMenuItems } from '@components/Dashboard/utils';
 import { goToWithQuery } from '@utils/routing';
 import { groupBy } from '@utils/array';
+import { isAIConfigured } from '@utils/models/project';
 import { onSuccess } from '@api/utils/response';
 import { queryFromUrl } from '@utils/url';
-import { storeLocalTimezoneSetting } from '@components/settings/workspace/utils';
+import {
+  shouldDisplayLocalTimezone,
+  storeLocalTimezoneSetting,
+} from '@components/settings/workspace/utils';
+import { CustomEventUUID } from '@utils/events/constants';
 import { useModal } from '@context/Modal';
 import UploadPipeline from '@components/PipelineDetail/UploadPipeline';
 import { LOCAL_STORAGE_KEY_OVERVIEW_TAB_SELECTED, set, get } from 'storage/localStorage';
@@ -96,6 +102,7 @@ const SHARED_FETCH_OPTIONS = {
 };
 
 function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
+  const { t, i18n } = useTranslation('common');
   const abortRef = useRef(null);
   const mountedRef = useRef(false);
   const refSubheader = useRef(null);
@@ -104,28 +111,101 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
   const router = useRouter();
   const newPipelineButtonMenuRef = useRef(null);
 
-  const allTabs = useMemo(() => TIME_PERIOD_TABS, []);
-  const [selectedTab, setSelectedTabState] = useState<TabType>(
+  const timePeriodTabs = useMemo(
+    () =>
+      TIME_PERIOD_TABS.map(tab => ({
+        ...tab,
+        label: () => {
+          if (TimePeriodEnum.TODAY === tab.uuid) {
+            return t('header.today');
+          }
+          if (TimePeriodEnum.WEEK === tab.uuid) {
+            return t('header.last_7_days');
+          }
+          if (TimePeriodEnum.MONTH === tab.uuid) {
+            return t('header.last_30_days');
+          }
+
+          return tab?.label ? tab.label() : tab.uuid;
+        },
+      })),
+    [i18n.language, t],
+  );
+
+  const allTabs = useMemo(() => timePeriodTabs, [timePeriodTabs]);
+  const [selectedTab, setSelectedTabState] = useState<TabType>(() =>
     allTabs.find(
       ({ uuid }) => uuid === (tab ? tab : get(LOCAL_STORAGE_KEY_OVERVIEW_TAB_SELECTED)?.uuid),
-    ) || TAB_TODAY,
+    ) || timePeriodTabs.find(({ uuid }) => uuid === TimePeriodEnum.TODAY),
   );
 
   const [addButtonMenuOpen, setAddButtonMenuOpen] = useState<boolean>(false);
   const [errors, setErrors] = useState<ErrorsType>(null);
 
+  const { data: dataProjects, mutate: fetchProjects } = api.projects.list();
+  const project: ProjectType = useMemo(() => dataProjects?.projects?.[0], [dataProjects]);
+  const [displayLocalTimezone, setDisplayLocalTimezone] = useState<boolean>(
+    shouldDisplayLocalTimezone(),
+  );
+  const timezoneOffset = useMemo(() => moment().format('Z'), []);
+  const displayLocalTimezoneRef = useRef(displayLocalTimezone);
+
   const timePeriod = selectedTab?.uuid;
+  const timePeriodLabel = useMemo(() => {
+    if (TimePeriodEnum.TODAY === timePeriod) {
+      return t('header.today');
+    }
+
+    if (TimePeriodEnum.WEEK === timePeriod) {
+      return t('header.last_7_days');
+    }
+
+    if (TimePeriodEnum.MONTH === timePeriod) {
+      return t('header.last_30_days');
+    }
+
+    return capitalize(TIME_PERIOD_DISPLAY_MAPPING[timePeriod]) || timePeriod;
+  }, [i18n.language, t, timePeriod]);
+
+  const momentLocale = useMemo(() => {
+    const language = i18n.resolvedLanguage || i18n.language;
+    if (!language) {
+      return null;
+    }
+
+    const normalized = language.toLowerCase();
+    if (normalized.startsWith('zh')) {
+      return 'zh-cn';
+    }
+    if (normalized.startsWith('en')) {
+      return 'en';
+    }
+
+    return normalized;
+  }, [i18n.language, i18n.resolvedLanguage]);
+
+  const timeZoneLabel = displayLocalTimezone ? t('dashboard.local_time') : 'UTC';
 
   const startDateString = useMemo(
-    () => getStartDateStringFromPeriod(timePeriod, { isoString: true }),
-    [timePeriod],
+    () => getStartDateStringFromPeriod(timePeriod, {
+      isoString: true,
+      localTime: displayLocalTimezone,
+    }),
+    [displayLocalTimezone, timePeriod],
   );
   const monitorStatsQueryParams = useMemo(
-    () => ({
-      group_by_pipeline_type: 1,
-      start_time: startDateString,
-    }),
-    [startDateString],
+    () =>
+      displayLocalTimezone
+        ? {
+            group_by_pipeline_type: 1,
+            start_time: startDateString,
+            timezone_offset: timezoneOffset,
+          }
+        : {
+            group_by_pipeline_type: 1,
+            start_time: startDateString,
+          },
+    [displayLocalTimezone, startDateString, timezoneOffset],
   );
 
   const [monitorStats, setMonitorStats] = useState();
@@ -186,6 +266,43 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
     }
   }, [allTabs, fetchMonitorStats, selectedTab, tab]);
 
+  useEffect(() => {
+    if (displayLocalTimezoneRef.current !== displayLocalTimezone) {
+      displayLocalTimezoneRef.current = displayLocalTimezone;
+      if (mountedRef.current) {
+        fetchMonitorStats();
+      }
+    }
+  }, [displayLocalTimezone, fetchMonitorStats]);
+
+  useEffect(() => {
+    if (typeof project?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE] !== 'undefined') {
+      storeLocalTimezoneSetting(project?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE]);
+      setDisplayLocalTimezone(shouldDisplayLocalTimezone());
+    }
+  }, [project?.features]);
+
+  useEffect(() => {
+    const handleTimezoneChange = (event: Event) => {
+      const detail = (event as CustomEvent<{ displayLocalTimezone?: boolean }>)?.detail;
+      if (typeof detail?.displayLocalTimezone === 'boolean') {
+        setDisplayLocalTimezone(detail.displayLocalTimezone);
+        return;
+      }
+
+      setDisplayLocalTimezone(shouldDisplayLocalTimezone());
+    };
+
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    window.addEventListener(CustomEventUUID.LOCAL_TIMEZONE_CHANGED, handleTimezoneChange);
+
+    return () =>
+      window.removeEventListener(CustomEventUUID.LOCAL_TIMEZONE_CHANGED, handleTimezoneChange);
+  }, []);
+
   const { data: dataPipelineRuns } = api.pipeline_runs.list(
     {
       _limit: 50,
@@ -213,8 +330,11 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
   } = groupedPipelineRuns;
 
   const dateRange = useMemo(
-    () => getDateRange(TIME_PERIOD_INTERVAL_MAPPING[timePeriod] + 1),
-    [timePeriod],
+    () =>
+      getDateRange(TIME_PERIOD_INTERVAL_MAPPING[timePeriod] + 1, {
+        localTime: displayLocalTimezone,
+      }),
+    [displayLocalTimezone, timePeriod],
   );
   const allPipelineRunData = useMemo(
     () => getAllPipelineRunDataGrouped(monitorStats, dateRange),
@@ -226,8 +346,10 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
     () =>
       getFullDateRangeString(TIME_PERIOD_INTERVAL_MAPPING[timePeriod], {
         endDateOnly: timePeriod === TimePeriodEnum.TODAY,
+        locale: momentLocale,
+        localTime: displayLocalTimezone,
       }),
-    [timePeriod],
+    [displayLocalTimezone, i18n.language, momentLocale, timePeriod],
   );
 
   const useCreatePipelineMutation = onSuccessCallback =>
@@ -249,13 +371,6 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
     { isLoading: boolean },
   ] = useCreatePipelineMutation((pipelineUUID: string) =>
     router.push('/pipelines/[pipeline]/edit', `/pipelines/${pipelineUUID}/edit`),
-  );
-
-  const { data: dataProjects, mutate: fetchProjects } = api.projects.list();
-  const project: ProjectType = useMemo(() => dataProjects?.projects?.[0], [dataProjects]);
-  const displayLocalTimezone = useMemo(
-    () => storeLocalTimezoneSetting(project?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE]),
-    [project?.features],
   );
 
   const [showCreatePipelineModal, hideCreatePipelineModal] = useModal(
@@ -382,8 +497,9 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
   const newPipelineButtonMenuItems = useMemo(
     () =>
       getNewPipelineButtonMenuItems(createPipeline, {
+        t,
         showAIModal: () => {
-          if (!project?.openai_api_key) {
+          if (!isAIConfigured(project)) {
             showConfigureProjectModal({
               onSaveSuccess: () => {
                 showAIModal();
@@ -405,6 +521,7 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
       showConfigureProjectModal,
       showCreatePipelineModal,
       showImportPipelineModal,
+      t,
     ],
   );
 
@@ -414,13 +531,13 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
         addButtonMenuOpen={addButtonMenuOpen}
         addButtonMenuRef={newPipelineButtonMenuRef}
         isLoading={isLoadingCreatePipeline}
-        label="New pipeline"
+        label={t('header.new_pipeline')}
         menuItems={newPipelineButtonMenuItems}
         onClick={() => setAddButtonMenuOpen(prevOpenState => !prevOpenState)}
         onClickCallback={() => setAddButtonMenuOpen(false)}
       />
     ),
-    [addButtonMenuOpen, isLoadingCreatePipeline, newPipelineButtonMenuItems],
+    [addButtonMenuOpen, isLoadingCreatePipeline, newPipelineButtonMenuItems, t],
   );
 
   const utcTooltipEl = useMemo(
@@ -429,33 +546,33 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
         <Spacing ml="4px">
           <Tooltip
             {...SHARED_UTC_TOOLTIP_PROPS}
-            label="Please note that these counts are based on UTC time."
+            label={t('dashboard.utc_counts_note')}
           />
         </Spacing>
       ) : null,
-    [displayLocalTimezone],
+    [displayLocalTimezone, t],
   );
 
   const pageBlockLayoutTemplate = useMemo(() => {
-    const name0 = 'Pipelines';
+    const name0 = t('dashboard.pipelines');
     const uuid0 = cleanName(`${name0}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name1 = 'Trigger active status';
+    const name1 = t('dashboard.trigger_active_status');
     const uuid1 = cleanName(`${name1}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name4 = 'Pipeline run status';
+    const name4 = t('dashboard.pipeline_run_status');
     const uuid4 = cleanName(`${name4}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name5 = 'Pipeline runs daily';
+    const name5 = t('dashboard.pipeline_runs_daily');
     const uuid5 = cleanName(`${name5}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name6 = 'Completed pipeline runs daily';
+    const name6 = t('dashboard.pipeline_runs_completed_daily');
     const uuid6 = cleanName(`${name6}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name7 = 'Failed pipeline runs daily';
+    const name7 = t('dashboard.pipeline_runs_failed_daily');
     const uuid7 = cleanName(`${name7}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
-    const name8 = 'Running pipelines';
+    const name8 = t('dashboard.running_pipelines');
     const uuid8 = cleanName(`${name8}_overview_dashboard_${randomSimpleHashGenerator()}`);
 
     const dataSourcePipelineSchedules = {
@@ -630,11 +747,16 @@ def d(df):
         ],
       ],
     };
-  }, []);
+  }, [t]);
 
   return (
-    <Dashboard errors={errors} setErrors={setErrors} title="Overview" uuid="overview/index">
-      <PageSectionHeader backgroundColor={dark.background.panel} ref={refSubheader}>
+    <Dashboard
+      errors={errors}
+      setErrors={setErrors}
+      title={t('sidebar.overview')}
+      uuid="overview/index"
+    >
+      <PageSectionHeader ref={refSubheader}>
         <Spacing py={2}>
           <FlexContainer alignItems="center">
             <Spacing ml={3}>{addButtonEl}</Spacing>
@@ -663,10 +785,7 @@ def d(df):
         <>
           <Spacing mx={3} my={2}>
             <Headline level={4}>
-              {timePeriod === TimePeriodEnum.TODAY &&
-                `${capitalize(TimePeriodEnum.TODAY)} (UTC): ${selectedDateRange}`}
-              {timePeriod !== TimePeriodEnum.TODAY &&
-                `${capitalize(TIME_PERIOD_DISPLAY_MAPPING[timePeriod])} (UTC): ${selectedDateRange}`}
+              {`${timePeriodLabel || capitalize(timePeriod)} (${timeZoneLabel}): ${selectedDateRange}`}
             </Headline>
 
             <Spacing mt={2}>
@@ -683,8 +802,8 @@ def d(df):
               <Spacing ml={2}>
                 <FlexContainer alignItems="center">
                   <Text bold large>
-                    {isValidatingMonitorStats ? '--' : formatNumber(totalPipelineRunCount)} total
-                    pipeline runs
+                    {isValidatingMonitorStats ? '--' : formatNumber(totalPipelineRunCount)}{' '}
+                    {t('dashboard.total_pipeline_runs')}
                   </Text>
                   {utcTooltipEl}
                 </FlexContainer>
@@ -704,7 +823,9 @@ def d(df):
                     top: 10,
                   }}
                   tooltipLeftOffset={TOOLTIP_LEFT_OFFSET}
-                  xLabelFormat={label => moment(label).format('MMM DD')}
+                  xLabelFormat={label =>
+                    (displayLocalTimezone ? moment(label) : moment.utc(label)).format('MMM DD')
+                  }
                 />
               </Spacing>
             </Spacing>

@@ -1,6 +1,7 @@
 import { toast } from 'react-toastify';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/router';
 
 import Button from '@oracle/elements/Button';
@@ -83,6 +84,7 @@ function UserDetail({
   onCancel,
   slug,
 }: UserDetailPageProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const {
     id: currentUserID,
@@ -170,7 +172,7 @@ function UserDetail({
             }
 
             toast.success(
-              user ? 'User profile successfully updated.' : 'New user created successfully.',
+              user ? t('user_detail.success_update') : t('user_detail.success_create'),
               {
                 position: toast.POSITION.BOTTOM_RIGHT,
                 toastId: `user-update-success-${objectServer.id}`,
@@ -206,7 +208,7 @@ function UserDetail({
             router.push('/settings/workspace/users');
 
             toast.success(
-              'User successfully delete.',
+              t('user_detail.success_delete'),
               {
                 position: toast.POSITION.BOTTOM_RIGHT,
                 toastId: `user-delete-success-${user?.id}`,
@@ -281,12 +283,13 @@ function UserDetail({
       secondary={hasRoles}
       small
     >
-      Add roles
+      {t('user_detail.add_roles')}
     </Button>
   ), [
     hasRoles,
     setAddingObjectType,
     setAfterHidden,
+    t,
   ]);
 
   const hasPermissions = useMemo(() => permissions?.length >= 1, [permissions]);
@@ -302,12 +305,13 @@ function UserDetail({
       secondary={hasPermissions}
       small
     >
-      Add permission
+      {t('user_detail.add_permission')}
     </Button>
   ), [
     hasPermissions,
     setAddingObjectType,
     setAfterHidden,
+    t,
   ]);
 
   const buildTable = useCallback((
@@ -507,7 +511,7 @@ function UserDetail({
       <Panel noPadding>
         <Spacing p={PADDING_UNITS}>
           <Headline level={4}>
-            Profile
+            {t('user_detail.profile')}
           </Headline>
         </Spacing>
 
@@ -516,7 +520,7 @@ function UserDetail({
         <Spacing p={PADDING_UNITS}>
           <FlexContainer alignItems="center">
             <Text default large>
-              Avatar
+              {t('user_detail.avatar')}
             </Text>
 
             <Spacing mr={PADDING_UNITS} />
@@ -539,7 +543,7 @@ function UserDetail({
                 })}
                 paddingHorizontal={0}
                 paddingVertical={0}
-                placeholder="Add initials or an emoji"
+                placeholder={t('user_detail.avatar_placeholder')}
                 value={objectAttributes?.avatar || ''}
               />
             </Flex>
@@ -555,9 +559,9 @@ function UserDetail({
               default
               large
             >
-              Username {'username' in attributesTouched && !objectAttributes?.username && (
+              {t('user_detail.username')} {'username' in attributesTouched && !objectAttributes?.username && (
                 <Text danger inline large>
-                  is required
+                  {t('user_detail.is_required')}
                 </Text>
               )}
             </Text>
@@ -581,7 +585,7 @@ function UserDetail({
                 })}
                 paddingHorizontal={0}
                 paddingVertical={0}
-                placeholder="e.g. Mage Supreme"
+                placeholder={t('user_detail.username_placeholder')}
                 value={objectAttributes?.username || ''}
               />
             </Flex>
@@ -596,7 +600,7 @@ function UserDetail({
               default
               large
             >
-              First name
+              {t('user_detail.first_name')}
             </Text>
 
             <Spacing mr={PADDING_UNITS} />
@@ -618,7 +622,7 @@ function UserDetail({
                 })}
                 paddingHorizontal={0}
                 paddingVertical={0}
-                placeholder="e.g. Urza"
+                placeholder={t('user_detail.first_name_placeholder')}
                 value={objectAttributes?.first_name || ''}
               />
             </Flex>
@@ -633,7 +637,7 @@ function UserDetail({
               default
               large
             >
-              Last name
+              {t('user_detail.last_name')}
             </Text>
 
             <Spacing mr={PADDING_UNITS} />
@@ -655,7 +659,7 @@ function UserDetail({
                 })}
                 paddingHorizontal={0}
                 paddingVertical={0}
-                placeholder="e.g. Andromeda"
+                placeholder={t('user_detail.last_name_placeholder')}
                 value={objectAttributes?.last_name || ''}
               />
             </Flex>
@@ -668,7 +672,7 @@ function UserDetail({
           <FlexContainer alignItems="center">
             {user && (
               <Text default large>
-                Email
+                {t('user_detail.email')}
               </Text>
             )}
 
@@ -678,9 +682,9 @@ function UserDetail({
                 default
                 large
               >
-                Email {'email' in attributesTouched && !objectAttributes?.email && (
+                {t('user_detail.email')} {'email' in attributesTouched && !objectAttributes?.email && (
                   <Text danger inline large>
-                    is required
+                    {t('user_detail.is_required')}
                   </Text>
                 )}
               </Text>
@@ -725,7 +729,7 @@ function UserDetail({
                   })}
                   paddingHorizontal={0}
                   paddingVertical={0}
-                  placeholder="e.g. mage@power.com"
+                  placeholder={t('user_detail.email_placeholder')}
                   type="email"
                   value={objectAttributes?.email || ''}
                 />
@@ -740,7 +744,7 @@ function UserDetail({
       <Panel noPadding>
         <Spacing p={PADDING_UNITS}>
           <Headline level={4}>
-            Authentication
+            {t('user_detail.authentication')}
           </Headline>
         </Spacing>
 
@@ -755,9 +759,9 @@ function UserDetail({
                   default
                   large
                 >
-                  Current password {'password_current' in attributesTouched && !objectAttributes?.password_current && (
+                  {t('user_detail.current_password')} {'password_current' in attributesTouched && !objectAttributes?.password_current && (
                     <Text danger inline large>
-                      is required
+                      {t('user_detail.is_required')}
                     </Text>
                   )}
                 </Text>
@@ -797,12 +801,12 @@ function UserDetail({
           <FlexContainer alignItems="center">
             <Text
               danger={'password' in attributesTouched && !objectAttributes?.password}
-              default
-              large
-            >
-              {user ? 'New password' : 'Password'} {'password' in attributesTouched && !objectAttributes?.password && (
+                default
+                large
+              >
+              {user ? t('user_detail.new_password') : t('user_detail.password')} {'password' in attributesTouched && !objectAttributes?.password && (
                 <Text danger inline large>
-                  is required
+                  {t('user_detail.is_required')}
                 </Text>
               )}
             </Text>
@@ -841,12 +845,12 @@ function UserDetail({
           <FlexContainer alignItems="center">
             <Text
               danger={'password_confirmation' in attributesTouched && !objectAttributes?.password_confirmation}
-              default
-              large
-            >
-              Confirm {user ? 'new password' : 'password'} {'password_confirmation' in attributesTouched && !objectAttributes?.password_confirmation && (
+                default
+                large
+              >
+              {user ? t('user_detail.confirm_new_password') : t('user_detail.confirm_password')} {'password_confirmation' in attributesTouched && !objectAttributes?.password_confirmation && (
                 <Text danger inline large>
-                  is required
+                  {t('user_detail.is_required')}
                 </Text>
               )}
             </Text>
@@ -891,7 +895,7 @@ function UserDetail({
                 justifyContent="space-between"
               >
                 <Headline level={4}>
-                  Roles
+                  {t('user_detail.roles')}
                 </Headline>
 
                 <Spacing mr={PADDING_UNITS} />
@@ -910,7 +914,7 @@ function UserDetail({
               <Spacing p={PADDING_UNITS}>
                 <Spacing mb={PADDING_UNITS}>
                   <Text default>
-                    This user currently has no roles attached.
+                    {t('user_detail.no_roles')}
                   </Text>
                 </Spacing>
 
@@ -936,7 +940,7 @@ function UserDetail({
                 justifyContent="space-between"
               >
                 <Headline level={4}>
-                  Permissions
+                  {t('user_detail.permissions')}
                 </Headline>
               </FlexContainer>
             </Spacing>
@@ -946,7 +950,7 @@ function UserDetail({
             {!hasPermissions && (
               <Spacing p={PADDING_UNITS}>
                 <Text default>
-                  This user currently has no permissions.
+                  {t('user_detail.no_permissions')}
                 </Text>
               </Spacing>
             )}
@@ -963,7 +967,7 @@ function UserDetail({
           <Panel noPadding>
             <Spacing p={PADDING_UNITS}>
               <Headline level={4}>
-                Metadata
+                {t('user_detail.metadata')}
               </Headline>
             </Spacing>
 
@@ -972,7 +976,7 @@ function UserDetail({
             <Spacing p={PADDING_UNITS}>
               <FlexContainer alignItems="center">
                 <Text default large>
-                  Last updated
+                  {t('user_detail.last_updated')}
                 </Text>
 
                 <Spacing mr={PADDING_UNITS} />
@@ -1002,7 +1006,7 @@ function UserDetail({
             <Spacing p={PADDING_UNITS}>
               <FlexContainer alignItems="center">
                 <Text default large>
-                  Created at
+                  {t('user_detail.created_at')}
                 </Text>
 
                 <Spacing mr={PADDING_UNITS} />
@@ -1060,7 +1064,7 @@ function UserDetail({
           })}
           primary
         >
-          {user ? 'Save changes' : 'Create new user'}
+          {user ? t('user_detail.save_changes') : t('user_detail.create_new_user')}
         </Button>
 
         {onCancel && (
@@ -1071,7 +1075,7 @@ function UserDetail({
               onClick={() => onCancel?.()}
               secondary
             >
-              Cancel and go back
+              {t('user_detail.cancel_and_go_back')}
             </Button>
           </>
         )}
@@ -1086,7 +1090,7 @@ function UserDetail({
               loading={isLoadingDeleteObject}
               onClick={() => deleteObject()}
             >
-              Delete user
+              {t('user_detail.delete_user')}
             </Button>
           </>
         )}
@@ -1113,7 +1117,7 @@ function UserDetail({
       appendBreadcrumbs
       breadcrumbs={[
         {
-          label: () => 'Users',
+          label: () => t('users.users'),
           linkProps: {
             href: '/settings/workspace/users'
           },

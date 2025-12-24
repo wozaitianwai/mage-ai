@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { useMutation } from 'react-query';
 
@@ -31,6 +32,7 @@ type SecretsProps = {
 };
 
 function Secrets({ fetchSecrets, pipelineUUID, secrets, setErrorMessages, width }: SecretsProps) {
+  const { t } = useTranslation('common');
   const [showNewSecret, setShowNewSecret] = useState<boolean>(false);
   const [newSecretName, setNewSecretName] = useState<string>();
   const [newSecretValue, setNewSecretValue] = useState<string>();
@@ -116,7 +118,7 @@ function Secrets({ fetchSecrets, pipelineUUID, secrets, setErrorMessages, width 
       <Spacing mb={PADDING_UNITS}>
         <FlexContainer alignItems="center">
           <Headline level={4} monospace>
-            Secrets
+            {t('sidekick.secrets.title')}
           </Headline>
           <Spacing ml={2} />
           <KeyboardShortcutButton
@@ -126,31 +128,22 @@ function Secrets({ fetchSecrets, pipelineUUID, secrets, setErrorMessages, width 
             onClick={() => setShowNewSecret(value => !value)}
             uuid="Sidekick/Secrets/addNewSecret"
           >
-            New
+            {t('common.new')}
           </KeyboardShortcutButton>
         </FlexContainer>
       </Spacing>
       <Spacing mb={PADDING_UNITS}>
         <Text>
           <Text inline warning>
-            WARNING:
+            {t('common.warning')}:
           </Text>{' '}
-          the encryption key is stored in a file on your machine. If you need more secure
-          encryption, we recommend using a secrets manager.
+          {t('sidekick.secrets.warning_description')}
         </Text>
       </Spacing>
       {showNewSecret && (
         <Spacing mb={PADDING_UNITS}>
           <Text muted>
-            Press{' '}
-            <Text bold default inline monospace>
-              Enter
-            </Text>{' '}
-            or{' '}
-            <Text bold default inline monospace>
-              Return
-            </Text>{' '}
-            to save changes.
+            {t('sidekick.secrets.save_instruction')}
           </Text>
         </Spacing>
       )}
@@ -167,7 +160,7 @@ function Secrets({ fetchSecrets, pipelineUUID, secrets, setErrorMessages, width 
                     muted
                     onClick={() => {
                       navigator.clipboard.writeText(`{{ mage_secret_var(${newSecretName}) }}`);
-                      toast.success('Successfully copied to clipboard.', {
+                      toast.success(t('sync_data.copy_success'), {
                         position: toast.POSITION.BOTTOM_RIGHT,
                         toastId: newSecretName,
                       });
@@ -192,7 +185,7 @@ function Secrets({ fetchSecrets, pipelineUUID, secrets, setErrorMessages, width 
                     }}
                     onKeyDown={handleKeyDown}
                     paddingHorizontal={0}
-                    placeholder="secret name"
+                    placeholder={t('sidekick.secrets.placeholder_name')}
                     small
                     value={newSecretName}
                   />
@@ -211,7 +204,7 @@ function Secrets({ fetchSecrets, pipelineUUID, secrets, setErrorMessages, width 
                     }}
                     onKeyDown={handleKeyDown}
                     paddingHorizontal={0}
-                    placeholder="secret value"
+                    placeholder={t('sidekick.secrets.placeholder_value')}
                     small
                     value={newSecretValue}
                   />
@@ -240,9 +233,7 @@ function Secrets({ fetchSecrets, pipelineUUID, secrets, setErrorMessages, width 
       </Spacing>
       <Spacing mb={PADDING_UNITS}>
         <Text>
-          Secrets are not editable, they can only be created and deleted. Secrets are shared across
-          the project, and can be used in configuration fields. To reference a secret, use the
-          following templating syntax:
+          {t('sidekick.secrets.description')}
         </Text>
       </Spacing>
       <Spacing mb={PADDING_UNITS}>
@@ -250,7 +241,7 @@ function Secrets({ fetchSecrets, pipelineUUID, secrets, setErrorMessages, width 
       </Spacing>
       <Spacing mb={PADDING_UNITS}>
         <Text>
-          To reference a secret in code, you can import the `get_secret_value` helper method:
+          {t('sidekick.secrets.code_reference')}
         </Text>
       </Spacing>
       <Spacing mb={PADDING_UNITS}>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Accordion from '@oracle/components/Accordion';
 import AccordionPanel, {
@@ -88,6 +89,7 @@ function PipelineInteractions({
   setSelectedBlock,
   updatePipelineInteraction,
 }: PipelineInteractionsProps) {
+  const { t } = useTranslation('common');
   const containerRef = useRef(null);
   const refNewInteractionUUID = useRef(null);
   const refMostRecentlyAddedInteraction = useRef(null);
@@ -364,8 +366,8 @@ function PipelineInteractions({
           secondary={hasBlockInteractions}
           small
         >
-          {hasBlockInteractions && 'Edit interactions'}
-          {!hasBlockInteractions && 'Add interactions'}
+          {hasBlockInteractions && t('sidekick.interactions_page.edit')}
+          {!hasBlockInteractions && t('sidekick.interactions_page.add')}
         </Button>
       );
 
@@ -429,6 +431,7 @@ function PipelineInteractions({
     isLoadingInteractions,
     setInteractionsMapping,
     setSelectedBlock,
+    t,
   ]);
 
   const accordionMemo = useMemo(
@@ -483,7 +486,7 @@ function PipelineInteractions({
               primary
               small={hasItems}
             >
-              Create new set of interactions
+              {t('sidekick.interactions_page.create_new_set')}
             </Button>
 
             {/*<Spacing mr={1} />
@@ -564,7 +567,7 @@ function PipelineInteractions({
               primary
               small={hasItems}
             >
-              Save interaction
+              {t('sidekick.interactions_page.save_interaction')}
             </Button>
 
             <Spacing mr={1} />
@@ -580,7 +583,7 @@ function PipelineInteractions({
               secondary
               small={hasItems}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
           </>
         )}
@@ -598,6 +601,7 @@ function PipelineInteractions({
     setMostRecentlyAddedInteractionUUID,
     setNewInteractionUUID,
     updateBlockInteractionAtIndex,
+    t,
   ]);
 
   return (
@@ -611,14 +615,14 @@ function PipelineInteractions({
         {!editingBlock && (
           <>
             <Spacing mb={PADDING_UNITS}>
-              <Headline>Blocks with interactions</Headline>
+              <Headline>{t('sidekick.interactions_page.blocks_with_interactions')}</Headline>
             </Spacing>
 
             {accordionMemo}
 
             <Spacing mb={PADDING_UNITS} mt={UNITS_BETWEEN_SECTIONS}>
               <FlexContainer alignItems="center">
-                <Headline>Permissions</Headline>
+                <Headline>{t('sidekick.interactions_page.permissions')}</Headline>
 
                 <Spacing mr={PADDING_UNITS} />
 
@@ -640,15 +644,14 @@ function PipelineInteractions({
                     secondary
                     small
                   >
-                    Add permission
+                    {t('sidekick.interactions_page.add_permission')}
                   </Button>
                 </FlexContainer>
               </FlexContainer>
 
               <Spacing mt={1}>
                 <Text default>
-                  Add permissions to allow specific user roles the ability to trigger this pipeline
-                  using the interactions for this pipeline.
+                  {t('sidekick.interactions_page.permissions_description')}
                 </Text>
               </Spacing>
             </Spacing>
@@ -676,14 +679,14 @@ function PipelineInteractions({
             <Spacing mb={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
               <FlexContainer alignItems="center">
                 <Spacing mr={PADDING_UNITS} py={1}>
-                  <Headline>Block interactions</Headline>
+                  <Headline>{t('sidekick.interactions_page.block_interactions')}</Headline>
                 </Spacing>
 
                 {editingBlockInteractions?.length >= 1 && addBlockInteractionButtonMemo}
               </FlexContainer>
 
               <Text default>
-                A block can have multiple sets of interactions associated with it.
+                {t('sidekick.interactions_page.block_interactions_description')}
               </Text>
             </Spacing>
 
@@ -692,7 +695,7 @@ function PipelineInteractions({
             {editingBlockVariableUUIDs?.length >= 1 && (
               <FlexContainer alignItems="center">
                 <Text bold large>
-                  Variables
+                  {t('sidekick.interactions_page.variables')}
                 </Text>
 
                 <Spacing mr={PADDING_UNITS} />
@@ -752,12 +755,10 @@ function PipelineInteractions({
                   <FlexContainer alignItems="flex-start">
                     <Spacing mb={1} style={{ width: 20 * UNIT }}>
                       <Text bold large>
-                        Label
+                        {t('sidekick.interactions_page.label')}
                       </Text>
                       <Text muted>
-                        Add a label for this
-                        <br />
-                        set of interactions.
+                        {t('sidekick.interactions_page.label_helper')}
                       </Text>
                     </Spacing>
 
@@ -781,12 +782,10 @@ function PipelineInteractions({
                   <FlexContainer alignItems="flex-start">
                     <Spacing mb={1} style={{ width: 20 * UNIT }}>
                       <Text bold large>
-                        Description
+                        {t('sidekick.interactions_page.description')}
                       </Text>
                       <Text muted>
-                        Describe how these
-                        <br />
-                        interactions are used.
+                        {t('sidekick.interactions_page.description_helper')}
                       </Text>
                     </Spacing>
 
@@ -833,33 +832,34 @@ function PipelineInteractions({
               beforeIcon={<Save />}
               disabled={isLoadingInteractions}
               loading={isLoadingUpdatePipelineInteraction}
-              onClick={() => savePipelineInteraction()}
-              primary={touched}
-              secondary={!touched}
-            >
-              Save changes for all interactions
-            </Button>
+            onClick={() => savePipelineInteraction()}
+            primary={touched}
+            secondary={!touched}
+          >
+            {t('sidekick.interactions_page.save_changes_all')}
+          </Button>
 
-            <Spacing mr={PADDING_UNITS} />
+          <Spacing mr={PADDING_UNITS} />
 
-            {touched && (
-              <>
-                <AlertTriangle warning />
+          {touched && (
+            <>
+              <AlertTriangle warning />
 
-                <Spacing mr={1} />
+              <Spacing mr={1} />
 
-                <Text warning>You have unsaved interaction changes</Text>
-              </>
-            )}
+              <Text warning>{t('sidekick.interactions_page.unsaved_warning')}</Text>
+            </>
+          )}
 
-            {!touched && lastSaved && (
-              <Text muted>
-                Interactions last saved at{' '}
-                {dateFormatLongFromUnixTimestamp(Number(lastSaved) / 1000)}
-              </Text>
-            )}
-          </FlexContainer>
-        </Spacing>
+          {!touched && lastSaved && (
+            <Text muted>
+              {t('sidekick.interactions_page.last_saved_at', {
+                time: dateFormatLongFromUnixTimestamp(Number(lastSaved) / 1000),
+              })}
+            </Text>
+          )}
+        </FlexContainer>
+      </Spacing>
       </ButtonContainerStyle>
     </Spacing>
   );

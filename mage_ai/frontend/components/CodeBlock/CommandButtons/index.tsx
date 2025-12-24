@@ -1,6 +1,7 @@
 import { useContext, useMemo, useRef, useState } from 'react';
 import { ThemeContext } from 'styled-components';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import AddChartMenu from './AddChartMenu';
 import BlockType, {
@@ -54,6 +55,7 @@ import { buildConvertBlockMenuItems, getMoreActionsItems } from '../utils';
 import { getColorsForBlockType } from '../index.style';
 import { isMac } from '@utils/os';
 import { indexBy } from '@utils/array';
+import { isAIConfigured } from '@utils/models/project';
 import { onSuccess } from '@api/utils/response';
 import { useError } from '@context/Error';
 import Setup from '@components/AI/Setup';
@@ -134,6 +136,7 @@ function CommandButtons({
   setOutputCollapsed,
   showConfigureProjectModal,
 }: CommandButtonsProps) {
+  const { t } = useTranslation('common');
   const [showError] = useError(null, {}, [], {
     uuid: `CommandButtons/${block?.uuid}`,
   });
@@ -229,12 +232,12 @@ function CommandButtons({
   );
 
   const itemsAIActions = useMemo(() => {
-    const shouldShowModal = !project?.openai_api_key;
+    const shouldShowModal = !isAIConfigured(project);
     const showModal = (llm: LLMType) => {
       showConfigureProjectModal?.({
         header: <Setup />,
         onSaveSuccess: (project: ProjectType) => {
-          if (project?.openai_api_key) {
+          if (isAIConfigured(project)) {
             // @ts-ignore
             updatePipeline({
               pipeline: {
@@ -255,7 +258,7 @@ function CommandButtons({
 
     return [
       {
-        label: () => 'Document block (beta)',
+        label: () => t('pipeline_detail.code_block.document_block_beta'),
         onClick: () => {
           llm.use_case = LLMUseCaseEnum.GENERATE_DOC_FOR_BLOCK;
 
@@ -273,7 +276,7 @@ function CommandButtons({
         uuid: 'Document block',
       },
       {
-        label: () => 'Document pipeline and all blocks (beta)',
+        label: () => t('pipeline_detail.code_block.document_pipeline_beta'),
         onClick: () => {
           llm.use_case = LLMUseCaseEnum.GENERATE_DOC_FOR_PIPELINE;
 
@@ -291,7 +294,7 @@ function CommandButtons({
         uuid: 'Document pipeline and all blocks',
       },
       {
-        label: () => 'Add comments in code (beta)',
+        label: () => t('pipeline_detail.code_block.add_comments_beta'),
         onClick: () => {
           if (shouldShowModal) {
             showModal(llm);
@@ -317,6 +320,7 @@ function CommandButtons({
     pipeline,
     project,
     showConfigureProjectModal,
+    t,
     updatePipeline,
   ]);
 
@@ -344,7 +348,7 @@ function CommandButtons({
               default
               label={(
                 <Text>
-                  Run block
+                  {t('block.run')}
                   &nbsp;
                   &nbsp;
                   <KeyboardTextGroup
@@ -400,8 +404,8 @@ function CommandButtons({
               small
             >
               {(language === BlockLanguageEnum.YAML
-                ? 'Run command'
-                : 'Compile & preview'
+                ? t('pipeline_detail.code_block.run_command')
+                : t('pipeline_detail.code_block.compile_preview')
               )}
             </Button>
           )}
@@ -414,12 +418,12 @@ function CommandButtons({
               items={
                 [
                   {
-                    label: () => 'Execute block',
+                    label: () => t('pipeline_detail.code_block.execute_block'),
                     onClick: () => runBlock({ block }),
                     uuid: 'execute_block',
                   },
                   {
-                    label: () => 'Execute with upstream blocks',
+                    label: () => t('pipeline_detail.code_block.execute_with_upstream_blocks'),
                     onClick: () => runBlock({ block, runUpstream: true }),
                     uuid: 'execute_upstream',
                   },
@@ -442,12 +446,12 @@ function CommandButtons({
           <Tooltip
             appearBefore
             default
-            label={(
-              <Text>
-                Interrupt kernel
-                &nbsp;
-                &nbsp;
-                <KeyboardTextGroup
+              label={(
+                <Text>
+                  {t('pipeline_detail.code_block.interrupt_kernel')}
+                  &nbsp;
+                  &nbsp;
+                  <KeyboardTextGroup
                   inline
                   keyTextGroups={[[KEY_SYMBOL_I], [KEY_SYMBOL_I]]}
                   monospace
@@ -492,7 +496,7 @@ function CommandButtons({
               default
               label={(
                 <Text>
-                  Convert block
+                  {t('pipeline_detail.code_block.convert_block')}
                 </Text>
               )}
               size={DEFAULT_ICON_SIZE}
@@ -525,7 +529,7 @@ function CommandButtons({
               <Tooltip
                 appearBefore
                 default
-                label="Add chart"
+                label={t('pipeline_detail.code_block.add_chart')}
                 size={UNIT * 2.25}
                 widthFitContent
               >
@@ -566,7 +570,10 @@ function CommandButtons({
           <Tooltip
             appearBefore
             default
-            label={isEditingBlock ? 'Close editor' : 'Edit'}
+            label={isEditingBlock
+              ? t('pipeline_detail.code_block.close_editor')
+              : t('pipeline_detail.code_block.edit')
+            }
             size={DEFAULT_ICON_SIZE}
             widthFitContent
           >
@@ -596,13 +603,13 @@ function CommandButtons({
               <Tooltip
                 appearBefore
                 default
-                label={(
-                  <Text>
-                    AI actions
-                  </Text>
-                )}
-                size={DEFAULT_ICON_SIZE}
-                widthFitContent
+              label={(
+                <Text>
+                  {t('pipeline_detail.code_block.ai_actions')}
+                </Text>
+              )}
+              size={DEFAULT_ICON_SIZE}
+              widthFitContent
               >
                 <Button
                   noBackground
@@ -641,7 +648,7 @@ function CommandButtons({
           <Tooltip
             appearBefore
             default
-            label="View and edit settings for this block"
+            label={t('pipeline_detail.code_block.view_edit_block_settings')}
             size={DEFAULT_ICON_SIZE}
             widthFitContent
           >
@@ -665,7 +672,7 @@ function CommandButtons({
               default
               label={(
                 <Text>
-                  More actions
+                  {t('pipeline_detail.code_block.more_actions')}
                 </Text>
               )}
               size={DEFAULT_ICON_SIZE}
@@ -714,6 +721,7 @@ function CommandButtons({
                 updatePipeline,
                 blocks,
                 pipeline,
+                t,
               },
             )}
             onClickCallback={() => setShowMoreActions(false)}

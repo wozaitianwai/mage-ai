@@ -34,6 +34,10 @@ PIPELINE_RUN_STATUS_LAST_RUN_FAILED = 'last_run_failed'
 
 class AIMode(StrEnum):
     OPEN_AI = 'open_ai'
+    OPENAI_COMPATIBLE = 'openai_compatible'
+    DEEPSEEK = 'deepseek'
+    GROK = 'grok'
+    QWEN = 'qwen'
     HUGGING_FACE = 'hugging_face'
 
 

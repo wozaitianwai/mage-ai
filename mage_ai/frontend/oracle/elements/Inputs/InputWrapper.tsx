@@ -900,7 +900,7 @@ const InputWrapper = ({
         readOnly,
         ref: ref || inputRef,
         type: typeProp,
-        value,
+        value: value === null ? '' : value,
         width: dynamicSizing ? dynamicWidth : width,
       })}
 

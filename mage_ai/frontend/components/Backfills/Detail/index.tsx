@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import BackfillType, {
   BACKFILL_TYPE_CODE,
   BACKFILL_TYPE_DATETIME,
   BackfillStatusEnum,
+  IntervalTypeEnum,
 } from '@interfaces/BackfillType';
 import Button from '@oracle/elements/Button';
 import Divider from '@oracle/elements/Divider';
@@ -16,9 +18,9 @@ import Paginate from '@components/shared/Paginate';
 import PipelineDetailPage from '@components/PipelineDetailPage';
 import PipelineRunsTable from '@components/PipelineDetail/Runs/Table';
 import PipelineRunType, {
+  LAST_RUN_FAILED_STATUS,
   PIPELINE_RUN_STATUSES,
   PipelineRunReqQueryParamsType,
-  RUN_STATUS_TO_LABEL,
   RunStatus,
 } from '@interfaces/PipelineRunType';
 import PipelineType from '@interfaces/PipelineType';
@@ -52,7 +54,6 @@ import {
   UNITS_BETWEEN_SECTIONS,
 } from '@oracle/styles/units/spacing';
 import { PageNameEnum } from '@components/PipelineDetailPage/constants';
-import { capitalize } from '@utils/string';
 import { displayLocalOrUtcTime } from '@components/Triggers/utils';
 import {
   getFormattedVariable,
@@ -86,6 +87,7 @@ function BackfillDetail({
   setErrors,
   variables,
 }: BackfillDetailProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const isViewerRole = isViewer(router?.basePath);
   const displayLocalTimezone = shouldDisplayLocalTimezone();
@@ -152,6 +154,14 @@ function BackfillDetail({
   );
 
   const [selectedRun, setSelectedRun] = useState<PipelineRunType>(null);
+  const pipelineRunStatusLabelMapping = useMemo(() => ({
+    [LAST_RUN_FAILED_STATUS]: t('pipeline_runs.statuses.last_run_failed'),
+    [RunStatus.CANCELLED]: t('pipeline_runs.statuses.cancelled'),
+    [RunStatus.COMPLETED]: t('pipeline_runs.statuses.done'),
+    [RunStatus.FAILED]: t('pipeline_runs.statuses.failed'),
+    [RunStatus.INITIAL]: t('pipeline_runs.statuses.ready'),
+    [RunStatus.RUNNING]: t('pipeline_runs.statuses.running'),
+  }), [t]);
   const tablePipelineRuns = useMemo(() => {
     const page = q?.page ? q.page : 0;
 
@@ -160,8 +170,8 @@ function BackfillDetail({
         <PipelineRunsTable
           disableRowSelect={showPreviewRuns}
           emptyMessage={(!q?.status && !status)
-            ? 'No runs available. Please complete backfill configuration by clicking "Edit backfill" above.'
-            : 'No runs available'
+            ? t('backfills.detail.no_runs_available_setup_needed')
+            : t('pipeline_runs.no_runs_available')
           }
           fetchPipelineRuns={fetchPipelineRuns}
           hidePipelineColumn
@@ -206,6 +216,7 @@ function BackfillDetail({
     setErrors,
     showPreviewRuns,
     status,
+    t,
     totalRuns,
   ]);
 
@@ -242,6 +253,25 @@ function BackfillDetail({
     && BackfillStatusEnum.INITIAL !== status
     && BackfillStatusEnum.RUNNING !== status, [status]);
 
+  const intervalTypeLabelMapping = useMemo(() => ({
+    [IntervalTypeEnum.CUSTOM]: t('backfills.interval_types.custom'),
+    [IntervalTypeEnum.DAY]: t('backfills.interval_types.day'),
+    [IntervalTypeEnum.HOUR]: t('backfills.interval_types.hour'),
+    [IntervalTypeEnum.MINUTE]: t('backfills.interval_types.minute'),
+    [IntervalTypeEnum.MONTH]: t('backfills.interval_types.month'),
+    [IntervalTypeEnum.SECOND]: t('backfills.interval_types.second'),
+    [IntervalTypeEnum.WEEK]: t('backfills.interval_types.week'),
+    [IntervalTypeEnum.YEAR]: t('backfills.interval_types.year'),
+  }), [t]);
+
+  const backfillStatusLabelMapping = useMemo(() => ({
+    [BackfillStatusEnum.CANCELLED]: t('pipeline_runs.statuses.cancelled'),
+    [BackfillStatusEnum.COMPLETED]: t('pipeline_runs.statuses.done'),
+    [BackfillStatusEnum.FAILED]: t('pipeline_runs.statuses.failed'),
+    [BackfillStatusEnum.INITIAL]: t('pipeline_runs.statuses.ready'),
+    [BackfillStatusEnum.RUNNING]: t('pipeline_runs.statuses.running'),
+  }), [t]);
+
   const detailsMemo = useMemo(() => {
     const iconProps = {
       default: true,
@@ -257,14 +287,17 @@ function BackfillDetail({
           <MultiShare {...iconProps} />
           <Spacing mr={1} />
           <Text default>
-            Backfill type
+            {t('backfills.detail.backfill_type')}
           </Text>
         </FlexContainer>,
         <Text
           key="backfill_type"
           monospace
         >
-          {blockUUID ? BACKFILL_TYPE_CODE : BACKFILL_TYPE_DATETIME}
+          {blockUUID
+            ? t('backfills.types.code', { defaultValue: BACKFILL_TYPE_CODE })
+            : t('backfills.types.datetime', { defaultValue: BACKFILL_TYPE_DATETIME })
+          }
         </Text>,
       ],
       [
@@ -275,14 +308,14 @@ function BackfillDetail({
           <Switch {...iconProps} />
           <Spacing mr={1} />
           <Text default>
-            Status
+            {t('pipeline_runs.status')}
           </Text>
         </FlexContainer>,
         <Text
           {...getRunStatusTextProps(status)}
           key="backfill_status"
         >
-          {status || 'inactive'}
+          {backfillStatusLabelMapping[status] || t('pipelines.status.inactive')}
         </Text>,
       ],
     ];
@@ -299,7 +332,7 @@ function BackfillDetail({
             <CalendarDate {...iconProps} />
             <Spacing mr={1} />
             <Text default>
-              Start date and time
+              {t('backfills.detail.start_date_and_time')}
             </Text>
           </FlexContainer>,
           <Text
@@ -318,7 +351,7 @@ function BackfillDetail({
             <CalendarDate {...iconProps} />
             <Spacing mr={1} />
             <Text default>
-              End date and time
+              {t('backfills.detail.end_date_and_time')}
             </Text>
           </FlexContainer>,
           <Text
@@ -337,14 +370,14 @@ function BackfillDetail({
             <Schedule {...iconProps} />
             <Spacing mr={1} />
             <Text default>
-              Interval type
+              {t('backfills.table.interval')}
             </Text>
           </FlexContainer>,
           <Text
             key="interval_type"
             monospace
           >
-            {intervalType && capitalize(intervalType)}
+            {intervalTypeLabelMapping[intervalType]}
           </Text>,
         ],
         [
@@ -355,7 +388,7 @@ function BackfillDetail({
             <Schedule {...iconProps} />
             <Spacing mr={1} />
             <Text default>
-              Interval units
+              {t('backfills.table.interval_units')}
             </Text>
           </FlexContainer>,
           <Text
@@ -373,12 +406,12 @@ function BackfillDetail({
             <NumberHash {...iconProps} />
             <Spacing mr={1} />
             <Text default>
-              Total runs
+              {t('backfills.table.total_runs')}
             </Text>
             <Spacing mr={1} />
             <Tooltip
               default
-              label="This count does not include retries."
+              label={t('backfills.detail.total_runs_excludes_retries_tooltip')}
               size={ICON_SIZE_DEFAULT}
               widthFitContent
             />
@@ -401,12 +434,15 @@ function BackfillDetail({
     );
   }, [
     blockUUID,
+    intervalTypeLabelMapping,
+    backfillStatusLabelMapping,
     displayLocalTimezone,
     endDatetime,
     intervalType,
     intervalUnits,
     startDatetime,
     status,
+    t,
     totalRunCount,
   ]);
 
@@ -487,7 +523,7 @@ function BackfillDetail({
 
             <Spacing px={PADDING_UNITS}>
               <Headline level={5}>
-                Settings
+                {t('backfills.detail.settings')}
               </Headline>
             </Spacing>
 
@@ -499,7 +535,7 @@ function BackfillDetail({
               <Spacing my={UNITS_BETWEEN_SECTIONS}>
                 <Spacing px={PADDING_UNITS}>
                   <Headline level={5}>
-                    Runtime variables
+                    {t('backfills.detail.runtime_variables')}
                   </Headline>
                 </Spacing>
 
@@ -513,7 +549,7 @@ function BackfillDetail({
         beforeWidth={34 * UNIT}
         breadcrumbs={[
           {
-            label: () => 'Backfills',
+            label: () => t('pipeline_detail.navigation.backfills'),
             linkProps: {
               as: `/pipelines/${pipelineUUID}/backfills`,
               href: '/pipelines/[pipeline]/backfills',
@@ -529,6 +565,7 @@ function BackfillDetail({
         ]}
         buildSidekick={props => buildTableSidekick({
           ...props,
+          t,
           selectedRun,
           selectedTab,
           setSelectedTab,
@@ -570,10 +607,10 @@ function BackfillDetail({
                   }
                 >
                   {isActive
-                    ? 'Cancel backfill'
+                    ? t('backfills.detail.actions.cancel_backfill')
                     : BackfillStatusEnum.CANCELLED === status || BackfillStatusEnum.FAILED === status
-                      ? 'Retry backfill'
-                      : 'Start backfill'
+                      ? t('backfills.detail.actions.retry_backfill')
+                      : t('backfills.detail.actions.start_backfill')
                   }
                 </Button>
                 <Spacing mr={PADDING_UNITS} />
@@ -589,16 +626,16 @@ function BackfillDetail({
                 noHoverUnderline
                 outline
                 sameColorAsText
-                title="Backfills cannot be edited once they've been started."
+                title={t('backfills.detail.actions.cannot_edit_tooltip')}
               >
-                Edit backfill
+                {t('backfills.detail.actions.edit_backfill')}
               </Button>
             }
 
             {!showPreviewRuns &&
               <>
                 <Text bold default large>
-                  Filter runs by status:
+                  {t('pipeline_detail.runs.filter_runs_by_status')}
                 </Text>
                 <Spacing mr={PADDING_UNITS} />
                 <Select
@@ -622,15 +659,15 @@ function BackfillDetail({
                     }
                   }}
                   paddingRight={UNIT * 4}
-                  placeholder="Select run status"
+                  placeholder={t('pipeline_detail.runs.select_run_status')}
                   value={q?.status || 'all'}
                 >
                   <option key="all_statuses" value="all">
-                    All statuses
+                    {t('pipeline_detail.runs.all_statuses')}
                   </option>
                   {PIPELINE_RUN_STATUSES.map(status => (
                     <option key={status} value={status}>
-                      {RUN_STATUS_TO_LABEL[status]}
+                      {pipelineRunStatusLabelMapping[status] || status}
                     </option>
                   ))}
                 </Select>
@@ -643,7 +680,7 @@ function BackfillDetail({
       >
         <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
           <Headline level={5}>
-            Runs for this backfill
+            {t('backfills.detail.runs_for_this_backfill')}
           </Headline>
         </Spacing>
 

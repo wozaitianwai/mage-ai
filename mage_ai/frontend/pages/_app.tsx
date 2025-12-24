@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import App, { AppProps } from 'next/app';
 import Cookies from 'js-cookie';
 import LoadingBar from 'react-top-loading-bar';
@@ -13,6 +13,7 @@ import '@styles/globals.css';
 import '@styles/scss/main.scss';
 import '@styles/scss/themes/dark.scss';
 import '@styles/scss/themes/light.scss';
+import '@utils/i18n';
 import AuthToken from '@api/utils/AuthToken';
 import CommandCenter from '@components/CommandCenter';
 import Head from '@oracle/elements/Head';
@@ -39,7 +40,7 @@ import {
 import { SheetProvider } from '@context/Sheet/SheetProvider';
 import { ThemeType } from '@oracle/styles/themes/constants';
 import { addPageHistory } from '@storage/CommandCenter/utils';
-import { getCurrentTheme } from '@oracle/styles/themes/utils';
+import { getCurrentTheme, getCurrentThemeMode } from '@oracle/styles/themes/utils';
 import { gridTheme as gridThemeDefault, theme as stylesTheme } from '@styles/theme';
 import { isDemo } from '@utils/environment';
 import { queryFromUrl, queryString, redirectToUrl } from '@utils/url';
@@ -84,6 +85,51 @@ function MyApp(props: MyAppProps & AppProps) {
 
   const windowIsDefined = typeof window !== 'undefined';
   const isDemoApp = useMemo(() => isDemo(), []);
+  const useV2 = useMemo(
+    () => props?.version === 'v2' || props?.pageProps?.version === 'v2',
+    [props?.version, props?.pageProps?.version],
+  );
+  const [currentThemeState, setCurrentThemeState] = useState<any>(
+    themeProps?.currentTheme || currentTheme,
+  );
+
+  useEffect(() => {
+    if (useV2) {
+      return;
+    }
+
+    if (typeof document !== 'undefined') {
+      document.body.removeAttribute('data-theme');
+      document.body.setAttribute('data-theme', getCurrentThemeMode());
+    }
+  }, [useV2]);
+
+  useEffect(() => {
+    if (useV2) {
+      return;
+    }
+
+    const handleThemeChanged = () => {
+      setCurrentThemeState(getCurrentTheme());
+
+      if (typeof document !== 'undefined') {
+        document.body.removeAttribute('data-theme');
+        document.body.setAttribute('data-theme', getCurrentThemeMode());
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      // @ts-ignore
+      window.addEventListener(CustomEventUUID.THEME_CHANGED, handleThemeChanged);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        // @ts-ignore
+        window.removeEventListener(CustomEventUUID.THEME_CHANGED, handleThemeChanged);
+      }
+    };
+  }, [useV2]);
 
   const savePageHistory = useCallback(() => {
     if (commandCenterEnabled) {
@@ -282,11 +328,6 @@ function MyApp(props: MyAppProps & AppProps) {
     [],
   );
 
-  const useV2 = useMemo(
-    () => props?.version === 'v2' || props?.pageProps?.version === 'v2',
-    [props?.version, props?.pageProps?.version],
-  );
-
   if (useV2) {
     return appMemo;
   }
@@ -294,7 +335,7 @@ function MyApp(props: MyAppProps & AppProps) {
   return (
     <>
       <KeyboardContext.Provider value={keyboardContextValue}>
-        <ThemeProvider theme={Object.assign(stylesTheme, themeProps?.currentTheme || currentTheme)}>
+        <ThemeProvider theme={Object.assign(stylesTheme, currentThemeState)}>
           <GridThemeProvider gridTheme={gridThemeDefault}>
             <ModalProvider>
               <SheetProvider>

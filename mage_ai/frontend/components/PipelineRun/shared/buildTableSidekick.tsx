@@ -6,6 +6,7 @@ import PipelineRunType from '@interfaces/PipelineRunType';
 import Spacing from '@oracle/elements/Spacing';
 import Text from '@oracle/elements/Text';
 import Table from '@components/shared/Table';
+import type { TFunction } from 'i18next';
 import {
   PADDING_UNITS,
 } from '@oracle/styles/units/spacing';
@@ -23,6 +24,7 @@ export const TABS = [
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default function({
+  t,
   height,
   heightOffset,
   pipeline,
@@ -31,6 +33,7 @@ export default function({
   setSelectedTab,
   ...props
 }: {
+  t?: TFunction;
   height: number;
   heightOffset?: number;
   pipeline: PipelineType;
@@ -67,8 +70,8 @@ export default function({
   }
 
   const rows = selectedRun && [
-    ['Run ID', selectedRun?.id],
-    ['Variables', (
+    [t?.('pipeline_detail.runs.sidekick.run_id') || 'Run ID', selectedRun?.id],
+    [t?.('sidekick.variables.label') || 'Variables', (
       <CodeBlock
         key="variable_value"
         language="json"
@@ -102,13 +105,24 @@ export default function({
 
   const showTabs = selectedTab && setSelectedTab;
 
+  const tabs = [
+    {
+      ...TAB_TREE,
+      label: () => t?.('pipeline_detail.sidekick.dependency_tree') || TAB_TREE.uuid,
+    },
+    {
+      ...TAB_DETAILS,
+      label: () => t?.('pipeline_detail.runs.sidekick.run_details') || TAB_DETAILS.uuid,
+    },
+  ];
+
   return (
     <>
       {showTabs && (
         <ButtonTabs
           onClickTab={setSelectedTab}
           selectedTabUUID={selectedTab?.uuid}
-          tabs={TABS}
+          tabs={tabs}
           underlineStyle
         />
       )}

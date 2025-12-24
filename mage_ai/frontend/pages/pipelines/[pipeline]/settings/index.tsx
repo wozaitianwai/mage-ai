@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import ErrorsType from '@interfaces/ErrorsType';
 import PipelineDetailPage from '@components/PipelineDetailPage';
@@ -18,6 +19,7 @@ type PipelineSettingsProps = {
 function PipelineSettings({
   pipeline: pipelineProp,
 }: PipelineSettingsProps) {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const [errors, setErrors] = useState<ErrorsType>(null);
   const pipelineUUID = pipelineProp?.uuid;
@@ -54,14 +56,14 @@ function PipelineSettings({
     <PipelineDetailPage
       breadcrumbs={[
         {
-          label: () => 'Settings',
+          label: () => t('pipeline_detail.navigation.pipeline_settings'),
         },
       ]}
       errors={errors}
       pageName={PageNameEnum.SETTINGS}
       pipeline={pipeline}
       setErrors={setErrors}
-      title={({ name }) => `${name} settings`}
+      title={({ name }) => t('pipeline_detail.settings.title', { name })}
       uuid={`${PageNameEnum.SETTINGS}_${pipelineUUID}`}
     >
       {pipeline && (

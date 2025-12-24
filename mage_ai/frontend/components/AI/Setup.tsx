@@ -1,4 +1,3 @@
-import Link from '@oracle/elements/Link';
 import Panel from '@oracle/components/Panel';
 import Spacing from '@oracle/elements/Spacing';
 import Text from '@oracle/elements/Text';
@@ -12,18 +11,13 @@ export default function Setup() {
     <Spacing mb={UNITS_BETWEEN_SECTIONS}>
       <Panel>
         <Text warning>
-          You need to add an OpenAI API key to your project before you can
+          You need to configure an AI provider API key before you can
           generate pipelines using AI.
         </Text>
 
         <Spacing mt={1}>
           <Text warning>
-            Read <Link
-              href="https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key"
-              openNewWindow
-            >
-              OpenAI’s documentation
-            </Link> to get your API key.
+            Open project settings and select an AI provider to add its API key.
           </Text>
         </Spacing>
 

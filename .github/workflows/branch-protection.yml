@@ -1,0 +1,51 @@
+name: Configure branch protection
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to protect"
+        required: true
+        default: "work"
+      enforce_admins:
+        description: "Require admins to follow protections"
+        required: false
+        default: "true"
+
+permissions:
+  contents: read
+  pull-requests: read
+  administration: write
+
+jobs:
+  apply-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure branch protection
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.ADMIN_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const branch = core.getInput('branch');
+            const enforceAdmins = core.getInput('enforce_admins') === 'true';
+
+            await github.rest.repos.updateBranchProtection({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              branch,
+              enforce_admins: enforceAdmins,
+              required_status_checks: {
+                strict: true,
+                contexts: [],
+              },
+              required_pull_request_reviews: {
+                dismiss_stale_reviews: true,
+                require_code_owner_reviews: false,
+                required_approving_review_count: 1,
+              },
+              restrictions: null,
+              allow_force_pushes: false,
+              allow_deletions: false,
+            });
+
+            core.info(`Branch protection updated for ${branch}.`);

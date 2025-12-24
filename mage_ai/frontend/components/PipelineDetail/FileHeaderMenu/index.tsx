@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import ClickOutside from '@oracle/components/ClickOutside';
@@ -86,6 +87,7 @@ function FileHeaderMenu({
   toggleHideOutputOnExecution,
   updatePipelineMetadata,
 }: FileHeaderMenuProps) {
+  const { t } = useTranslation('common');
   const [highlightedIndex, setHighlightedIndex] = useState(null);
   const refFile = useRef(null);
   const refRun = useRef(null);
@@ -102,7 +104,7 @@ function FileHeaderMenu({
   const fileItems = [
     {
       beforeIcon: blankIcon,
-      label: () => 'New standard pipeline',
+      label: () => t('file_header_menu.new_standard_pipeline'),
       // @ts-ignore
       onClick: () => createPipeline({
         pipeline: {
@@ -113,7 +115,7 @@ function FileHeaderMenu({
     },
     {
       beforeIcon: blankIcon,
-      label: () => 'New streaming pipeline',
+      label: () => t('file_header_menu.new_streaming_pipeline'),
       // @ts-ignore
       onClick: () => createPipeline({
         pipeline: {
@@ -129,13 +131,13 @@ function FileHeaderMenu({
         isMac() ? KEY_SYMBOL_META : KEY_SYMBOL_CONTROL,
         KEY_SYMBOL_S,
       ]],
-      label: () => 'Save pipeline',
+      label: () => t('file_header_menu.save_pipeline'),
       onClick: () => savePipelineContent(),
       uuid: 'save_pipeline',
     },
     {
       beforeIcon: disableAutosave ? <Check /> : blankIcon,
-      label: () => 'Disable autosave',
+      label: () => t('file_header_menu.disable_autosave'),
       onClick: toggleDisableAutosave,
       uuid: 'Disable_autosave',
     },
@@ -161,7 +163,7 @@ function FileHeaderMenu({
           [KEY_SYMBOL_I],
           [KEY_SYMBOL_I],
         ],
-        label: () => 'Interrupt kernel',
+        label: () => t('file_header_menu.interrupt_kernel'),
         onClick: () => interruptKernel(),
         uuid: 'Interrupt kernel',
       },
@@ -170,12 +172,12 @@ function FileHeaderMenu({
           [KEY_CODE_NUMBERS_TO_NUMBER[KEY_CODE_NUMBER_0]],
           [KEY_CODE_NUMBERS_TO_NUMBER[KEY_CODE_NUMBER_0]],
         ],
-        label: () => 'Restart kernel',
+        label: () => t('file_header_menu.restart_kernel'),
         onClick: () => restartKernel(),
         uuid: 'Restart kernel',
       },
       {
-        label: () => 'Clear all outputs',
+        label: () => t('file_header_menu.clear_all_outputs'),
         // @ts-ignore
         onClick: () => setMessages(messagesByUUID => Object
           .keys(messagesByUUID)
@@ -190,13 +192,13 @@ function FileHeaderMenu({
 
     if (isPipelineExecuting) {
       items.push({
-        label: () => 'Cancel pipeline',
+        label: () => t('file_header_menu.cancel_pipeline'),
         onClick: () => cancelPipeline(),
         uuid: 'Cancel pipeline',
       });
     } else if (pipeline?.type === PipelineTypeEnum.STREAMING) {
       items.push({
-        label: () => 'Execute pipeline',
+        label: () => t('file_header_menu.execute_pipeline'),
         onClick: () => executePipeline(),
         uuid: 'Execute pipeline',
       });
@@ -211,11 +213,12 @@ function FileHeaderMenu({
     pipeline?.type,
     restartKernel,
     setMessages,
+    t,
   ]);
 
   const editItems = useMemo(() => [
     {
-      label: () => 'Pipeline settings',
+      label: () => t('file_header_menu.pipeline_settings'),
       linkProps: {
         as: `/pipelines/${pipeline?.uuid}/settings`,
         href: '/pipelines/[pipeline]/settings',
@@ -223,27 +226,27 @@ function FileHeaderMenu({
       uuid: 'Pipeline settings',
     },
     {
-      label: () => 'Browse custom templates',
+      label: () => t('file_header_menu.browse_custom_templates'),
       linkProps: {
         href: '/templates',
       },
       uuid: 'browse_custom_templates',
     },
     {
-      label: () => 'Create custom templates',
+      label: () => t('file_header_menu.create_custom_templates'),
       linkProps: {
         href: '/templates?new=1',
       },
       uuid: 'create_custom_templates',
     },
-  ], [pipeline]);
+  ], [pipeline, t]);
 
   const viewItems = useMemo(() => [
     {
       label: () => (
         <FileHeaderMenuItem
           checked={hideOutputOnExecution}
-          label="Hide output on execution"
+          label={t('file_header_menu.hide_output_on_execution')}
         />
       ),
       onClick: toggleHideOutputOnExecution,
@@ -251,6 +254,7 @@ function FileHeaderMenu({
     },
   ], [
     hideOutputOnExecution,
+    t,
     toggleHideOutputOnExecution,
   ]);
 
@@ -267,7 +271,7 @@ function FileHeaderMenu({
 
     if (KernelNameEnum.PYTHON3 === kernel?.name) {
       arr.push({
-        label: () => 'Switch to PySpark kernel',
+        label: () => t('file_header_menu.switch_to_pyspark_kernel'),
         onClick: () => updatePipelineMetadata?.(
           pipeline?.name, KERNEL_NAME_TO_PIPELINE_TYPE[KernelNameEnum.PYSPARK],
         ),
@@ -275,7 +279,7 @@ function FileHeaderMenu({
       });
     } else if (KernelNameEnum.PYSPARK === kernel?.name) {
       arr.push({
-        label: () => 'Switch to Python kernel',
+        label: () => t('file_header_menu.switch_to_python_kernel'),
         onClick: () => updatePipelineMetadata?.(
           pipeline?.name, KERNEL_NAME_TO_PIPELINE_TYPE[KernelNameEnum.PYTHON3],
         ),
@@ -287,6 +291,7 @@ function FileHeaderMenu({
   }, [
     kernel,
     pipeline,
+    t,
     updatePipelineMetadata,
   ]);
 
@@ -336,7 +341,7 @@ function FileHeaderMenu({
             ref={refFile}
           >
             <Text>
-              File
+              {t('file_header_menu.file')}
             </Text>
           </Button>
 
@@ -358,7 +363,7 @@ function FileHeaderMenu({
             ref={refEdit}
           >
             <Text>
-              Edit
+              {t('file_header_menu.edit')}
             </Text>
           </Button>
 
@@ -380,7 +385,7 @@ function FileHeaderMenu({
             ref={refRun}
           >
             <Text>
-              Run
+              {t('file_header_menu.run')}
             </Text>
           </Button>
 
@@ -404,7 +409,7 @@ function FileHeaderMenu({
               ref={refView}
             >
               <Text>
-                View
+                {t('file_header_menu.view')}
               </Text>
             </Button>
 
@@ -428,7 +433,7 @@ function FileHeaderMenu({
               ref={refCompute}
             >
               <Text>
-                Compute
+                {t('file_header_menu.compute')}
               </Text>
             </Button>
 

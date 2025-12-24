@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import NextLink from 'next/link';
 import { toast } from 'react-toastify';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import ButtonTabs, { TabType } from '@oracle/components/Tabs/ButtonTabs';
@@ -43,20 +44,8 @@ import { goToWithQuery } from '@utils/routing';
 import { onSuccess } from '@api/utils/response';
 import { queryFromUrl } from '@utils/url';
 
-const TAB_GIT_SYNC = {
-  label: () => 'One-way Git Sync',
-  uuid: 'git_sync',
-};
-
-const TAB_GIT_INTEGRATION = {
-  label: () => 'Git Actions',
-  uuid: 'git_integration',
-};
-
-const TABS = [
-  TAB_GIT_SYNC,
-  TAB_GIT_INTEGRATION,
-];
+const TAB_GIT_SYNC_UUID = 'git_sync';
+const TAB_GIT_INTEGRATION_UUID = 'git_integration';
 
 export interface SyncFieldType {
   autoComplete?: string;
@@ -69,6 +58,7 @@ export interface SyncFieldType {
 }
 
 function SyncData() {
+  const { t } = useTranslation('common');
   const { data: dataSyncs, mutate: fetchSyncs } = api.syncs.list();
   const [sync, setSync] = useState<SyncType>(null);
   const [userGitSettings, setUserGitSettings] = useState<UserGitSettingsType>(null);
@@ -106,6 +96,43 @@ function SyncData() {
     is_git_integration_enabled: gitIntegrationEnabled,
   } = useMemo(() => dataGitBranch?.['git_branch'] || {}, [dataGitBranch]);
 
+  const tabLabelMapping = useMemo(() => ({
+    [TAB_GIT_SYNC_UUID]: t('sync_data.tabs.git_sync'),
+    [TAB_GIT_INTEGRATION_UUID]: t('sync_data.tabs.git_integration'),
+  }), [t]);
+
+  const tabsToUse = useMemo(() => ([
+    {
+      label: () => tabLabelMapping[TAB_GIT_SYNC_UUID],
+      uuid: TAB_GIT_SYNC_UUID,
+    },
+    {
+      label: () => tabLabelMapping[TAB_GIT_INTEGRATION_UUID],
+      uuid: TAB_GIT_INTEGRATION_UUID,
+    },
+  ]), [tabLabelMapping]);
+
+  const fieldLabelMapping = useMemo(() => ({
+    access_token: t('sync_data.fields.access_token'),
+    branch: t('sync_data.fields.branch'),
+    email: t('sync_data.fields.email'),
+    remote_repo_link: t('sync_data.fields.remote_repo_link'),
+    repo_path: t('sync_data.fields.repo_path'),
+    ssh_private_key: t('sync_data.fields.ssh_private_key'),
+    ssh_public_key: t('sync_data.fields.ssh_public_key'),
+    username: t('sync_data.fields.username'),
+  }), [t]);
+
+  const fieldDescriptionMapping = useMemo(() => ({
+    access_token: t('sync_data.fields.access_token_description'),
+    repo_path: t('sync_data.fields.repo_path_description'),
+  }), [t]);
+
+  const authTypeLabelMapping = useMemo(() => ({
+    [AuthType.HTTPS]: t('sync_data.auth_types.https'),
+    [AuthType.SSH]: t('sync_data.auth_types.ssh'),
+  }), [t]);
+
   const [createSync, { isLoading: isLoadingCreateSync }] = useMutation(
     api.syncs.useCreate(),
     {
@@ -116,7 +143,7 @@ function SyncData() {
               setSync(sync);
               window.location.reload();
               toast.success(
-                'Sync saved',
+                t('sync_data.toast_saved'),
                 {
                   position: toast.POSITION.BOTTOM_RIGHT,
                   toastId: 'data_sync_success',
@@ -141,7 +168,7 @@ function SyncData() {
           callback: ({ sync }) => {
             if (sync) {
               toast.success(
-                'Success!',
+                t('sync_data.toast_success'),
                 {
                   position: toast.POSITION.BOTTOM_RIGHT,
                   toastId: 'data_sync_success',
@@ -192,15 +219,14 @@ function SyncData() {
   const requireUserAuthentication =
     useMemo(() => data?.statuses?.[0]?.require_user_authentication, [data]);
 
-  const tabsToUse = useMemo(() => TABS, []);
-
   const [selectedTab, setSelectedTab] = useState<TabType>();
 
   useEffect(() => {
     if (!selectedTab) {
-      setSelectedTab(gitIntegrationEnabled ? TAB_GIT_INTEGRATION : TAB_GIT_SYNC);
+      const defaultTabUUID = gitIntegrationEnabled ? TAB_GIT_INTEGRATION_UUID : TAB_GIT_SYNC_UUID;
+      setSelectedTab(tabsToUse.find(({ uuid }) => uuid === defaultTabUUID));
     }
-  }, [gitIntegrationEnabled, selectedTab]);
+  }, [gitIntegrationEnabled, selectedTab, tabsToUse]);
 
   const userGitFields = useMemo(() => {
     let updateSettings: React.Dispatch<
@@ -208,7 +234,7 @@ function SyncData() {
     > = setSync;
     let settings: SyncType | UserGitSettingsType = sync;
 
-    if (selectedTab?.uuid === TAB_GIT_INTEGRATION.uuid && requireUserAuthentication) {
+    if (selectedTab?.uuid === TAB_GIT_INTEGRATION_UUID && requireUserAuthentication) {
       updateSettings = setUserGitSettings;
       settings = userGitSettings;
     }
@@ -229,16 +255,21 @@ function SyncData() {
             type,
             uuid,
           }: SyncFieldType) => {
+            const labelText = fieldLabelMapping[uuid] || label;
+            const labelDescriptionText = fieldDescriptionMapping[uuid] || labelDescription;
             let description;
+            const sshPublicKeyCommand = 'cat ~/.ssh/id_ed25519.pub | base64 | tr -d \\\\n && echo';
+            const sshPrivateKeyCommand = 'cat ~/.ssh/id_ed25519 | base64 | tr -d \\\\n && echo';
             if (uuid === 'ssh_public_key') {
               description = (
                 <Spacing mb={1}>
                   <Text small>
-                    Run <Link
+                    {t('sync_data.ssh_public_key_description_prefix')}{' '}
+                    <Link
                       onClick={() => {
-                        navigator.clipboard.writeText('cat ~/.ssh/id_ed25519.pub | base64 | tr -d \\\\n && echo');
+                        navigator.clipboard.writeText(sshPublicKeyCommand);
                         toast.success(
-                          'Successfully copied to clipboard.',
+                          t('sync_data.copy_success'),
                           {
                             position: toast.POSITION.BOTTOM_RIGHT,
                             toastId: uuid,
@@ -247,8 +278,9 @@ function SyncData() {
                       }}
                       small
                     >
-                      cat ~/.ssh/id_ed25519.pub | base64 | tr -d \\n && echo
-                    </Link> in terminal to get base64 encoded public key and paste the result here. The key will be stored as a Mage secret. You will see the secret below if you have already added it.
+                      {sshPublicKeyCommand}
+                    </Link>{' '}
+                    {t('sync_data.ssh_public_key_description_suffix')}
                   </Text>
                 </Spacing>
               );
@@ -256,11 +288,12 @@ function SyncData() {
               description = (
                 <Spacing mb={1}>
                   <Text small>
-                    Follow same steps as the public key, but run <Link
+                    {t('sync_data.ssh_private_key_description_prefix')}{' '}
+                    <Link
                       onClick={() => {
-                        navigator.clipboard.writeText('cat ~/.ssh/id_ed25519 | base64 | tr -d \\\\n && echo');
+                        navigator.clipboard.writeText(sshPrivateKeyCommand);
                         toast.success(
-                          'Successfully copied to clipboard.',
+                          t('sync_data.copy_success'),
                           {
                             position: toast.POSITION.BOTTOM_RIGHT,
                             toastId: uuid,
@@ -269,16 +302,17 @@ function SyncData() {
                       }}
                       small
                     >
-                      cat ~/.ssh/id_ed25519 | base64 | tr -d \\n && echo
-                    </Link> instead. The key will be stored as a Mage secret. You will see the secret below if you have already added it.
+                      {sshPrivateKeyCommand}
+                    </Link>{' '}
+                    {t('sync_data.ssh_private_key_description_suffix')}
                   </Text>
                 </Spacing>
               );
             } else {
-              description = labelDescription && (
+              description = labelDescriptionText && (
                 <Spacing mb={1}>
                   <Text small>
-                    {labelDescription}
+                    {labelDescriptionText}
                   </Text>
                 </Spacing>
               );
@@ -290,7 +324,7 @@ function SyncData() {
                 <TextInput  
                   autoComplete={autoComplete}
                   disabled={disabled}
-                  label={label}
+                  label={labelText}
                   // @ts-ignore
                   onChange={e => {
                     updateSettings(prev => ({
@@ -310,7 +344,7 @@ function SyncData() {
         </form>
         <Spacing mb={1} mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
           <Headline level={5}>
-            Git secrets
+            {t('sync_data.git_secrets')}
           </Headline>
         </Spacing>
         {secretValues && secretValues.length > 0 ? (
@@ -327,18 +361,24 @@ function SyncData() {
             />
           ))
         ) : (
-          <Text>You have no Git secrets saved for {selectedTab?.label?.()}</Text>
+          <Text>{t('sync_data.no_git_secrets', {
+            tab: selectedTab ? tabLabelMapping[selectedTab?.uuid] : '',
+          })}</Text>
         )}
       </>
     );
   }, [
     additionalGitFields,
     deleteSecret,
+    fieldDescriptionMapping,
+    fieldLabelMapping,
     requireUserAuthentication,
     selectedTab,
     setUserGitSettings,
     setSync,
     sync,
+    tabLabelMapping,
+    t,
     userGitSettings,
   ]);
 
@@ -353,19 +393,18 @@ function SyncData() {
     <>
       <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
         <Text inline>
-          To learn more about One-way git sync, click{' '}
+          {t('sync_data.learn_more_prefix')}{' '}
         </Text>
         <Link
           bold
           href="https://docs.mage.ai/production/data-sync/git-sync"
           openNewWindow>
-          here
+          {t('sync_data.learn_more_link')}
         </Link>
       </Spacing>
       <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
         <Text bold>
-          Sync with a specified branch. These settings
-          will be saved at the project level.
+          {t('sync_data.branch_settings_title')}
         </Text>
       </Spacing>
       <form>
@@ -381,7 +420,7 @@ function SyncData() {
             <TextInput
               autoComplete={autoComplete}
               disabled={disabled}
-              label={label}
+              label={fieldLabelMapping[uuid] || label}
               // @ts-ignore
               onChange={e => {
                 setSync(prev => ({
@@ -402,7 +441,7 @@ function SyncData() {
         <Spacing mt={2}>
           <Checkbox
             checked={sync?.sync_submodules}
-            label="Include submodules"
+            label={t('sync_data.include_submodules')}
             onClick={() => {
               setSync(prev => ({
                 ...prev,
@@ -414,14 +453,14 @@ function SyncData() {
       </FlexContainer>
       <Spacing mt={2}>
         <Headline level={5}>
-          Additional sync settings
+          {t('sync_data.additional_sync_settings')}
         </Headline>
       </Spacing>
       <FlexContainer alignItems="center">
         <Spacing mt={2}>
           <Checkbox
             checked={sync?.sync_on_pipeline_run}
-            label="Sync before each trigger run"
+            label={t('sync_data.sync_before_trigger')}
             onClick={() => {
               setSync(prev => ({
                 ...prev,
@@ -435,7 +474,7 @@ function SyncData() {
         <Spacing mt={2}>
           <Checkbox
             checked={sync?.sync_on_start}
-            label="Sync on server start up"
+            label={t('sync_data.sync_on_start')}
             onClick={() => {
               setSync(prev => ({
                 ...prev,
@@ -447,13 +486,12 @@ function SyncData() {
       </FlexContainer>
       <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
         <Text bold>
-          Configure the Git authentication credentials that will be used to sync with
-          the specified Git repository.
+          {t('sync_data.git_auth_settings')}
         </Text>
       </Spacing>
       {userGitFields}
     </>
-  ), [sync, userGitFields]);
+  ), [fieldLabelMapping, sync, t, userGitFields]);
 
   const gitIntegrationFields = useMemo(() => (
     <>
@@ -461,30 +499,29 @@ function SyncData() {
         {!gitIntegrationEnabled && (
           <Spacing mb={1}>
             <Text bold warning>
-              When One-way git sync is enabled, you will be unable to access the Git Actions modal.
-              If you want to bypass this safeguard, set the GIT_ENABLE_GIT_INTEGRATION environment
-              variable.
+              {t('sync_data.git_integration_safeguard')}
             </Text>
           </Spacing>
         )}
         <Text bold>
-          We recommend using the <NextLink
+          {t('sync_data.git_integration_recommendation_prefix')}{' '}
+          <NextLink
             as="/version-control"
             href="/version-control"
           >
-            <Link bold inline>version control app</Link>
-          </NextLink> unless you have a specific need to use the Git Actions modal.
+            <Link bold inline>{t('sync_data.version_control_app')}</Link>
+          </NextLink>{' '}
+          {t('sync_data.git_integration_recommendation_suffix')}
         </Text>
       </Spacing>
       <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
         <Text>
-          These fields are required to help Mage configure your Git settings. These settings
-          will be specific to your user.
+          {t('sync_data.git_integration_fields_note')}
         </Text>
       </Spacing>
       {userGitFields}
     </>
-  ), [gitIntegrationEnabled, userGitFields]);
+  ), [gitIntegrationEnabled, t, userGitFields]);
 
   return (
     <SettingsDashboard
@@ -498,17 +535,17 @@ function SyncData() {
         }}
       >
         <Headline>
-          Git repository settings
+          {t('sync_data.title')}
         </Headline>
         <Spacing mt={1}>
           <Text bold>
-            Authentication type
+            {t('sync_data.auth_type')}
           </Text>
         </Spacing>
         <Spacing mt={1}>
           <Select
             compact
-            label="Authentication type"
+            label={t('sync_data.auth_type')}
             onChange={(e) => {
               const type = e.target.value;
               setSync(prev => ({
@@ -520,7 +557,7 @@ function SyncData() {
           >
             {Object.entries(AuthType).map(([k, v]) => (
               <option key={v} value={v}>
-                {k}
+                {authTypeLabelMapping[v] || k}
               </option>
             ))}
           </Select>
@@ -528,9 +565,11 @@ function SyncData() {
         <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
           {authType === AuthType.SSH && (
             <Text bold>
-              You will need to <Link href="https://docs.mage.ai/development/git/configure#generate-ssh-token" openNewWindow>
-                set up your SSH key
-              </Link> if you have not done so already.
+              {t('sync_data.ssh_setup_notice_prefix')}{' '}
+              <Link href="https://docs.mage.ai/development/git/configure#generate-ssh-token" openNewWindow>
+                {t('sync_data.ssh_setup_link_text')}
+              </Link>{' '}
+              {t('sync_data.ssh_setup_notice_suffix')}
             </Text>
           )}
         </Spacing>
@@ -546,17 +585,17 @@ function SyncData() {
             uuid,
           }: SyncFieldType) => (
             <Spacing key={uuid} mt={2}>
-              {labelDescription && (
+              {fieldDescriptionMapping[uuid] && (
                 <Spacing mb={1}>
                   <Text small>
-                    {labelDescription}
+                    {fieldDescriptionMapping[uuid]}
                   </Text>
                 </Spacing>
               )}
               <TextInput
                 autoComplete={autoComplete}
                 disabled={disabled}
-                label={label}
+                label={fieldLabelMapping[uuid] || label}
                 // @ts-ignore
                 onChange={e => {
                   setSync(prev => ({
@@ -588,9 +627,9 @@ function SyncData() {
         <Divider light />
 
         <Spacing ml={2}>
-          {TAB_GIT_SYNC.uuid === selectedTab?.uuid && gitSyncFields}
+          {TAB_GIT_SYNC_UUID === selectedTab?.uuid && gitSyncFields}
 
-          {TAB_GIT_INTEGRATION.uuid === selectedTab?.uuid && gitIntegrationFields}
+          {TAB_GIT_INTEGRATION_UUID === selectedTab?.uuid && gitIntegrationFields}
         </Spacing>
 
         <Spacing mt={UNITS_BETWEEN_SECTIONS}>
@@ -605,7 +644,7 @@ function SyncData() {
             })}
             primary
           >
-            Save repository settings
+            {t('sync_data.save_button')}
           </Button>
         </Spacing>
 
@@ -625,23 +664,20 @@ function SyncData() {
         {showSyncOperations && (
           <Spacing mt={UNITS_BETWEEN_SECTIONS}>
             <Headline>
-              Synchronize code from remote repository
+              {t('sync_data.sync_operations_title')}
             </Headline>
 
             <Spacing mt={1}>
               <Text>
-                Running the sync from this page will
-                run a one time sync with the remote repository.
-                <br />
-                This may <Text bold danger inline>overwrite</Text> your
-                existing data, so make sure you’ve committed or backed up your current changes.
+                {t('sync_data.sync_run_description')}{' '}
+                <Text bold danger inline>{t('sync_data.overwrite')}</Text>{' '}
+                {t('sync_data.sync_run_warning')}
               </Text>
               <Spacing mt={2} />
               <Text>
-                Reset will tell Mage to try to clone your repository from remote. This will
-                also <Text bold danger inline>overwrite</Text> all your local changes and 
-                reset any settings you may have configured for your local Git repo. This may be
-                helpful if you are having issues syncing your repository.
+                {t('sync_data.sync_reset_description_prefix')}{' '}
+                <Text bold danger inline>{t('sync_data.overwrite')}</Text>{' '}
+                {t('sync_data.sync_reset_description_suffix')}
               </Text>
             </Spacing>
 
@@ -657,7 +693,7 @@ function SyncData() {
                   })}
                   warning
                 >
-                  Synchronize code
+                  {t('sync_data.sync_button')}
                 </Button>
                 <Spacing ml={2}/>
                 <Button
@@ -670,7 +706,7 @@ function SyncData() {
                     },
                   })}
                 >
-                  Reset repository
+                  {t('sync_data.reset_button')}
                 </Button>
               </FlexContainer>
             </Spacing>

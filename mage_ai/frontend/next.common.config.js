@@ -1,9 +1,11 @@
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const path = require('path');
 const removeImports = require('next-remove-imports')();
 
-module.exports = removeImports({
+const npmLifecycleEvent = process.env.npm_lifecycle_event || '';
+const isExport = ['export', 'export_prod', 'export_prod_base_path'].includes(npmLifecycleEvent);
+
+const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -54,8 +56,9 @@ module.exports = removeImports({
         config.plugins.push(
           ...[
             new options.webpack.IgnorePlugin({
-              // Ignore any file in `frontend/pages` directory not in `v2` subdirectory
-              resourceRegExp: /^\.\/frontend\/pages\/(?!v2\/)/,
+              // Ignore any file in `frontend/pages` directory not in `v2` subdirectory,
+              // but keep Next.js special pages.
+              resourceRegExp: /^\.\/frontend\/pages\/(?!v2\/|_app|_document|_error|404|500)/,
               // Apply this only for specific context, ensuring context is frontend
               contextRegExp: /frontend\/pages/,
             }),
@@ -79,4 +82,13 @@ module.exports = removeImports({
 
     return config;
   },
-});
+};
+
+if (!isExport) {
+  config.i18n = {
+    defaultLocale: 'zh',
+    locales: ['zh', 'en'],
+  };
+}
+
+module.exports = removeImports(config);

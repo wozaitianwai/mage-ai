@@ -39,6 +39,12 @@ class MonitorStatResource(GenericResource):
         else:
             pipeline_schedule_id = None
 
+        timezone_offsets = query.get('timezone_offset', None)
+        if timezone_offsets:
+            timezone_offset = timezone_offsets[0]
+        else:
+            timezone_offset = None
+
         stats = MonitorStats().get_stats(
             pk,
             pipeline_uuid=pipeline_uuid,
@@ -46,6 +52,7 @@ class MonitorStatResource(GenericResource):
             end_time=end_time,
             pipeline_schedule_id=pipeline_schedule_id,
             group_by_pipeline_type=group_by_pipeline_type,
+            timezone_offset=timezone_offset,
         )
 
         return self(dict(

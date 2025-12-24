@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import FlexContainer from '@oracle/components/FlexContainer';
 import Flex from '@oracle/components/Flex';
@@ -13,13 +14,11 @@ import {
 } from './index.style';
 import {
   PIPELINE_TYPE_ICON_MAPPING,
-  PIPELINE_TYPE_LABEL_MAPPING,
   PipelineTypeEnum,
 } from '@interfaces/PipelineType';
 import { Row } from '@components/shared/Grid';
 import { RunStatus as RunStatusEnum } from '@interfaces/BlockRunType';
 import { SHARED_UTC_TOOLTIP_PROPS } from '@components/PipelineRun/shared/constants';
-import { capitalize } from '@utils/string';
 import { formatNumber } from '@utils/number';
 import { formatNumberLabel } from '@components/charts/utils/label';
 import { shouldDisplayLocalTimezone } from '@components/settings/workspace/utils';
@@ -32,6 +31,7 @@ type MetricsSummaryProps = {
 function MetricsSummary({
   pipelineRunCountByPipelineType,
 }: MetricsSummaryProps) {
+  const { t } = useTranslation('common');
   const displayLocalTimezone = shouldDisplayLocalTimezone();
   const pipelineRunCounts = useMemo(() => {
     if (!pipelineRunCountByPipelineType) {
@@ -56,23 +56,38 @@ function MetricsSummary({
     );
   }, [pipelineRunCountByPipelineType]);
 
+  const pipelineTypeLabelMapping = useMemo(() => ({
+    [PipelineTypeEnum.INTEGRATION]: t('dashboard.integration'),
+    [PipelineTypeEnum.PYTHON]: t('dashboard.standard'),
+    [PipelineTypeEnum.PYSPARK]: 'PySpark',
+    [PipelineTypeEnum.STREAMING]: t('dashboard.streaming'),
+  }), [t]);
+
+  const runStatusLabelMapping = useMemo(() => ({
+    [RunStatusEnum.CANCELLED]: t('dashboard.cancelled'),
+    [RunStatusEnum.COMPLETED]: t('dashboard.completed'),
+    [RunStatusEnum.FAILED]: t('dashboard.failed'),
+    [RunStatusEnum.INITIAL]: t('dashboard.initial'),
+    [RunStatusEnum.RUNNING]: t('dashboard.running'),
+  }), [t]);
+
   const utcTooltipEl = useMemo(() => (
     displayLocalTimezone
       ? (
         <Spacing ml="4px">
           <Tooltip
             {...SHARED_UTC_TOOLTIP_PROPS}
-            label="Please note that these metrics are based on UTC time."
+            label={t('dashboard.utc_counts_note')}
           />
         </Spacing>
       ) : null
-  ), [displayLocalTimezone]);
+  ), [displayLocalTimezone, t]);
 
   return (
     <MetricsSummaryContainerStyle>
       <FlexContainer alignItems="center">
         <Text bold large>
-          Pipeline run metrics
+          {t('dashboard.pipeline_run_metrics')}
         </Text>
         {utcTooltipEl}
       </FlexContainer>
@@ -90,7 +105,7 @@ function MetricsSummary({
           >
             <Tile
               Icon={PIPELINE_TYPE_ICON_MAPPING[pipelineType]}
-              label={PIPELINE_TYPE_LABEL_MAPPING[pipelineType]}
+              label={pipelineTypeLabelMapping[pipelineType]}
             />
 
             {sortTuplesArrayByFirstItem(Object.entries(countsObj))
@@ -100,7 +115,7 @@ function MetricsSummary({
                     flexDirection="column"
                   >
                     <Text>
-                      {capitalize(runStatus)}
+                      {runStatusLabelMapping[runStatus]}
                     </Text>
                     <Text
                       bold

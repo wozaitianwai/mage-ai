@@ -37,6 +37,7 @@ import {
   getNonPythonMenuItems,
   groupBlockTemplates,
 } from './utils';
+import { useTranslation } from 'react-i18next';
 
 type AddNewBlocksProps = {
   addNewBlock: (block: BlockRequestPayloadType) => void;
@@ -111,6 +112,7 @@ function AddNewBlocks({
   showConfigureProjectModal,
   showGlobalDataProducts,
 }: AddNewBlocksProps) {
+  const { t } = useTranslation('common');
   const {
     featureEnabled,
     featureUUIDs,
@@ -137,21 +139,25 @@ function AddNewBlocks({
     COLUMN_ACTION_GROUPINGS,
     AxisEnum.COLUMN,
     addNewBlock,
+    t,
   ), [
     addNewBlock,
+    t,
   ]);
   const rowActionMenuItems = useMemo(() => createActionMenuGroupings(
     ROW_ACTION_GROUPINGS,
     AxisEnum.ROW,
     addNewBlock,
+    t,
   ), [
     addNewBlock,
+    t,
   ]);
 
   const allActionMenuItems = useMemo(() => {
     const arr: FlyoutMenuItemType[] = [
       {
-        label: () => 'Generic (no template)',
+        label: () => t('add_new_blocks.generic_no_template'),
         onClick: () => {
           addNewBlock({
             language: BlockLanguageEnum.PYTHON,
@@ -163,12 +169,12 @@ function AddNewBlocks({
       {
         bold: true,
         items: rowActionMenuItems,
-        label: () => 'Row actions',
+        label: () => t('add_new_blocks.groupings.row_actions'),
         uuid: 'row_actions_grouping',
       },
       {
         isGroupingTitle: true,
-        label: () => 'Column actions',
+        label: () => t('add_new_blocks.groupings.column_actions'),
         uuid: 'column_actions_grouping',
       },
       ...columnActionMenuItems,
@@ -180,8 +186,8 @@ function AddNewBlocks({
         0,
         {
           bold: true,
-          items: getdataSourceMenuItems(addNewBlock, BlockTypeEnum.TRANSFORMER, pipelineType),
-          label: () => 'Data sources',
+          items: getdataSourceMenuItems(addNewBlock, BlockTypeEnum.TRANSFORMER, pipelineType, { t }),
+          label: () => t('add_new_blocks.groupings.data_sources'),
           uuid: 'data_sources_grouping',
         },
       );
@@ -227,11 +233,13 @@ function AddNewBlocks({
     {
       blockTemplatesByBlockType,
       showBrowseTemplates,
+      t,
     },
   ), [
     addNewBlock,
     blockTemplatesByBlockType,
     pipelineType,
+    t,
     showBrowseTemplates,
   ]);
 
@@ -242,11 +250,13 @@ function AddNewBlocks({
     {
       blockTemplatesByBlockType,
       showBrowseTemplates,
+      t,
     },
   ), [
     addNewBlock,
     blockTemplatesByBlockType,
     pipelineType,
+    t,
     showBrowseTemplates,
   ]);
 
@@ -258,8 +268,8 @@ function AddNewBlocks({
     if (isStreamingPipeline) {
       return [
         {
-          items: getdataSourceMenuItems(addNewBlock, BlockTypeEnum.TRANSFORMER, pipelineType),
-          label: () => 'Python',
+          items: getdataSourceMenuItems(addNewBlock, BlockTypeEnum.TRANSFORMER, pipelineType, { t }),
+          label: () => t('common.python'),
           uuid: 'transformers/python',
         },
         ...getdataSourceMenuItems(
@@ -270,6 +280,7 @@ function AddNewBlocks({
             blockTemplatesByBlockType,
             onlyCustomTemplate: true,
             showBrowseTemplates,
+            t,
           },
         ),
       ];
@@ -278,10 +289,10 @@ function AddNewBlocks({
     return [
       {
         items: allActionMenuItems,
-        label: () => 'Python',
+        label: () => t('common.python'),
         uuid: 'transformers/python_all',
       },
-      ...getNonPythonMenuItems(addNewBlock, BlockTypeEnum.TRANSFORMER),
+      ...getNonPythonMenuItems(addNewBlock, BlockTypeEnum.TRANSFORMER, t),
       ...getdataSourceMenuItems(
         addNewBlock,
         BlockTypeEnum.TRANSFORMER,
@@ -290,6 +301,7 @@ function AddNewBlocks({
           blockTemplatesByBlockType,
           onlyCustomTemplate: true,
           showBrowseTemplates,
+          t,
         },
       ),
     ];
@@ -301,18 +313,23 @@ function AddNewBlocks({
     isStreamingPipeline,
     pipelineType,
     showBrowseTemplates,
+    t,
   ]);
 
   const itemsDBT = useMemo(() => [
     {
-      label: () => 'Single model or snapshot (from file)',
+      label: () => t('add_new_blocks.dbt.single_model', {
+        defaultValue: 'Single model or snapshot (from file)',
+      }),
       onClick: () => {
         onClickAddSingleDBTModel?.(blockIdx);
       },
       uuid: 'dbt/single_model',
     },
     {
-      label: () => 'All models (w/ optional exclusion)',
+      label: () => t('add_new_blocks.dbt.all_models', {
+        defaultValue: 'All models (w/ optional exclusion)',
+      }),
       onClick: () => addNewBlock({
         configuration: {
           dbt: {
@@ -325,7 +342,9 @@ function AddNewBlocks({
       uuid: 'dbt/all_models',
     },
     {
-      label: () => 'Generic dbt command',
+      label: () => t('add_new_blocks.dbt.generic_command', {
+        defaultValue: 'Generic dbt command',
+      }),
       onClick: () => addNewBlock({
         configuration: {
           dbt: {
@@ -339,12 +358,16 @@ function AddNewBlocks({
     },
     {
       isGroupingTitle: true,
-      label: () => 'Create new models',
+      label: () => t('add_new_blocks.dbt.create_new_models', {
+        defaultValue: 'Create new models',
+      }),
       uuid: 'dbt/new_model/group',
     },
     {
       disabled: true,
-      label: () => 'Use the file browser to create new SQL files',
+      label: () => t('add_new_blocks.dbt.use_file_browser', {
+        defaultValue: 'Use the file browser to create new SQL files',
+      }),
       uuid: 'dbt/new_model',
     },
   ], [
@@ -515,6 +538,7 @@ function AddNewBlocks({
                       blockTemplatesByBlockType,
                       onlyCustomTemplate: true,
                       showBrowseTemplates,
+                      t,
                     },
                   ),
                 ]}
@@ -565,7 +589,7 @@ function AddNewBlocks({
                       BlockTypeEnum.CUSTOM,
                       BlockLanguageEnum.SQL,
                     ),
-                    label: () => 'SQL',
+                    label: () => t('common.sql'),
                     uuid: 'custom_block_sql',
                   },
                   ...getdataSourceMenuItems(
@@ -576,6 +600,7 @@ function AddNewBlocks({
                       blockTemplatesByBlockType,
                       onlyCustomTemplate: true,
                       showBrowseTemplates,
+                      t,
                     },
                   ),
                 ]}
@@ -682,7 +707,7 @@ function AddNewBlocks({
               <FlyoutMenuWrapper
                 disableKeyboardShortcuts
                 items={[
-                  ...getdataSourceMenuItems(addNewBlock, BlockTypeEnum.SENSOR, pipelineType),
+                  ...getdataSourceMenuItems(addNewBlock, BlockTypeEnum.SENSOR, pipelineType, { t }),
                   ...getdataSourceMenuItems(
                     addNewBlock,
                     BlockTypeEnum.SENSOR,
@@ -691,6 +716,7 @@ function AddNewBlocks({
                       blockTemplatesByBlockType,
                       onlyCustomTemplate: true,
                       showBrowseTemplates,
+                      t,
                     },
                   ),
                 ]}
@@ -746,6 +772,7 @@ function AddNewBlocks({
                       blockTemplatesByBlockType,
                       onlyCustomTemplate: true,
                       showBrowseTemplates,
+                      t,
                     },
                   ),
                 ]}

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import ButtonTabs, { TabType } from '@oracle/components/Tabs/ButtonTabs';
 import FlexContainer from '@oracle/components/FlexContainer';
@@ -14,7 +15,8 @@ function FileBrowserNavigationHeader({
   selectedTab,
   setSelectedTab,
 }: FileBrowserNavigationHeaderProps, ref) {
-  const tabs = getTabs();
+  const { t } = useTranslation('common');
+  const tabs = getTabs(t);
 
   useEffect(() => {
     // @ts-ignore

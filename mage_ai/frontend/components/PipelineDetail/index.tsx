@@ -276,6 +276,7 @@ function PipelineDetail({
   const { status } = useStatus();
 
   const containerRef = useRef(null);
+  const overlayRef = useRef(null);
   const searchTextInputRef = useRef(null);
   const blockOutputRefs = useRef({});
   const activeApplicationsRef = useRef(null);
@@ -1342,10 +1343,11 @@ df = get_variable('${pipeline.uuid}', '${block.uuid}', 'output_0')
           <CSSTransition
             classNames="pipeline-detail"
             in={visible}
+            nodeRef={overlayRef}
             onEntered={() => setEntered(true)}
             timeout={1}
           >
-            <OverlayStyle />
+            <OverlayStyle ref={overlayRef} />
           </CSSTransition>
         )}
       </PipelineContainerStyle>

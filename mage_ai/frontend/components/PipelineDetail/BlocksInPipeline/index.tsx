@@ -4,6 +4,7 @@ import {
   useMemo,
 } from 'react';
 import { ThemeContext } from 'styled-components';
+import { useTranslation } from 'react-i18next';
 
 import BlockType from '@interfaces/BlockType';
 import Checkbox from '@oracle/elements/Checkbox';
@@ -39,6 +40,7 @@ function BlocksInPipeline({
   pipeline,
   setHiddenBlocks,
 }: BlocksInPipelineProps) {
+  const { t } = useTranslation('common');
   const themeContext = useContext(ThemeContext);
 
   const blocks = useMemo(() => pipeline?.blocks || [], [pipeline]);
@@ -102,7 +104,7 @@ function BlocksInPipeline({
           />
           <Spacing mr={1} />
           <Text noWrapping>
-            Show all
+            {t('pipeline_detail.show_all')}
           </Text>
         </FlexContainer>
 
@@ -121,7 +123,7 @@ function BlocksInPipeline({
           />
           <Spacing mr={1} />
           <Text noWrapping>
-            Hide all
+            {t('pipeline_detail.hide_all')}
           </Text>
         </FlexContainer>
       </Spacing>

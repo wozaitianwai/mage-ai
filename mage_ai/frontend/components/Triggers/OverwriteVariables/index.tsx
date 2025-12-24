@@ -24,7 +24,10 @@ type OverwriteVariablesProps = {
   runtimeVariables: { [keyof: string]: string };
   setEnableVariablesOverwrite: (enableVariablesOverwrite: boolean) => void;
   setRuntimeVariables: (runtimeVariables: any) => void;
+  t?: any;
 };
+
+import { useTranslation } from 'react-i18next';
 
 function OverwriteVariables({
   borderless,
@@ -34,7 +37,10 @@ function OverwriteVariables({
   runtimeVariables,
   setEnableVariablesOverwrite,
   setRuntimeVariables,
+  t: tProp,
 }: OverwriteVariablesProps) {
+  const { t: tHook } = useTranslation('common');
+  const t = tProp || tHook;
   const [textAreaElementMapping, setTextAreaElementMapping] = useState({});
   const [newVariableUUID, setNewVariableUUID] = useState(null);
   const [newVariableValue, setNewVariableValue] = useState(null);
@@ -77,7 +83,7 @@ function OverwriteVariables({
         }));
       },
       paddingHorizontal: 0,
-      placeholder: 'Variable value',
+      placeholder: t('triggers.edit.runtime_variables.value_placeholder'),
       value,
     };
 
@@ -123,9 +129,11 @@ function OverwriteVariables({
           columnFlex={[null, 1, null]}
           columns={[
             {
+              label: () => t('triggers.edit.runtime_variables.column_variable'),
               uuid: 'Variable',
             },
             {
+              label: () => t('triggers.edit.runtime_variables.column_value'),
               uuid: 'Value',
             },
             {
@@ -163,7 +171,7 @@ function OverwriteVariables({
               fullWidth
               monospace
               onChange={e => setNewVariableUUID(e.target.value)}
-              placeholder="New variable UUID"
+              placeholder={t('triggers.edit.runtime_variables.key_placeholder')}
               value={newVariableUUID || ''}
             />
           </Flex>
@@ -175,7 +183,7 @@ function OverwriteVariables({
               fullWidth
               monospace
               onChange={e => setNewVariableValue(e.target.value)}
-              placeholder="Variable value"
+              placeholder={t('triggers.edit.runtime_variables.value_placeholder')}
               value={newVariableValue || ''}
             />
           </Flex>
@@ -194,7 +202,7 @@ function OverwriteVariables({
               setNewVariableValue(null);
             }}
           >
-            Add runtime variable
+            {t('triggers.edit.runtime_variables.add_variable')}
           </Button>
         </FlexContainer>
       </Spacing>

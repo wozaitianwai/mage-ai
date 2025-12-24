@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import moment from 'moment';
+import { useTranslation } from 'react-i18next';
 
 import Circle from '@oracle/elements/Circle';
 import FlexContainer from '@oracle/components/FlexContainer';
@@ -31,6 +32,7 @@ type BlockRuntimeMonitorProps = {
 function BlockRuntimeMonitor({
   pipeline: pipelineProp,
 }: BlockRuntimeMonitorProps) {
+  const { t } = useTranslation('common');
   const theme = useContext(ThemeContext);
   const [pipelineSchedule, setPipelineSchedule] = useState<number>(null);
 
@@ -130,11 +132,11 @@ function BlockRuntimeMonitor({
 
     arr.push({
       bold: true,
-      label: () => 'Monitors',
+      label: () => t('pipeline_detail.monitors.title'),
     });
 
     return arr;
-  }, []);
+  }, [t]);
 
   return (
     <Monitor
@@ -145,7 +147,7 @@ function BlockRuntimeMonitor({
         <FlexContainer>
           <Select
             backgroundColor={dark.interactive.defaultBackground}
-            label="Trigger:"
+            label={t('pipeline_detail.monitors.trigger_label')}
             onChange={e => {
               const val = e.target.value;
               if (val !== 'initial') {
@@ -159,7 +161,7 @@ function BlockRuntimeMonitor({
             value={pipelineSchedule || 'initial'}
           >
             <option value="initial">
-              All
+              {t('common.all')}
             </option>
             {pipelineSchedules && pipelineSchedules.map(schedule => (
               <option
@@ -193,7 +195,7 @@ function BlockRuntimeMonitor({
                 </Spacing>
                 <Headline level={4}>
                   {blockUuid === ALL_BLOCKS_KEY
-                    ? removeUnderscore(capitalize(blockUuid))
+                    ? t('pipeline_detail.monitors.all_blocks')
                     : blockUuid
                   }
                 </Headline>
@@ -248,14 +250,14 @@ function BlockRuntimeMonitor({
                       const yRuntime = yValue?.runtime;
                       return yRuntime !== undefined && (
                         <Text center inverted small>
-                          {individualBlockUUID || ''}: {yRuntime.toFixed ? yRuntime.toFixed(3) : yRuntime}s
+                          {individualBlockUUID || ''}: {yRuntime.toFixed ? yRuntime.toFixed(3) : yRuntime}{t('pipeline_detail.monitors.seconds_suffix')}
                         </Text>
                       );
                     }
 
                     return yValue !== undefined && (
                       <Text center inverted small>
-                        {yValue.toFixed ? yValue.toFixed(3) : yValue}s
+                        {yValue.toFixed ? yValue.toFixed(3) : yValue}{t('pipeline_detail.monitors.seconds_suffix')}
                       </Text>
                       );
                   }}

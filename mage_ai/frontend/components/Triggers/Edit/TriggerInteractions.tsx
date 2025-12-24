@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import BlockInteractionController from '@components/Interactions/BlockInteractionController';
 import BlockType from '@interfaces/BlockType';
@@ -76,6 +77,7 @@ function TriggerInteractions({
   triggerTypes,
   variables,
 }: TriggerInteractionsType) {
+  const { t } = useTranslation('common');
   const interactionsMapping = useMemo(() => indexBy(interactions || [], ({ uuid }) => uuid), [
     interactions,
   ]);
@@ -224,7 +226,7 @@ function TriggerInteractions({
                 muted={missingValue}
               >
                 {missingValue && !invalid && '-'}
-                {invalid && 'This is required'}
+                {invalid && t('triggers.edit.trigger_name.required')}
                 {!missingValue && !invalid && values?.map(i => String(i))?.join(', ')}
               </Text>
             </Spacing>,
@@ -242,6 +244,7 @@ function TriggerInteractions({
   }, [
     blocks,
     interactionsMapping,
+    t,
     variables,
   ]);
 
@@ -282,7 +285,7 @@ function TriggerInteractions({
                       ? triggerTypes?.find(({
                         uuid,
                       }) => uuid === pipelineSchedule?.schedule_type)?.label?.()
-                      : 'This is required'
+                      : t('triggers.edit.trigger_name.required')
                     }
                   </Text>
                 </Spacing>,
@@ -350,7 +353,7 @@ function TriggerInteractions({
                         : (pipelineSchedule?.schedule_interval || ''),
                       )
                     }
-                    {!pipelineSchedule?.schedule_interval && 'This is required'}
+                    {!pipelineSchedule?.schedule_interval && t('triggers.edit.trigger_name.required')}
                   </Text>
                 </Spacing>,
               ],
@@ -371,7 +374,7 @@ function TriggerInteractions({
                     monospace={!!startTime}
                     muted={!startTime}
                   >
-                    {startTime || 'This is required'}
+                    {startTime || t('triggers.edit.trigger_name.required')}
                   </Text>
                 </Spacing>,
               ],

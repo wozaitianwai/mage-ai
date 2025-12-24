@@ -55,6 +55,7 @@ export const MESSAGE_VIEWS = [
 export function SIDEKICK_VIEWS(opts?: {
   pipeline?: PipelineType;
   project?: ProjectType;
+  t?: any;
 }): {
   buildLabel?: (opts: {
     pipeline: PipelineType;
@@ -68,6 +69,7 @@ export function SIDEKICK_VIEWS(opts?: {
   key: ViewKeyEnum;
   label?: string;
 }[] {
+  const t = opts?.t || ((str: string) => str);
   const arr: {
     buildLabel?: (opts: {
       pipeline: PipelineType;
@@ -83,7 +85,7 @@ export function SIDEKICK_VIEWS(opts?: {
   }[] = [
     {
       key: ViewKeyEnum.TREE,
-      label: 'Tree',
+      label: t('sidekick.tree'),
     },
     {
       buildLabel: ({
@@ -92,10 +94,10 @@ export function SIDEKICK_VIEWS(opts?: {
         const { widgets = [] } = pipeline || {};
 
         if (widgets?.length >= 1) {
-          return `Charts (${widgets.length})`;
+          return `${t('sidekick.charts')} (${widgets.length})`;
         }
 
-        return 'Charts';
+        return t('sidekick.charts');
       },
       key: ViewKeyEnum.CHARTS,
     },
@@ -104,10 +106,10 @@ export function SIDEKICK_VIEWS(opts?: {
         variables,
       }) => {
         if (variables?.length >= 1) {
-          return `Variables (${variables.length})`;
+          return `${t('sidekick.variables.label')} (${variables.length})`;
         }
 
-        return 'Variables';
+        return t('sidekick.variables.label');
       },
       key: ViewKeyEnum.VARIABLES,
     },
@@ -116,10 +118,10 @@ export function SIDEKICK_VIEWS(opts?: {
         secrets,
       }) => {
         if (secrets?.length >= 1) {
-          return `Secrets (${secrets.length})`;
+          return `${t('sidekick.secrets.label')} (${secrets.length})`;
         }
 
-        return 'Secrets';
+        return t('sidekick.secrets.label');
       },
       key: ViewKeyEnum.SECRETS,
     },
@@ -130,7 +132,7 @@ export function SIDEKICK_VIEWS(opts?: {
       {
         buildLabel: ({
           pipeline,
-        }) => 'Add-on blocks',
+        }) => t('sidekick.addon_blocks.label'),
         key: ViewKeyEnum.ADDON_BLOCKS,
       },
       {
@@ -144,10 +146,10 @@ export function SIDEKICK_VIEWS(opts?: {
           });
 
           if (extensionsCount >= 1) {
-            return `Power ups (${extensionsCount})`;
+            return `${t('sidekick.power_ups.label')} (${extensionsCount})`;
           }
 
-          return 'Power ups';
+          return t('sidekick.power_ups.label');
         },
         key: ViewKeyEnum.EXTENSIONS,
       },
@@ -157,22 +159,22 @@ export function SIDEKICK_VIEWS(opts?: {
   arr.push(...[
     {
       key: ViewKeyEnum.DATA,
-      label: 'Data',
+      label: t('sidekick.data'),
     },
     {
       key: ViewKeyEnum.TERMINAL,
-      label: 'Terminal',
+      label: t('sidekick.terminal'),
     },
     {
       key: ViewKeyEnum.BLOCK_SETTINGS,
-      label: 'Block settings',
+      label: t('sidekick.block_settings'),
     },
   ]);
 
   if (opts?.project?.features?.[FeatureUUIDEnum.INTERACTIONS]) {
     arr.push({
       key: ViewKeyEnum.INTERACTIONS,
-      label: 'Interactions',
+      label: t('sidekick.interactions'),
     });
   }
 
@@ -182,6 +184,7 @@ export function SIDEKICK_VIEWS(opts?: {
 export function SIDEKICK_VIEWS_BY_KEY(opts?: {
   pipeline?: PipelineType;
   project?: ProjectType;
+  t?: any;
 }) {
   return indexBy(SIDEKICK_VIEWS(opts), ({ key }) => key)
 };

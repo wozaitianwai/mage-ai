@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import Divider from '@oracle/elements/Divider';
@@ -58,6 +59,7 @@ function Branches({
   setActionRemoteName,
   showError,
 }: BranchesProps) {
+  const { t } = useTranslation('common');
   const [actionMessage, setActionMessage] = useState<string>('');
   const [actionName, setActionName] = useState<string>(null);
   const [actionProgress, setActionProgress] = useState<string>(null);
@@ -137,7 +139,7 @@ function Branches({
     <>
       <Spacing mb={UNITS_BETWEEN_SECTIONS}>
         <Headline>
-          Branches{branches ? ` (${branches?.length})` : ''}
+          {t('version_control.branches')}{branches ? ` (${branches?.length})` : ''}
         </Headline>
 
         <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
@@ -145,7 +147,7 @@ function Branches({
             <div>
               <Spacing mb={1}>
                 <Text bold muted>
-                  Remote
+                  {t('version_control.remote')}
                 </Text>
               </Spacing>
 
@@ -154,7 +156,7 @@ function Branches({
                 beforeIconSize={UNIT * 1.5}
                 monospace
                 onChange={e => setActionRemoteName(e.target.value)}
-                placeholder="Choose a remote"
+                placeholder={t('version_control.choose_remote')}
                 value={actionRemoteName || ''}
               >
                 {remotes?.map(({ name }) => (
@@ -170,14 +172,14 @@ function Branches({
             <div>
               <Spacing mb={1}>
                 <Text bold muted>
-                  Current branch
+                  {t('version_control.current_branch')}
                 </Text>
               </Spacing>
 
               <FlexContainer alignItems="center">
                 <Tooltip
                   fullSize
-                  label="Choose a different branch to switch branches"
+                  label={t('version_control.switch_branch_hint')}
                   widthFitContent
                 >
                   <Select
@@ -214,7 +216,7 @@ function Branches({
         <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
           <FlexContainer alignItems="center">
             <TextInput
-              label="New branch name"
+              label={t('version_control.new_branch_name')}
               monospace
               onChange={e => setBranchNameNew(e?.target?.value)}
               value={branchNameNew || ''}
@@ -236,7 +238,7 @@ function Branches({
               }}
               primary
             >
-              Create new branch
+              {t('version_control.create_new_branch')}
             </Button>
           </FlexContainer>
         </Spacing>
@@ -244,14 +246,14 @@ function Branches({
 
       <Spacing mb={UNITS_BETWEEN_SECTIONS}>
         <Headline>
-          Actions
+          {t('version_control.actions')}
         </Headline>
 
         <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
           <Spacing mb={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
             <Spacing mb={1}>
               <Text bold muted>
-                Compare branch
+                {t('version_control.compare_branch')}
               </Text>
             </Spacing>
 
@@ -266,7 +268,7 @@ function Branches({
             <div>
               <Spacing mb={1}>
                 <Text bold muted>
-                  Base branch
+                  {t('version_control.base_branch')}
                 </Text>
               </Spacing>
 
@@ -275,7 +277,7 @@ function Branches({
                 beforeIconSize={UNIT * 1.5}
                 monospace
                 onChange={e => setBranchBase(e.target.value)}
-                placeholder="Choose a branch"
+                placeholder={t('version_control.choose_branch')}
                 value={branchBase}
               >
                 {allBranches?.map(({ name }) => (
@@ -291,13 +293,13 @@ function Branches({
             <div>
               <Spacing mb={1}>
                 <Text bold muted>
-                  Action
+                  {t('version_control.action')}
                 </Text>
               </Spacing>
 
               <Select
                 onChange={(e) => setActionName(e.target.value)}
-                placeholder="Choose action"
+                placeholder={t('version_control.choose_action')}
                 value={actionName || ''}
               >
                 <option value={ACTION_MERGE}>
@@ -317,7 +319,7 @@ function Branches({
             <Spacing mt={PADDING_UNITS}>
               <Spacing mb={1}>
                 <Text bold muted>
-                  Message for {actionName}
+                  {t('version_control.message_for_action', { action: actionName })}
                 </Text>
               </Spacing>
 
@@ -339,7 +341,7 @@ function Branches({
                   typeof window !== 'undefined'
                     && typeof location !== 'undefined'
                     && window.confirm(
-                      `Are you sure you want to delete branch ${branchBase}?`,
+                      t('version_control.are_you_sure_delete_branch', { branch: branchBase }),
                     )
                 )) {
                   // @ts-ignore
@@ -356,7 +358,9 @@ function Branches({
               }}
               primary
             >
-              {actionName ? capitalizeRemoveUnderscoreLower(actionName) : 'Execute action'}
+              {actionName
+                ? capitalizeRemoveUnderscoreLower(actionName)
+                : t('version_control.execute_action')}
             </Button>
 
             {actionProgress && (
@@ -389,7 +393,7 @@ function Branches({
             noHoverUnderline
             sameColorAsText
           >
-            {TAB_REMOTE.uuid}
+            {t('version_control.tabs.remote')}
           </Button>
 
           <Spacing mr={1} />
@@ -403,7 +407,7 @@ function Branches({
             sameColorAsText
             secondary
           >
-            Next: {TAB_FILES.uuid}
+            {t('version_control.next_tab', { tab: t('version_control.tabs.commit') })}
           </Button>
         </FlexContainer>
       </Spacing>

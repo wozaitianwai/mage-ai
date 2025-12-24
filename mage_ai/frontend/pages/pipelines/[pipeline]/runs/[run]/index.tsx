@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import BlockRunsTable, {
   COL_IDX_TO_BLOCK_RUN_ATTR_MAPPING,
@@ -52,6 +53,7 @@ function PipelineBlockRuns({
   pipeline: pipelineProp,
   pipelineRun: pipelineRunProp,
 }: PipelineBlockRunsProps) {
+  const { t } = useTranslation('common');
   const displayLocalTimezone = shouldDisplayLocalTimezone();
   const router = useRouter();
   const q = queryFromUrl();
@@ -249,6 +251,7 @@ function PipelineBlockRuns({
     props =>
       buildTableSidekick({
         ...props,
+        t,
         blocks: dataBlocks?.blocks,
         blockRuns,
         blocksOverride: totalBlockRuns <= ROW_LIMIT ? dataBlocks?.blocks : null,
@@ -267,6 +270,7 @@ function PipelineBlockRuns({
       selectedRun,
       selectedTabSidekick,
       setSelectedTabSidekick,
+      t,
       totalBlockRuns,
     ],
   );
@@ -275,7 +279,7 @@ function PipelineBlockRuns({
     <PipelineDetailPage
       breadcrumbs={[
         {
-          label: () => 'Runs',
+          label: () => t('pipeline_detail.navigation.runs'),
           linkProps: {
             as: `/pipelines/${pipelineUUID}/runs`,
             href: '/pipelines/[pipeline]/runs',
@@ -299,7 +303,7 @@ function PipelineBlockRuns({
             {RUNNING_STATUSES.includes(pipelineRunStatus) && (
               <Flex>
                 <Text bold default large>
-                  Pipeline is running
+                  {t('pipeline_detail.runs.pipeline_is_running')}
                 </Text>
                 <Spacing mr={1} />
                 <Spinner inverted />
@@ -321,7 +325,7 @@ function PipelineBlockRuns({
                   }}
                   outline
                 >
-                  Retry incomplete blocks
+                  {t('pipeline_detail.runs.retry_incomplete_blocks')}
                 </Button>
                 <Spacing mr={2} />
               </>
@@ -341,17 +345,19 @@ function PipelineBlockRuns({
                 outline
                 primary
               >
-                Retry from selected block ({selectedRun.block_uuid})
+                {t('pipeline_detail.runs.retry_from_selected_block', {
+                  block_uuid: selectedRun.block_uuid,
+                })}
               </Button>
             )}
           </FlexContainer>
         )
       }
-      title={({ name }) => `${name} runs`}
+      title={({ name }) => t('pipeline_detail.runs.title', { name })}
       uuid={`pipelines/detail/${PageNameEnum.RUNS}`}
     >
       <Spacing mt={PADDING_UNITS} px={PADDING_UNITS}>
-        <Headline level={5}>Block runs</Headline>
+        <Headline level={5}>{t('pipeline_runs.block_runs')}</Headline>
       </Spacing>
 
       <Divider light mt={PADDING_UNITS} short />

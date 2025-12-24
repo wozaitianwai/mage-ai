@@ -14,10 +14,10 @@ const CONTAINER_MIN_WIDTH = UNIT * 74;
 const MAIN_HEIGHT = UNIT * 48;
 
 export const ContainerStyle = styled.div<{
-  compact?: boolean;
-  display?: boolean;
-  left?: number;
-  top?: number;
+  $compact?: boolean;
+  $display?: boolean;
+  $left?: number;
+  $top?: number;
 }>`
   position: absolute;
   border-radius: ${BORDER_RADIUS}px;
@@ -31,25 +31,25 @@ export const ContainerStyle = styled.div<{
     box-shadow: ${(props.theme.shadow || dark.shadow).window};
   `}
 
-  ${props => props.display && `
+  ${props => props.$display && `
     display: block;
   `}
 
-  ${props => props.compact && `
+  ${props => props.$compact && `
     width: ${CONTAINER_MIN_WIDTH * 0.75}px;
   `}
 
-  ${props => typeof props.left !== 'undefined' && `
-    left: ${props.left}px;
+  ${props => typeof props.$left !== 'undefined' && `
+    left: ${props.$left}px;
   `}
 
-  ${props => typeof props.top !== 'undefined' && `
-    top: ${props.top}px;
+  ${props => typeof props.$top !== 'undefined' && `
+    top: ${props.$top}px;
   `}
 `;
 
 export const MainStyle = styled.div<{
-  compact?: boolean;
+  $compact?: boolean;
 }>`
   display: flex;
   border-radius: ${BORDER_RADIUS}px;
@@ -61,7 +61,7 @@ export const MainStyle = styled.div<{
     border: ${BORDER_WIDTH}px ${BORDER_STYLE} ${(props.theme || dark).interactive.defaultBackground};
   `}
 
-  ${props => props.compact && `
+  ${props => props.$compact && `
     height: ${MAIN_HEIGHT / 2}px;
   `}
 `;

@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { useMutation } from 'react-query';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import ApiReloader from '@components/ApiReloader';
 import AuthToken from '@api/utils/AuthToken';
@@ -166,6 +167,7 @@ function PipelineDetailPage({
   page,
   pipeline: pipelineProp,
 }: PipelineDetailPageProps) {
+  const { t } = useTranslation('common');
   const mainContainerFooterRef = useRef(null);
   const timeoutRef = useRef(null);
 
@@ -565,10 +567,9 @@ function PipelineDetailPage({
       neutral
       onClick={hideStalePipelineMessageModal}
       subtitle={
-        'This pipeline may be open on another tab. Saving changes here could overwrite'
-        + ' any changes made to this pipeline on a separate tab. Proceed with caution.'
+        t('pipeline_detail.edit.stale_pipeline_subtitle')
       }
-      title="Your pipeline may be stale."
+      title={t('pipeline_detail.edit.stale_pipeline_title')}
       width={UNIT * 34}
     />
   ), {}, [], {
@@ -1566,16 +1567,14 @@ function PipelineDetailPage({
       ) {
       if (pipelineUUID !== 'undefined') {
         configFileLinks = [{
-          label: 'Check pipeline configuration file for any issues',
+          label: t('pipeline_detail.edit.check_pipeline_configuration_file'),
           onClick: () => {
             openFile(`pipelines/${pipelineUUID}/${SpecialFileEnum.METADATA_YAML}`);
             setErrors(null);
           },
         }];
       } else {
-        dataWithPotentialError.error.displayMessage = 'There may be an issue with your '
-          + 'pipeline’s configuration file. Please check to make sure it is valid. It '
-          + 'can be found at /pipelines/[pipeline_uuid]/metadata.yaml.';
+        dataWithPotentialError.error.displayMessage = t('pipeline_detail.edit.pipeline_configuration_file_issue');
       }
     } else if (dataDataProviders?.hasOwnProperty('error')) {
       dataWithPotentialError = dataDataProviders;
@@ -1589,13 +1588,14 @@ function PipelineDetailPage({
        */
       dataWithPotentialError = {
         error: {
-          displayMessage: `The variables_dir (${variablesDir}) or remote_variables_dir (${remoteVariablesDir})`
-            + ' might be configured incorrectly. Please make sure those properties have values'
-            + ' interpolated correctly in your project’s metadata.yaml config file.',
+          displayMessage: t('pipeline_detail.edit.variables_dir_invalid', {
+            remote_variables_dir: remoteVariablesDir,
+            variables_dir: variablesDir,
+          }),
         },
       };
       configFileLinks = [{
-        label: 'Check project configuration',
+        label: t('pipeline_detail.edit.check_project_configuration'),
         onClick: () => {
           openFile(`${SpecialFileEnum.METADATA_YAML}`);
           setPipelineErrors(null);
@@ -1611,6 +1611,7 @@ function PipelineDetailPage({
     pipeline?.remote_variables_dir,
     pipeline?.variables_dir,
     pipelineUUID,
+    t,
   ]);
 
   const {
@@ -1677,7 +1678,7 @@ function PipelineDetailPage({
         setErrors(err => ({
           ...err,
           links: [{
-            label: 'Check pipeline configuration',
+            label: t('pipeline_detail.edit.check_pipeline_configuration'),
             onClick: () => {
               openFile(`pipelines/${pipelineUUID}/${SpecialFileEnum.METADATA_YAML}`);
               setErrors(null);
@@ -1695,6 +1696,7 @@ function PipelineDetailPage({
     pipelineUUID,
     router,
     savePipelineContent,
+    t,
   ]);
 
   const [interactionsMapping, setInteractionsMapping] = useState<{
@@ -1850,11 +1852,9 @@ function PipelineDetailPage({
       onCancel={hideDeleteConfirmation}
       onClick={() => deleteBlockFile(block)}
       subtitle={
-        'Deleting this block is dangerous. Your block may have downstream ' +
-        'dependencies that depend on this block. You can delete this block anyway ' +
-        'and remove it as a dependency from downstream blocks.'
+        t('pipeline_detail.edit.delete_block_dependencies_subtitle')
       }
-      title="Your block has dependencies"
+      title={t('pipeline_detail.edit.delete_block_dependencies_title')}
       width={UNIT * 34}
     />
   ));
@@ -1951,31 +1951,46 @@ function PipelineDetailPage({
       if (BlockTypeEnum.DATA_LOADER === blockType) {
         if (BlockLanguageEnum.YAML !== blockLanguage) {
           setErrors({
-            displayMessage: `The source you’re trying to add must contain the language ${BlockLanguageEnum.YAML} and not ${blockLanguage}.`,
+            displayMessage: t('pipeline_detail.edit.data_integration.source_language_mismatch', {
+              actual: blockLanguage,
+              expected: BlockLanguageEnum.YAML,
+            }),
           });
           return;
         } else if (dataLoaderBlock) {
           setErrors({
-            displayMessage: `Pipeline ${pipeline?.uuid} already has a source: ${dataLoaderBlock?.uuid}.`,
+            displayMessage: t('pipeline_detail.edit.data_integration.pipeline_already_has_source', {
+              pipeline_uuid: pipeline?.uuid,
+              source_block_uuid: dataLoaderBlock?.uuid,
+            }),
           });
           return;
         }
       } else if (BlockTypeEnum.TRANSFORMER === blockType) {
         if (transformerBlock) {
           setErrors({
-            displayMessage: `Pipeline ${pipeline?.uuid} already has a transformer: ${transformerBlock?.uuid}.`,
+            displayMessage: t('pipeline_detail.edit.data_integration.pipeline_already_has_transformer', {
+              pipeline_uuid: pipeline?.uuid,
+              transformer_block_uuid: transformerBlock?.uuid,
+            }),
           });
           return;
         }
       } else if (BlockTypeEnum.DATA_EXPORTER === blockType) {
         if (BlockLanguageEnum.YAML !== blockLanguage) {
           setErrors({
-            displayMessage: `The destination you’re trying to add must contain the language ${BlockLanguageEnum.YAML} and not ${blockLanguage}.`,
+            displayMessage: t('pipeline_detail.edit.data_integration.destination_language_mismatch', {
+              actual: blockLanguage,
+              expected: BlockLanguageEnum.YAML,
+            }),
           });
           return;
         } else if (dataExporterBlock) {
           setErrors({
-            displayMessage: `Pipeline ${pipeline?.uuid} already has a destination: ${dataExporterBlock?.uuid}.`,
+            displayMessage: t('pipeline_detail.edit.data_integration.pipeline_already_has_destination', {
+              destination_block_uuid: dataExporterBlock?.uuid,
+              pipeline_uuid: pipeline?.uuid,
+            }),
           });
           return;
         }
@@ -2069,7 +2084,7 @@ function PipelineDetailPage({
               setErrors(() => ({
                 errors,
                 links: [{
-                  label: 'View existing block file contents.',
+                  label: t('pipeline_detail.edit.view_existing_block_file_contents'),
                   onClick: () => {
                     openFile(filePath);
                     setErrors(null);
@@ -2104,6 +2119,7 @@ function PipelineDetailPage({
     pipeline,
     savePipelineContent,
     sideBySideEnabled,
+    t,
   ]);
 
   const [showAddBlockModal, hideAddBlockModal] = useModal(({
@@ -3405,6 +3421,17 @@ function PipelineDetailPage({
     selectedTab,
   ]);
 
+  const editBeforeTabs = useMemo(() => (
+    EDIT_BEFORE_TABS.map((tab: TabType) => ({
+      ...tab,
+      label: () => (
+        EDIT_BEFORE_TAB_ALL_FILES.uuid === tab.uuid
+          ? t('block_browser.tabs.all_files')
+          : t('block_browser.tabs.current_blocks')
+      ),
+    }))
+  ), [t]);
+
   const buttonTabs = useMemo(() => (
     <Spacing px={1}>
       <ButtonTabs
@@ -3413,12 +3440,13 @@ function PipelineDetailPage({
           setSelectedTab(tab);
         }}
         selectedTabUUID={selectedTab?.uuid}
-        tabs={EDIT_BEFORE_TABS}
+        tabs={editBeforeTabs}
         underlineColor={(themeContext || dark).accent.purple}
         underlineStyle
       />
     </Spacing>
   ), [
+    editBeforeTabs,
     setSelectedTab,
     selectedTab,
     themeContext,
@@ -3443,6 +3471,7 @@ function PipelineDetailPage({
           project,
           secrets,
           setActiveSidekickView,
+          t,
           variables: globalVariables,
         })}
         afterOverflow={ViewKeyEnum.DATA === activeSidekickView ? 'hidden' : null}
@@ -3496,7 +3525,7 @@ function PipelineDetailPage({
         beforeHeader={buttonTabs}
         beforeHeightOffset={HEADER_HEIGHT}
         beforeHidden={beforeHidden}
-        beforeNavigationItems={buildNavigationItems(PageNameEnum.EDIT, pipeline)}
+        beforeNavigationItems={buildNavigationItems(PageNameEnum.EDIT, pipeline, pipelineUUIDFromUrl, t)}
         errors={pipelineErrors || errors}
         footerOffset={mainContainerFooterRef?.current?.getBoundingClientRect()?.height}
         mainContainerFooter={mainContainerFooterMemo}

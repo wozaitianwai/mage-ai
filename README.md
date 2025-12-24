@@ -19,6 +19,10 @@ When it’s time to scale, [Mage Pro](https://mage.ai) — our core platform —
 
 <br />
 
+**中文文档：**[README_zh.md](./README_zh.md)
+
+<br />
+
 ## What you can do with Mage OSS
 
 - Build pipelines locally with Python, SQL, or R in a modular notebook-style UI
@@ -97,6 +101,30 @@ Full setup guide and docs: [docs.mage.ai](https://docs.mage.ai/getting-started/s
 Looking for how-to guides, examples, or advanced configuration?
 
 Explore our full documentation at [docs.mage.ai](https://docs.mage.ai).
+
+<br />
+
+## Build the Python package
+
+To generate a wheel and source distribution from the repo, run:
+
+```
+bash scripts/build_package.sh
+```
+
+## Start from source on Windows
+
+Run the helper script to create a virtual environment (if needed), install dependencies, and launch Mage locally:
+
+```
+powershell -ExecutionPolicy Bypass -File scripts/start_windows.ps1 -ProjectName your_project
+```
+
+Optional flags:
+
+- `-Host` (default `localhost`)
+- `-Port` (default `6789`)
+- `-SkipInstall` to reuse existing dependencies
 
 
 <br />

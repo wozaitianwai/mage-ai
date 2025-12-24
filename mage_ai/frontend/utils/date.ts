@@ -35,7 +35,7 @@ export const DATE_FORMAT_LONG_NO_SEC = 'YYYY-MM-DD HH:mm';
 export const DATE_FORMAT_LONG_NO_SEC_WITH_OFFSET = 'YYYY-MM-DD HH:mmZ';
 export const DATE_FORMAT_SHORT = 'YYYY-MM-DD';
 export const DATE_FORMAT_SPARK = 'YYYY-MM-DDTHH:mm:ss.SSSGMT';
-export const DATE_FORMAT_FULL = 'MMMM D, YYYY';
+export const DATE_FORMAT_FULL = 'LL';
 export const TIME_FORMAT = 'HH:mm:ss';
 export const TIME_FORMAT_NO_SEC = 'HH:mm';
 export const HUMAN_READABLE = 'MMMM D, YYYY HH:mmZ';
@@ -279,14 +279,16 @@ export function getFullDateRangeString(
   options?: {
     endDateOnly?: boolean;
     localTime?: boolean;
+    locale?: string;
   },
 ) {
-  let dateMomentStart = moment.utc();
-  let dateMomentEnd = moment.utc();
+  const dateMomentBase = options?.localTime ? moment().local() : moment.utc();
+  let dateMomentStart = dateMomentBase.clone();
+  let dateMomentEnd = dateMomentBase.clone();
 
-  if (options?.localTime) {
-    dateMomentStart = moment().local();
-    dateMomentEnd = moment().local();
+  if (options?.locale) {
+    dateMomentStart = dateMomentStart.locale(options.locale);
+    dateMomentEnd = dateMomentEnd.locale(options.locale);
   }
 
   dateMomentStart = dateMomentStart.subtract(daysAgo, 'days');
@@ -317,12 +319,18 @@ export function getStartDateStringFromPeriod(
     : dateMoment.startOf('day').format(DATE_FORMAT_LONG);
 }
 
-export function getDateRange(daysInterval: number = 90): string[] {
-  const date = new Date();
+export function getDateRange(
+  daysInterval: number = 90,
+  options?: {
+    localTime?: boolean;
+  },
+): string[] {
   const dateRange = [];
+  let dateMoment = options?.localTime ? moment().local() : moment.utc();
+
   for (let i = 0; i < daysInterval; i++) {
-    dateRange.unshift(date.toISOString().split('T')[0]);
-    date.setDate(date.getDate() - 1);
+    dateRange.unshift(dateMoment.format(DATE_FORMAT_SHORT));
+    dateMoment = dateMoment.subtract(1, 'day');
   }
 
   return dateRange;

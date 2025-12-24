@@ -2,6 +2,7 @@ import NextLink from 'next/link';
 import { ThemeContext } from 'styled-components';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 import AuthToken from '@api/utils/AuthToken';
 import Breadcrumbs, { BreadcrumbType as BreadcrumbTypeOrig } from '@components/Breadcrumbs';
@@ -15,6 +16,7 @@ import FlyoutMenu, { FlyoutMenuItemType } from '@oracle/components/FlyoutMenu';
 import GitActions from '@components/VersionControl/GitActions';
 import GradientLogoIcon from '@oracle/icons/GradientLogo';
 import KeyboardShortcutButton from '@oracle/elements/Button/KeyboardShortcutButton';
+import LanguageSwitcher from '@components/LanguageSwitcher';
 import LaunchKeyboardShortcutText from '@components/CommandCenter/LaunchKeyboardShortcutText';
 import Loading, { LoadingStyleEnum } from '@oracle/components/Loading';
 import Link from '@oracle/elements/Link';
@@ -29,7 +31,7 @@ import useCustomDesign from '@utils/models/customDesign/useCustomDesign';
 import useDelayFetch from '@api/utils/useDelayFetch';
 import useProject from '@utils/models/project/useProject';
 import { BLUE_TRANSPARENT, YELLOW } from '@oracle/styles/colors/main';
-import { BranchAlt, MageProLetters, Planet, Slack, UFO } from '@oracle/icons';
+import { BranchAlt } from '@oracle/icons';
 import {
   ButtonInputStyle,
   CUSTOM_LOGO_HEIGHT,
@@ -51,6 +53,13 @@ import { redirectToUrl } from '@utils/url';
 import { storeLocalTimezoneSetting } from '@components/settings/workspace/utils';
 import { useModal } from '@context/Modal';
 import { useError } from '@context/Error';
+import { ThemeType } from '@oracle/styles/themes/constants';
+import {
+  getCurrentThemeMode,
+  setCurrentTheme,
+  THEME_MODE_DARK,
+  THEME_MODE_LIGHT,
+} from '@oracle/styles/themes/utils';
 
 export type BreadcrumbType = BreadcrumbTypeOrig;
 
@@ -79,8 +88,9 @@ function Header({
   const [showError] = useError(null, {}, [], {
     uuid: 'shared/Header',
   });
+  const { t } = useTranslation('common');
 
-  const themeContext = useContext(ThemeContext);
+  const themeContext = useContext(ThemeContext) as ThemeType;
   const router = useRouter();
   const userFromLocalStorage = getUser(router?.basePath);
 
@@ -243,14 +253,10 @@ function Header({
     });
   }
 
-  const breadcrumbs = useMemo(() => [
+  const breadcrumbs = [
     ...breadcrumbProjects,
     ...(breadcrumbsProp || []),
-  ], [
-    breadcrumbProjects,
-    breadcrumbsProp,
-    project,
-  ]);
+  ];
   const { pipeline: pipelineUUID } = router.query;
 
   const { latest_version: latestVersion } = project || {};
@@ -305,27 +311,40 @@ function Header({
     ? []
     : [
       {
-        label: () => 'Settings',
+        label: () => t?.('sidebar.settings') || 'Settings',
         linkProps: {
           href: '/settings/workspace/preferences',
         },
         uuid: 'user_settings',
       },
       {
-        label: () => 'Light mode',
-        linkProps: {
-          href: 'https://www.mage.ai/build?ref=oss',
-          openNewWindow: true,
+        label: () => (
+          themeContext?.type === 'light'
+            ? t?.('common.dark_mode') || 'Dark mode'
+            : t?.('common.light_mode') || 'Light mode'
+        ),
+        onClick: () => {
+          const nextMode = themeContext?.type === 'light' ? THEME_MODE_DARK : THEME_MODE_LIGHT;
+          setCurrentTheme(nextMode);
+
+          if (typeof document !== 'undefined') {
+            document.body.removeAttribute('data-theme');
+            document.body.setAttribute('data-theme', nextMode === THEME_MODE_LIGHT ? 'light' : 'dark');
+          }
+
+          if (typeof window !== 'undefined') {
+            const eventCustom = new CustomEvent(CustomEventUUID.THEME_CHANGED);
+            window.dispatchEvent(eventCustom);
+          }
         },
-        tag: 'Pro',
-        uuid: 'light_mode',
+        uuid: 'theme_mode',
       },
     ];
 
   if (REQUIRE_USER_AUTHENTICATION()) {
     userDropdown.push(
       {
-        label: () => 'Sign out',
+        label: () => t?.('header.sign_out') || 'Sign out',
         onClick: () => logout(),
         uuid: 'sign_out',
       });
@@ -399,6 +418,7 @@ function Header({
     );
   }, [
     hasAvatarAndNotEmoji,
+    themeContext?.content?.active,
     userFromLocalStorage,
   ]);
 
@@ -517,6 +537,11 @@ function Header({
             </Spacing>
 
             <Spacing ml={1}>
+              <LanguageSwitcher />
+            </Spacing>
+
+            {/*
+            <Spacing ml={1}>
               <KeyboardShortcutButton
                 beforeElement={<Slack />}
                 compact
@@ -555,6 +580,7 @@ function Header({
                 Try
               </KeyboardShortcutButton>
             </Spacing>
+            */}
 
             {menuItems &&
               <>

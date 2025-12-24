@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import Dashboard from '@components/Dashboard';
@@ -12,6 +13,7 @@ import { PADDING_UNITS, UNIT } from '@oracle/styles/units/spacing';
 import { queryFromUrl } from '@utils/url';
 
 function GlobalDataProductsPage() {
+  const { t } = useTranslation('common');
   const [isNew, setIsNew] = useState<boolean>(false);
   const [objectUUID, setObjectUUID] = useState<string>(null);
   const [objectType, setObjectType] = useState<string>(null);
@@ -42,19 +44,19 @@ function GlobalDataProductsPage() {
       breadcrumbs={isNew
         ? [
           {
-            label: () => 'Global data products',
+            label: () => t('global_data_products.title'),
             linkProps: {
               href: '/global-data-products',
             },
           },
           {
             bold: true,
-            label: () => 'New',
+            label: () => t('global_data_products.new'),
           },
         ]
         : null
       }
-      title="Global data products"
+      title={t('global_data_products.title')}
       uuid="GlobalDataProducts/index"
     >
       <Spacing p={PADDING_UNITS}>
@@ -70,7 +72,7 @@ function GlobalDataProductsPage() {
           primary
           sameColorAsText
         >
-          New global data product
+          {t('global_data_products.new_product')}
         </Button>
       </Spacing>
 

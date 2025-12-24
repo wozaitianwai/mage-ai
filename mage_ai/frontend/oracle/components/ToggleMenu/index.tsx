@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import ClickOutside from '@oracle/components/ClickOutside';
@@ -42,6 +43,9 @@ type ToggleMenuProps = {
   resetLimitOnApply?: boolean;
   resetPageOnApply?: boolean;
   setOpen: (open: boolean) => void;
+  optionLabelMapping?: {
+    [key: string]: string | (() => string);
+  };
   toggleValueMapping?: {
     [keyof: string]: {
       [keyof: string]: string | (() => string);
@@ -62,8 +66,10 @@ function ToggleMenu({
   resetLimitOnApply,
   resetPageOnApply,
   setOpen,
+  optionLabelMapping,
   toggleValueMapping,
 }: ToggleMenuProps) {
+  const { t } = useTranslation('common');
   const [highlightedOptionKey, setHighlightedOptionKey] = useState<string>(null);
   const [optionsState, setOptionsState] = useState(options);
 
@@ -86,11 +92,11 @@ function ToggleMenu({
         {children}
       </div>
       <ContainerStyle
-        compact={compact}
-        display={open}
-        top={top - 5}
+        $compact={compact}
+        $display={open}
+        $top={top - 5}
       >
-        <MainStyle compact={compact}>
+        <MainStyle $compact={compact}>
           <Flex flex="1">
             <BeforeStyle>
               {optionKeys.map(optionKey => (
@@ -100,7 +106,10 @@ function ToggleMenu({
                   onMouseEnter={() => setHighlightedOptionKey(optionKey)}
                 >
                   <Text>
-                    {removeUnderscore(capitalize(optionKey))}
+                    {typeof optionLabelMapping?.[optionKey] === 'function'
+                      // @ts-ignore
+                      ? optionLabelMapping?.[optionKey]?.()
+                      : optionLabelMapping?.[optionKey] || removeUnderscore(capitalize(optionKey))}
                   </Text>
                   <ChevronRight />
                 </OptionStyle>
@@ -112,8 +121,8 @@ function ToggleMenu({
               {highlightedOptionKey && (
                 Object.entries((optionsState || options)?.[highlightedOptionKey] || {}).map(([value, enabled]) => {
                   const valueMapping = toggleValueMapping?.[highlightedOptionKey];
-                  const optionValue = (typeof valueMapping?.[value] === 'function'
-                    // @ts-ignore
+                    const optionValue = (typeof valueMapping?.[value] === 'function'
+                      // @ts-ignore
                     ? capitalize(valueMapping?.[value]?.())
                     : valueMapping?.[value]
                   ) || value;
@@ -180,7 +189,7 @@ function ToggleMenu({
               }}
               secondary
             >
-              Apply
+              {t('common.apply')}
             </Button>
             <Spacing mr={1} />
             <Button
@@ -190,7 +199,7 @@ function ToggleMenu({
                 onSecondaryClick?.();
               }}
             >
-              Defaults
+              {t('common.defaults')}
             </Button>
           </FlexContainer>
         </Spacing>

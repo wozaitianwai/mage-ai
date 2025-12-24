@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import FileType from '@interfaces/FileType';
@@ -36,6 +37,7 @@ function NewFile({
   selectedFolder,
   showError,
 }: NewFileProps) {
+  const { t } = useTranslation('common');
   const refTextInput = useRef(null);
   const file = isEmptyObject(fileProp) ? null : fileProp;
 
@@ -130,9 +132,10 @@ function NewFile({
           >
             {file
               ? moveFile
-                ? 'Move'
-                : 'Rename'
-              : 'Create'} file
+                ? t('files.file_browser.new_file.actions.move_file')
+                : t('files.file_browser.new_file.actions.rename_file')
+              : t('files.file_browser.new_file.actions.create_file')
+            }
           </KeyboardShortcutButton>
 
           <Spacing ml={1}>
@@ -140,21 +143,21 @@ function NewFile({
               onClick={() => onCancel()}
               tabIndex={0}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
           </Spacing>
         </FlexContainer>
       )}
       headerTitle={file
         ? moveFile
-          ? 'Move file'
-          : 'Rename file'
-        : 'New file'}
+          ? t('files.file_browser.new_file.titles.move_file')
+          : t('files.file_browser.new_file.titles.rename_file')
+        : t('files.file_browser.new_file.titles.new_file')}
       minWidth={UNIT * 50}
     >
       <TextInput
         disabled={!!file && !moveFile}
-        label="Directory"
+        label={t('files.file_browser.fields.directory')}
         monospace
         onChange={e => setDirectory(e.target.value)}
         setContentOnMount
@@ -164,7 +167,7 @@ function NewFile({
       <Spacing mt={2}>
         <TextInput
           disabled={!!moveFile}
-          label="Filename"
+          label={t('files.file_browser.fields.filename')}
           monospace
           onChange={e => setFilename(e.target.value)}
           ref={refTextInput}

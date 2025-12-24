@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import BlockNavigation from '@components/CustomTemplates/BrowseTemplates/Navigation/BlockNavigation';
 import CacheItemType from '@interfaces/CacheItemType';
@@ -29,6 +30,7 @@ function FileBrowserNavigation({
   selectedTab,
   setSelectedLinks,
 }: FileBrowserNavigationProps) {
+  const { t } = useTranslation('common');
   const [showError] = useError(null, {}, [], {
     uuid: 'FileBrowserNavigation',
   });
@@ -64,11 +66,12 @@ function FileBrowserNavigation({
       return buildNavLinks(cacheItems);
     }
 
-    return NAV_LINKS;
+    return NAV_LINKS(t);
   }, [
     cacheItems,
     selectedItem,
     selectedLinks,
+    t,
   ]);
 
   const selectedBlockType = useMemo(() => selectedLinks?.find(({

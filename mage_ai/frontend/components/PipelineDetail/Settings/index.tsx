@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@oracle/elements/Button';
 import Checkbox from '@oracle/elements/Checkbox';
@@ -34,7 +35,7 @@ import {
 } from '@oracle/styles/units/spacing';
 import { get, set } from '@storage/localStorage';
 import { isEqual } from '@utils/hash';
-import { capitalize, isJsonString } from '@utils/string';
+import { isJsonString } from '@utils/string';
 import { pushUnique } from '@utils/array';
 
 type PipelineSettingsProps = {
@@ -48,6 +49,7 @@ function PipelineSettings({
   pipeline,
   updatePipeline,
 }: PipelineSettingsProps) {
+  const { t } = useTranslation('common');
   const {
     project,
   } = useProject();
@@ -174,7 +176,7 @@ function PipelineSettings({
 
   return (
     <Spacing p={PADDING_UNITS}>
-      <SetupSection title="Details">
+      <SetupSection title={t('pipeline_detail.settings.sections.details')}>
         <SetupSectionRow
           invalid={pipelineAttributesTouched && !pipelineAttributes?.name}
           textInput={{
@@ -184,7 +186,7 @@ function PipelineSettings({
             })),
             value: pipelineAttributes?.name,
           }}
-          title="Pipeline name"
+          title={t('pipeline_detail.settings.pipeline_name')}
         />
 
         <SetupSectionRow
@@ -193,15 +195,15 @@ function PipelineSettings({
               ...prev,
               description: e.target.value,
             })),
-            placeholder: 'Enter description...',
+            placeholder: t('pipeline_detail.settings.pipeline_description_placeholder'),
             value: pipelineAttributes?.description || '',
           }}
-          title="Pipeline description"
+          title={t('pipeline_detail.settings.pipeline_description')}
         />
 
         <SetupSectionRow
-          description="When enabled, this setting allows sharing of objects and memory space across blocks within a single pipeline."
-          title="Run pipeline in a single process"
+          description={t('pipeline_detail.settings.run_pipeline_single_process_description')}
+          title={t('pipeline_detail.settings.run_pipeline_single_process')}
           toggleSwitch={{
             checked: !!pipelineAttributes?.run_pipeline_in_one_process,
             onCheck: (valFunc: (val: boolean) => boolean) => setPipelineAttributes(prev => ({
@@ -215,19 +217,17 @@ function PipelineSettings({
           description={(
             <>
               <Text muted small>
-                Every time a trigger is created or updated in this pipeline,
-                it’ll be automatically be persisted it in code.
+                {t('triggers.save_triggers_description')}
               </Text>
 
               {projectPipelineSettings?.triggers?.save_in_code_automatically && (
                 <Text small warning>
-                  This settings is enabled at the project level.
-                  Changing the value here will only affect this pipeline.
+                  {t('pipeline_detail.settings.triggers.project_level_warning')}
                 </Text>
               )}
             </>
           )}
-          title="Save triggers in code automatically"
+          title={t('triggers.save_triggers_automatically')}
           toggleSwitch={{
             checked: saveInCodeAutomaticallyToggled || !!pipelineAttributes?.settings?.triggers?.save_in_code_automatically,
             onCheck: (valFunc: (val: boolean) => boolean) => setPipelineAttributes(prev => ({
@@ -247,12 +247,12 @@ function PipelineSettings({
       </SetupSection>
 
       <Spacing mt={UNITS_BETWEEN_SECTIONS}>
-        <SetupSection title="Pipeline level concurrency">
+        <SetupSection title={t('pipeline_detail.settings.sections.pipeline_level_concurrency')}>
           <SetupSectionRow
             description={(
               <>
                 <Text muted small>
-                  Limit the concurrent pipeline runs across all triggers in this pipeline.
+                  {t('pipeline_detail.settings.concurrency.pipeline_run_limit_all_triggers_description')}
                 </Text>
               </>
             )}
@@ -265,18 +265,18 @@ function PipelineSettings({
                   pipeline_run_limit_all_triggers: Number(e.target.value),
                 },
               })),
-              placeholder: 'e.g. 40',
+              placeholder: t('pipeline_detail.settings.concurrency.pipeline_run_limit_all_triggers_placeholder'),
               type: 'number',
               value: String(pipelineAttributes?.concurrency_config?.pipeline_run_limit_all_triggers || ''),
             }}
-            title="Pipeline run limit across all triggers"
+            title={t('pipeline_detail.settings.concurrency.pipeline_run_limit_all_triggers_title')}
           />
 
           <SetupSectionRow
             description={(
               <>
                 <Text muted small>
-                  Limit the concurrent pipeline runs in a single trigger for this pipeline.
+                  {t('pipeline_detail.settings.concurrency.pipeline_run_limit_per_trigger_description')}
                 </Text>
               </>
             )}
@@ -289,18 +289,18 @@ function PipelineSettings({
                   pipeline_run_limit: Number(e.target.value),
                 },
               })),
-              placeholder: 'e.g. 10',
+              placeholder: t('pipeline_detail.settings.concurrency.pipeline_run_limit_per_trigger_placeholder'),
               type: 'number',
               value: String(pipelineAttributes?.concurrency_config?.pipeline_run_limit || ''),
             }}
-            title="Pipeline run limit in 1 trigger"
+            title={t('pipeline_detail.settings.concurrency.pipeline_run_limit_per_trigger_title')}
           />
 
           <SetupSectionRow
             description={(
               <>
                 <Text muted small>
-                  Limit the concurrent blocks runs in one pipeline run.
+                  {t('pipeline_detail.settings.concurrency.block_run_limit_description')}
                 </Text>
               </>
             )}
@@ -313,18 +313,18 @@ function PipelineSettings({
                   block_run_limit: Number(e.target.value),
                 },
               })),
-              placeholder: 'e.g. 20',
+              placeholder: t('pipeline_detail.settings.concurrency.block_run_limit_placeholder'),
               type: 'number',
               value: String(pipelineAttributes?.concurrency_config?.block_run_limit || ''),
             }}
-            title="Block run limit"
+            title={t('pipeline_detail.settings.concurrency.block_run_limit_title')}
           />
 
           <SetupSectionRow
             description={(
               <>
                 <Text muted small>
-                  Choose whether to wait or skip when the pipeline run limit is reached.
+                  {t('pipeline_detail.settings.concurrency.on_limit_reached_description')}
                 </Text>
               </>
             )}
@@ -337,35 +337,35 @@ function PipelineSettings({
                 },
               })),
               options: Object.values(ConcurrencyConfigRunLimitReachedActionEnum)?.map(key => ({
-                label: capitalize(key),
+                label: t(`pipeline_detail.settings.concurrency.on_limit_reached_actions.${key}`),
                 value: key,
               })),
-              placeholder: 'Select an option',
+              placeholder: t('pipeline_detail.settings.select_option_placeholder'),
               value: pipelineAttributes?.concurrency_config?.on_pipeline_run_limit_reached || '',
             }}
-            title="How to handle new pipeline runs when limit reached"
+            title={t('pipeline_detail.settings.concurrency.on_limit_reached_title')}
           />
         </SetupSection>
       </Spacing>
 
       <Spacing mt={UNITS_BETWEEN_SECTIONS}>
         <Headline>
-          Executor type
+          {t('pipeline_detail.settings.executor_type.heading')}
         </Headline>
 
         <Text muted>
-          For more information on this setting, please read the <Link
+          {t('pipeline_detail.settings.more_info_prefix')}<Link
             href="https://docs.mage.ai/production/configuring-production-settings/compute-resource#2-set-executor-type-and-customize-the-compute-resource-of-the-mage-executor"
             openNewWindow
           >
-            documentation
-          </Link>.
+            {t('pipeline_detail.settings.documentation_link')}
+          </Link>{t('pipeline_detail.settings.more_info_suffix')}
         </Text>
 
         <Spacing mt={1}>
           {!editCustomExecutorType && (
             <Select
-              label="Executor type"
+              label={t('pipeline_detail.settings.executor_type.label')}
               onChange={e => setPipelineAttributes(prev => ({
                 ...prev,
                 executor_type: e.target.value,
@@ -383,7 +383,7 @@ function PipelineSettings({
           )}
           {editCustomExecutorType && (
             <TextInput
-              label="Executor type"
+              label={t('pipeline_detail.settings.executor_type.label')}
               monospace
               onChange={e => setPipelineAttributes(prev => ({
                 ...prev,
@@ -415,8 +415,8 @@ function PipelineSettings({
               small
             >
               {editCustomExecutorType
-                ? 'Select a preset executor type'
-                : 'Enter a custom executor type'
+                ? t('pipeline_detail.settings.executor_type.select_preset')
+                : t('pipeline_detail.settings.executor_type.enter_custom')
               }
             </Link>
           </Spacing>
@@ -425,22 +425,22 @@ function PipelineSettings({
 
       <Spacing mt={UNITS_BETWEEN_SECTIONS}>
         <Headline>
-          Retry configuration
+          {t('pipeline_detail.settings.retry_configuration.heading')}
         </Headline>
 
         <Text muted>
-          For more information on this setting, please read the <Link
+          {t('pipeline_detail.settings.more_info_prefix')}<Link
             href="https://docs.mage.ai/orchestration/pipeline-runs/retrying-block-runs"
             openNewWindow
           >
-            documentation
-          </Link>.
+            {t('pipeline_detail.settings.documentation_link')}
+          </Link>{t('pipeline_detail.settings.more_info_suffix')}
         </Text>
 
         <Spacing mt={1}>
           <FlexContainer>
             <TextInput
-              label="Retries"
+              label={t('pipeline_detail.settings.retry_configuration.retries')}
               monospace
               onChange={e => setPipelineAttributes(prev => ({
                 ...prev,
@@ -459,7 +459,7 @@ function PipelineSettings({
             <Spacing mr={1} />
 
             <TextInput
-              label="Delay"
+              label={t('pipeline_detail.settings.retry_configuration.delay')}
               monospace
               onChange={e => setPipelineAttributes(prev => ({
                 ...prev,
@@ -478,7 +478,7 @@ function PipelineSettings({
             <Spacing mr={1} />
 
             <TextInput
-              label="Max delay"
+              label={t('pipeline_detail.settings.retry_configuration.max_delay')}
               monospace
               onChange={e => setPipelineAttributes(prev => ({
                 ...prev,
@@ -498,7 +498,7 @@ function PipelineSettings({
 
             <Checkbox
               checked={!!pipelineAttributes?.retry_config?.exponential_backoff}
-              label="Exponential backoff"
+              label={t('pipeline_detail.settings.retry_configuration.exponential_backoff')}
               onClick={() => setPipelineAttributes(prev => ({
                 ...prev,
                 retry_config: {
@@ -513,7 +513,7 @@ function PipelineSettings({
 
       <Spacing mt={UNITS_BETWEEN_SECTIONS}>
         <Headline>
-          Tags
+          {t('pipelines.configure.tags')}
         </Headline>
 
         <Spacing mt={1}>
@@ -556,7 +556,7 @@ function PipelineSettings({
             }).then(() => setPipelineAttributesTouched(false))}
             primary
           >
-            Save pipeline settings
+            {t('pipeline_detail.settings.save_pipeline_settings')}
           </Button>
         </FlexContainer>
       </Spacing>
@@ -565,7 +565,7 @@ function PipelineSettings({
         <Checkbox
           checked={allBlocksHidden && !noBlocks}
           disabled={noBlocks}
-          label="Hide all blocks in notebook"
+          label={t('pipeline_detail.settings.hide_all_blocks_in_notebook')}
           onClick={() => setHiddenBlocks(() => {
             if (allBlocksHidden) {
               return {};
@@ -582,7 +582,7 @@ function PipelineSettings({
       <Spacing mt={UNITS_BETWEEN_ITEMS_IN_SECTIONS}>
         <Checkbox
           checked={blockOutputLogs}
-          label="When running a block while editing a pipeline, output the block messages to the logs"
+          label={t('pipeline_detail.settings.output_block_messages_to_logs')}
           // @ts-ignore
           onClick={() => setBlockOutputLogs(prev => !prev)}
         />

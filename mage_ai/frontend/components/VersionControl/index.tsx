@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
+import { useTranslation } from 'react-i18next';
 
 import Branches from './Branches';
 import ButtonTabs, { TabType } from '@oracle/components/Tabs/ButtonTabs';
@@ -47,6 +48,7 @@ const DEFAULT_ASIDE_WIDTH = 30 * UNIT;
 function VersionControl() {
   const fileTreeRef = useRef(null);
   const refSelectBaseBranch = useRef(null);
+  const { t } = useTranslation('common');
 
   const [showError] = useError(null, {}, [], {
     uuid: 'VersionControlPage',
@@ -297,15 +299,15 @@ function VersionControl() {
 
             if (fileInMapping(file, modifiedFiles)) {
               displayText = 'M';
-              displayTitle = 'Modified';
+              displayTitle = t('version_control.modified');
               colorProps.warning = true;
             } else if (fileInMapping(file, untrackedFiles)) {
               displayText = 'U';
-              displayTitle = 'Untracked';
+              displayTitle = t('version_control.untracked');
               colorProps.danger = true;
             } else if (fileInMapping(file, stagedFiles)) {
               displayText = 'S';
-              displayTitle = 'Staged';
+              displayTitle = t('version_control.staged');
               colorProps.success = true;
             }
 
@@ -341,7 +343,7 @@ function VersionControl() {
     return (
       <Spacing p={PADDING_UNITS}>
         <Text monospace muted>
-          No files modified
+          {t('version_control.no_files_modified')}
         </Text>
       </Spacing>
     );
@@ -365,9 +367,21 @@ function VersionControl() {
       selectedFilePath,
     ]);
 
-  const tabsToUse = useMemo(() => dataBranch && branch?.name ? TABS : TABS.slice(0, 1), [
+  const tabsTranslated = useMemo(() => TABS.map(tab => ({
+    ...tab,
+    label: tab?.label || (() => {
+      if (tab.uuid === TAB_FILES.uuid) return t('version_control.files');
+      if (tab.uuid === TAB_BRANCHES.uuid) return t('version_control.branches');
+      if (tab.uuid === TAB_PUSH.uuid) return t('version_control.push');
+      if (tab.uuid === TAB_REMOTE.uuid) return t('version_control.remote');
+      return tab.uuid;
+    }),
+  })), [t]);
+
+  const tabsToUse = useMemo(() => dataBranch && branch?.name ? tabsTranslated : tabsTranslated.slice(0, 1), [
     branch,
     dataBranch,
+    tabsTranslated,
   ]);
   const mainContainerHeaderMemo = useMemo(() => (
     <div style={{ marginTop: 5 }}>
@@ -495,9 +509,11 @@ function VersionControl() {
       selectedTabUUIDs={selectedTabsBefore}
       tabs={[
         {
+          label: () => t('version_control.all_projects'),
           uuid: 'All projects',
         },
         {
+          label: () => t('version_control.git_directory'),
           uuid: 'Git directory',
         },
       ]}
@@ -505,6 +521,7 @@ function VersionControl() {
     />
   ), [
     selectedTabsBefore,
+    t,
   ]);
 
   const onUpdateFileSuccess = useCallback(() => {
@@ -602,7 +619,7 @@ function VersionControl() {
               <Spacing p={1}>
                 <Select
                   compact
-                  label="Base branch"
+                  label={t('version_control.base_branch')}
                   onChange={e => setBranchBase(e.target.value)}
                   ref={refSelectBaseBranch}
                   small
@@ -652,7 +669,7 @@ function VersionControl() {
       setAfterHidden={setAfterHidden}
       setAfterWidth={setAfterWidth}
       setBeforeWidth={setBeforeWidth}
-      title="Version control"
+      title={t('sidebar.version_control')}
       uuid={VERSION_CONTROL_PAGE_UUID}
     >
       <Spacing p={PADDING_UNITS}>
