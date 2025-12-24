@@ -279,14 +279,16 @@ export function getFullDateRangeString(
   options?: {
     endDateOnly?: boolean;
     localTime?: boolean;
+    locale?: string;
   },
 ) {
-  let dateMomentStart = moment.utc();
-  let dateMomentEnd = moment.utc();
+  const dateMomentBase = options?.localTime ? moment().local() : moment.utc();
+  let dateMomentStart = dateMomentBase.clone();
+  let dateMomentEnd = dateMomentBase.clone();
 
-  if (options?.localTime) {
-    dateMomentStart = moment().local();
-    dateMomentEnd = moment().local();
+  if (options?.locale) {
+    dateMomentStart = dateMomentStart.locale(options.locale);
+    dateMomentEnd = dateMomentEnd.locale(options.locale);
   }
 
   dateMomentStart = dateMomentStart.subtract(daysAgo, 'days');

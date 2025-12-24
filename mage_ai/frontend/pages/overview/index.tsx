@@ -81,7 +81,11 @@ import { goToWithQuery } from '@utils/routing';
 import { groupBy } from '@utils/array';
 import { onSuccess } from '@api/utils/response';
 import { queryFromUrl } from '@utils/url';
-import { storeLocalTimezoneSetting } from '@components/settings/workspace/utils';
+import {
+  shouldDisplayLocalTimezone,
+  storeLocalTimezoneSetting,
+} from '@components/settings/workspace/utils';
+import { CustomEventUUID } from '@utils/events/constants';
 import { useModal } from '@context/Modal';
 import UploadPipeline from '@components/PipelineDetail/UploadPipeline';
 import { LOCAL_STORAGE_KEY_OVERVIEW_TAB_SELECTED, set, get } from 'storage/localStorage';
@@ -97,7 +101,7 @@ const SHARED_FETCH_OPTIONS = {
 };
 
 function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const abortRef = useRef(null);
   const mountedRef = useRef(false);
   const refSubheader = useRef(null);
@@ -124,7 +128,7 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
           return tab?.label ? tab.label() : tab.uuid;
         },
       })),
-    [t],
+    [i18n.language, t],
   );
 
   const allTabs = useMemo(() => timePeriodTabs, [timePeriodTabs]);
@@ -139,9 +143,8 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
 
   const { data: dataProjects, mutate: fetchProjects } = api.projects.list();
   const project: ProjectType = useMemo(() => dataProjects?.projects?.[0], [dataProjects]);
-  const displayLocalTimezone = useMemo(
-    () => !!storeLocalTimezoneSetting(project?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE]),
-    [project?.features],
+  const [displayLocalTimezone, setDisplayLocalTimezone] = useState<boolean>(
+    shouldDisplayLocalTimezone(),
   );
   const timezoneOffset = useMemo(() => moment().format('Z'), []);
   const displayLocalTimezoneRef = useRef(displayLocalTimezone);
@@ -161,7 +164,24 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
     }
 
     return capitalize(TIME_PERIOD_DISPLAY_MAPPING[timePeriod]) || timePeriod;
-  }, [t, timePeriod]);
+  }, [i18n.language, t, timePeriod]);
+
+  const momentLocale = useMemo(() => {
+    const language = i18n.resolvedLanguage || i18n.language;
+    if (!language) {
+      return null;
+    }
+
+    const normalized = language.toLowerCase();
+    if (normalized.startsWith('zh')) {
+      return 'zh-cn';
+    }
+    if (normalized.startsWith('en')) {
+      return 'en';
+    }
+
+    return normalized;
+  }, [i18n.language, i18n.resolvedLanguage]);
 
   const timeZoneLabel = displayLocalTimezone ? t('dashboard.local_time') : 'UTC';
 
@@ -254,6 +274,34 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
     }
   }, [displayLocalTimezone, fetchMonitorStats]);
 
+  useEffect(() => {
+    if (typeof project?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE] !== 'undefined') {
+      storeLocalTimezoneSetting(project?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE]);
+      setDisplayLocalTimezone(shouldDisplayLocalTimezone());
+    }
+  }, [project?.features]);
+
+  useEffect(() => {
+    const handleTimezoneChange = (event: Event) => {
+      const detail = (event as CustomEvent<{ displayLocalTimezone?: boolean }>)?.detail;
+      if (typeof detail?.displayLocalTimezone === 'boolean') {
+        setDisplayLocalTimezone(detail.displayLocalTimezone);
+        return;
+      }
+
+      setDisplayLocalTimezone(shouldDisplayLocalTimezone());
+    };
+
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    window.addEventListener(CustomEventUUID.LOCAL_TIMEZONE_CHANGED, handleTimezoneChange);
+
+    return () =>
+      window.removeEventListener(CustomEventUUID.LOCAL_TIMEZONE_CHANGED, handleTimezoneChange);
+  }, []);
+
   const { data: dataPipelineRuns } = api.pipeline_runs.list(
     {
       _limit: 50,
@@ -297,9 +345,10 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
     () =>
       getFullDateRangeString(TIME_PERIOD_INTERVAL_MAPPING[timePeriod], {
         endDateOnly: timePeriod === TimePeriodEnum.TODAY,
+        locale: momentLocale,
         localTime: displayLocalTimezone,
       }),
-    [displayLocalTimezone, timePeriod],
+    [displayLocalTimezone, i18n.language, momentLocale, timePeriod],
   );
 
   const useCreatePipelineMutation = onSuccessCallback =>

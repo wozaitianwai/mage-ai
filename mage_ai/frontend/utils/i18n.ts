@@ -23,8 +23,10 @@ const mapMomentLocale = (language?: string) => {
   return normalized;
 };
 
+const resolveLanguage = (language?: string) => mapMomentLocale(language);
+
 const syncMomentLocale = (language?: string) => {
-  moment.locale(mapMomentLocale(language));
+  moment.locale(resolveLanguage(language));
 };
 
 i18n
@@ -49,9 +51,12 @@ i18n
     interpolation: {
       escapeValue: false,
     },
+  })
+  .then(() => {
+    syncMomentLocale(i18n.resolvedLanguage || i18n.language);
   });
 
-syncMomentLocale(i18n.language);
+syncMomentLocale(i18n.resolvedLanguage || i18n.language);
 i18n.on('languageChanged', syncMomentLocale);
 
 export default i18n;
