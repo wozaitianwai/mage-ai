@@ -217,12 +217,11 @@ class UsageStatisticLogger():
         for k, v in (self.project.features or {}).items():
             features[k] = 1 if v else 0
 
-        if self.project.repo_config.openai_api_key and \
-                len(self.project.repo_config.openai_api_key) >= 1:
-
-            features['openai'] = 1
-        else:
-            features['openai'] = 0
+        ai_config = self.project.repo_config.ai_config or {}
+        open_ai_config = ai_config.get('open_ai_config') or {}
+        openai_api_key = open_ai_config.get('openai_api_key') or \
+            self.project.repo_config.openai_api_key
+        features['openai'] = 1 if openai_api_key else 0
 
         return await self.__send_message(
             dict(

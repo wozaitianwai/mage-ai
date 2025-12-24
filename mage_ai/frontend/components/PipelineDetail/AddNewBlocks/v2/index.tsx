@@ -47,6 +47,7 @@ import { LOCAL_STORAGE_KEY_SETUP_AI_LATER } from '@storage/constants';
 import { UNITS_BETWEEN_SECTIONS, UNIT } from '@oracle/styles/units/spacing';
 import { get, set } from '@storage/localStorage';
 import { getColorsForBlockType } from '@components/CodeBlock/index.style';
+import { isAIConfigured } from '@utils/models/project';
 import { onSuccess } from '@api/utils/response';
 import { pauseEvent } from '@utils/events';
 import { useError } from '@context/Error';
@@ -257,7 +258,7 @@ function AddNewBlocksV2({
     refTextInput,
   ]);
 
-  const hasOpenAIAPIKey = useMemo(() => !!project?.openai_api_key, [project]);
+  const hasAIProvider = useMemo(() => isAIConfigured(project), [project]);
 
   return (
     <ClickOutside
@@ -409,10 +410,10 @@ function AddNewBlocksV2({
                               <BlockCubePolygon muted size={ICON_SIZE} />
                             )}
 
-                            {isGenerateBlock && hasOpenAIAPIKey && (
+                            {isGenerateBlock && hasAIProvider && (
                               <AISparkle muted size={ICON_SIZE} />
                             )}
-                            {isGenerateBlock && !hasOpenAIAPIKey && (
+                            {isGenerateBlock && !hasAIProvider && (
                               <AlertTriangle muted size={ICON_SIZE} />
                             )}
                           </RowStyle>
@@ -427,7 +428,7 @@ function AddNewBlocksV2({
                       object_type: objectType,
                     } = blockActionObject;
 
-                    if (ObjectType.GENERATE_BLOCK === objectType && !hasOpenAIAPIKey) {
+                    if (ObjectType.GENERATE_BLOCK === objectType && !hasAIProvider) {
                       showConfigureProjectModal?.({
                         cancelButtonText: 'Set this up later',
                         header: <Setup />,
@@ -435,7 +436,7 @@ function AddNewBlocksV2({
                           setSetupAILater(true);
                         },
                         onSaveSuccess: (project: ProjectType) => {
-                          if (project?.openai_api_key) {
+                          if (isAIConfigured(project)) {
                             addNewBlock({
                               block_action_object: blockActionObject,
                             });

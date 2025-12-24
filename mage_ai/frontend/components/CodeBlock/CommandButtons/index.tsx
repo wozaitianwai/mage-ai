@@ -55,6 +55,7 @@ import { buildConvertBlockMenuItems, getMoreActionsItems } from '../utils';
 import { getColorsForBlockType } from '../index.style';
 import { isMac } from '@utils/os';
 import { indexBy } from '@utils/array';
+import { isAIConfigured } from '@utils/models/project';
 import { onSuccess } from '@api/utils/response';
 import { useError } from '@context/Error';
 import Setup from '@components/AI/Setup';
@@ -231,12 +232,12 @@ function CommandButtons({
   );
 
   const itemsAIActions = useMemo(() => {
-    const shouldShowModal = !project?.openai_api_key;
+    const shouldShowModal = !isAIConfigured(project);
     const showModal = (llm: LLMType) => {
       showConfigureProjectModal?.({
         header: <Setup />,
         onSaveSuccess: (project: ProjectType) => {
-          if (project?.openai_api_key) {
+          if (isAIConfigured(project)) {
             // @ts-ignore
             updatePipeline({
               pipeline: {

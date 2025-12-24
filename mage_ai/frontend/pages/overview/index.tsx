@@ -79,6 +79,7 @@ import { getAllPipelineRunDataGrouped } from '@components/PipelineRun/shared/uti
 import { getNewPipelineButtonMenuItems } from '@components/Dashboard/utils';
 import { goToWithQuery } from '@utils/routing';
 import { groupBy } from '@utils/array';
+import { isAIConfigured } from '@utils/models/project';
 import { onSuccess } from '@api/utils/response';
 import { queryFromUrl } from '@utils/url';
 import {
@@ -498,7 +499,7 @@ function OverviewPage({ tab }: { tab?: TimePeriodEnum }) {
       getNewPipelineButtonMenuItems(createPipeline, {
         t,
         showAIModal: () => {
-          if (!project?.openai_api_key) {
+          if (!isAIConfigured(project)) {
             showConfigureProjectModal({
               onSaveSuccess: () => {
                 showAIModal();

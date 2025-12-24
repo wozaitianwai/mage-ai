@@ -193,8 +193,14 @@ TEMPLATE_CLASSIFICATION_FUNCTION = [
 class LLMPipelineWizard:
     def __init__(self):
         ai_config = AIConfig.load(config=get_repo_config().ai_config)
-        if ENABLE_OPEN_AI and ai_config.mode == AIMode.OPEN_AI:
-            self.client = OpenAIClient(ai_config.open_ai_config)
+        if ENABLE_OPEN_AI and ai_config.mode in [
+            AIMode.OPEN_AI,
+            AIMode.OPENAI_COMPATIBLE,
+            AIMode.DEEPSEEK,
+            AIMode.GROK,
+            AIMode.QWEN,
+        ]:
+            self.client = OpenAIClient(ai_config.open_ai_config, ai_config.mode)
         elif ENABLE_HUGGING_FACE and ai_config.mode == AIMode.HUGGING_FACE:
             self.client = HuggingFaceClient(ai_config.hugging_face_config)
         else:

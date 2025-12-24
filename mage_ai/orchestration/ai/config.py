@@ -7,6 +7,8 @@ from mage_ai.shared.config import BaseConfig
 @dataclass
 class OpenAIConfig(BaseConfig):
     openai_api_key: str = None
+    base_url: str = None
+    model: str = None
 
 
 @dataclass

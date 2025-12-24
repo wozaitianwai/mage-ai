@@ -45,6 +45,7 @@ import { UNIT, UNITS_BETWEEN_SECTIONS } from '@oracle/styles/units/spacing';
 import { getColorsForBlockType } from '@components/CodeBlock/index.style';
 import { isDebug } from '@utils/environment';
 import { onlyKeysPresent } from '@utils/hooks/keyboardShortcuts/utils';
+import { isAIConfigured } from '@utils/models/project';
 import { onSuccess } from '@api/utils/response';
 import { pauseEvent } from '@utils/events';
 import { useError } from '@context/Error';
@@ -228,12 +229,12 @@ function Editor({
   );
 
   const itemsAIActions = useMemo(() => {
-    const shouldShowModal = !project?.openai_api_key;
+    const shouldShowModal = !isAIConfigured(project);
     const showModal = (llm: LLMType) => {
       showConfigureProjectModal?.({
         header: <Setup />,
         onSaveSuccess: (project: ProjectType) => {
-          if (project?.openai_api_key) {
+          if (isAIConfigured(project)) {
             // @ts-ignore
             updatePipeline({
               pipeline: {
@@ -594,7 +595,7 @@ function Editor({
   registerOnKeyDown(
     componentUUID,
     (event, keyMapping, keyHistory) => {
-      if (project?.openai_api_key
+      if (isAIConfigured(project)
         && selected
         && onlyKeysPresent([KEY_CODE_CONTROL, KEY_CODE_PERIOD], keyMapping)
       ) {
@@ -620,7 +621,7 @@ function Editor({
 
   return (
     <EditorWrapperStyle>
-      {!!project?.openai_api_key && (
+      {isAIConfigured(project) && (
         <ButtonStyle ref={refButton}>
           <KeyboardShortcutButton
             noBackground

@@ -18,6 +18,15 @@ export enum FeatureUUIDEnum {
   POLARS = 'polars',
 }
 
+export enum AIProviderEnum {
+  OPEN_AI = 'open_ai',
+  OPENAI_COMPATIBLE = 'openai_compatible',
+  DEEPSEEK = 'deepseek',
+  GROK = 'grok',
+  QWEN = 'qwen',
+  HUGGING_FACE = 'hugging_face',
+}
+
 export enum ProjectTypeEnum {
   DBT = 'dbt',
   MAIN = 'main',
@@ -88,7 +97,25 @@ export interface ProjectPipelinesType {
   settings?: PipelineSettingsType;
 }
 
+export interface OpenAIConfigType {
+  openai_api_key?: string;
+  base_url?: string;
+  model?: string;
+}
+
+export interface HuggingFaceConfigType {
+  huggingface_api?: string;
+  huggingface_inference_api_token?: string;
+}
+
+export interface AIConfigType {
+  mode?: AIProviderEnum;
+  open_ai_config?: OpenAIConfigType;
+  hugging_face_config?: HuggingFaceConfigType;
+}
+
 export type ProjectRequestPayloadType = {
+  ai_config?: AIConfigType;
   deny_improve_mage?: boolean;
   features?: {
     [key: string]: boolean;
@@ -99,6 +126,7 @@ export type ProjectRequestPayloadType = {
 };
 
 export default interface ProjectType {
+  ai_config?: AIConfigType;
   emr_config?: EMRConfigType;
   features?: {
     [key: string]: boolean;

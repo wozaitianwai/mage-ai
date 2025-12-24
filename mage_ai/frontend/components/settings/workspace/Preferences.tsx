@@ -11,10 +11,15 @@ import FlexContainer, {
 import Headline from '@oracle/elements/Headline';
 import Link from '@oracle/elements/Link';
 import Panel from '@oracle/components/Panel';
-import ProjectType, { FeatureUUIDEnum, ProjectRequestPayloadType } from '@interfaces/ProjectType';
+import ProjectType, {
+  AIProviderEnum,
+  FeatureUUIDEnum,
+  ProjectRequestPayloadType,
+} from '@interfaces/ProjectType';
 import SetupSection, { SetupSectionRow } from '@components/shared/SetupSection';
 import Spacing from '@oracle/elements/Spacing';
 import Text from '@oracle/elements/Text';
+import Select from '@oracle/elements/Inputs/Select';
 import TextInput from '@oracle/elements/Inputs/TextInput';
 import ToggleSwitch from '@oracle/elements/Inputs/ToggleSwitch';
 import Tooltip from '@oracle/components/Tooltip';
@@ -28,6 +33,7 @@ import { PADDING_UNITS, UNITS_BETWEEN_SECTIONS } from '@oracle/styles/units/spac
 import { capitalizeRemoveUnderscoreLower } from '@utils/string';
 import { ignoreKeys } from '@utils/hash';
 import { onSuccess } from '@api/utils/response';
+import { getAIConfig } from '@utils/models/project';
 import { useError } from '@context/Error';
 
 type PreferencesProps = {
@@ -37,6 +43,30 @@ type PreferencesProps = {
   onCancel?: () => void;
   onSaveSuccess?: (project: ProjectType) => void;
   rootProject?: boolean;
+};
+
+const AI_PROVIDER_DEFAULTS = {
+  [AIProviderEnum.OPEN_AI]: {
+    base_url: 'https://api.openai.com/v1',
+    model: 'gpt-4o',
+  },
+  [AIProviderEnum.DEEPSEEK]: {
+    base_url: 'https://api.deepseek.com/v1',
+    model: 'deepseek-chat',
+  },
+  [AIProviderEnum.GROK]: {
+    base_url: 'https://api.x.ai/v1',
+    model: 'grok-2-latest',
+  },
+  [AIProviderEnum.QWEN]: {
+    base_url: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    model: 'qwen2.5-72b-instruct',
+  },
+  [AIProviderEnum.OPENAI_COMPATIBLE]: {
+    base_url: '',
+    model: '',
+  },
+  [AIProviderEnum.HUGGING_FACE]: {},
 };
 
 function Preferences({
@@ -51,7 +81,7 @@ function Preferences({
     uuid: 'settings/workspace/preferences',
   });
   const [projectAttributes, setProjectAttributes] = useState<ProjectType>(null);
-  const [editingOpenAIKey, setEditingOpenAIKey] = useState<boolean>(false);
+  const [editingAIKey, setEditingAIKey] = useState<boolean>(false);
   const { t } = useTranslation('common');
 
   const {
@@ -69,7 +99,6 @@ function Preferences({
 
   const {
     name: projectName,
-    openai_api_key: openaiApiKey,
     project_uuid: projectUUID,
   } = project || {};
 
@@ -79,8 +108,11 @@ function Preferences({
   );
 
   useEffect(() => {
-    if (!projectAttributes) {
-      setProjectAttributes(project);
+    if (!projectAttributes && project) {
+      setProjectAttributes({
+        ...project,
+        ai_config: getAIConfig(project),
+      });
     }
   }, [project, projectAttributes]);
 
@@ -92,7 +124,7 @@ function Preferences({
           callback: ({ project: p }) => {
             fetchProjects();
             setProjectAttributes(p);
-            setEditingOpenAIKey(false);
+            setEditingAIKey(false);
             storeLocalTimezoneSetting(p?.features?.[FeatureUUIDEnum.LOCAL_TIMEZONE]);
 
             if (onSaveSuccess) {
@@ -117,6 +149,42 @@ function Preferences({
     rootProjectUse,
     updateProjectBase,
   ]);
+
+  const aiConfig = useMemo(
+    () => getAIConfig(projectAttributes || project),
+    [projectAttributes, project],
+  );
+  const aiMode = aiConfig?.mode || AIProviderEnum.OPEN_AI;
+  const openAIConfig = aiConfig?.open_ai_config || {};
+  const huggingFaceConfig = aiConfig?.hugging_face_config || {};
+  const apiKey = openAIConfig?.openai_api_key;
+
+  const aiProviderOptions = useMemo(() => ([
+    {
+      label: 'OpenAI',
+      value: AIProviderEnum.OPEN_AI,
+    },
+    {
+      label: 'DeepSeek',
+      value: AIProviderEnum.DEEPSEEK,
+    },
+    {
+      label: 'Grok',
+      value: AIProviderEnum.GROK,
+    },
+    {
+      label: 'Qwen',
+      value: AIProviderEnum.QWEN,
+    },
+    {
+      label: 'Hugging Face',
+      value: AIProviderEnum.HUGGING_FACE,
+    },
+    {
+      label: t('preferences.ai_provider_custom'),
+      value: AIProviderEnum.OPENAI_COMPATIBLE,
+    },
+  ]), [t]);
 
   const el = (
     <>
@@ -330,42 +398,197 @@ function Preferences({
         <Spacing p={PADDING_UNITS}>
           <Spacing mb={1}>
             <Headline level={5}>
-              {t('preferences.openai')}
+              {t('preferences.ai_provider')}
             </Headline>
           </Spacing>
 
-          {(openaiApiKey && !editingOpenAIKey)
-            ?
-              <FlexContainer {...JUSTIFY_SPACE_BETWEEN_PROPS} >
-                <Text default monospace>
-                  {t('preferences.api_key_hidden')}
-                </Text>
-                <Button
-                  iconOnly
-                  onClick={() => setEditingOpenAIKey(true)}
-                  secondary
-                  title={t('preferences.edit')}
-                >
-                  <Edit size={ICON_SIZE_SMALL} />
-                </Button>
-              </FlexContainer>
-            :
-              <TextInput
-                disabled={isDemoApp}
-                label={isDemoApp
-                  ? t('preferences.api_key_disabled_demo')
-                  : t('preferences.api_key')
+          <Text default>
+            {t('preferences.ai_provider_description')}
+          </Text>
+
+          <Spacing mt={2}>
+            <Select
+              onChange={(e) => {
+                const mode = e.target.value as AIProviderEnum;
+                const defaults = AI_PROVIDER_DEFAULTS[mode] || {};
+                setProjectAttributes(prev => {
+                  const prevAIConfig = getAIConfig(prev);
+                  const nextAIConfig = {
+                    ...prevAIConfig,
+                    mode,
+                  };
+                  if (mode !== AIProviderEnum.HUGGING_FACE) {
+                    nextAIConfig.open_ai_config = {
+                      ...prevAIConfig.open_ai_config,
+                      base_url: defaults.base_url ?? prevAIConfig.open_ai_config?.base_url,
+                      model: defaults.model ?? prevAIConfig.open_ai_config?.model,
+                    };
+                  }
+                  return {
+                    ...prev,
+                    ai_config: nextAIConfig,
+                  };
+                });
+                setEditingAIKey(false);
+              }}
+              value={aiMode}
+            >
+              {aiProviderOptions.map(({ label, value }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </Select>
+          </Spacing>
+
+          {aiMode !== AIProviderEnum.HUGGING_FACE && (
+            <>
+              <Spacing mt={2}>
+                {(apiKey && !editingAIKey)
+                  ?
+                    <FlexContainer {...JUSTIFY_SPACE_BETWEEN_PROPS} >
+                      <Text default monospace>
+                        {t('preferences.api_key_hidden')}
+                      </Text>
+                      <Button
+                        iconOnly
+                        onClick={() => setEditingAIKey(true)}
+                        secondary
+                        title={t('preferences.edit')}
+                      >
+                        <Edit size={ICON_SIZE_SMALL} />
+                      </Button>
+                    </FlexContainer>
+                  :
+                    <TextInput
+                      disabled={isDemoApp}
+                      label={isDemoApp
+                        ? t('preferences.api_key_disabled_demo')
+                        : t('preferences.api_key')
+                      }
+                      monospace
+                      onChange={e => setProjectAttributes(prev => {
+                        const prevAIConfig = getAIConfig(prev);
+                        const nextOpenAIConfig = {
+                          ...prevAIConfig.open_ai_config,
+                          openai_api_key: e.target.value,
+                        };
+                        const nextProject = {
+                          ...prev,
+                          ai_config: {
+                            ...prevAIConfig,
+                            open_ai_config: nextOpenAIConfig,
+                          },
+                        };
+                        if (prevAIConfig.mode === AIProviderEnum.OPEN_AI) {
+                          nextProject.openai_api_key = e.target.value;
+                        }
+                        return nextProject;
+                      })}
+                      primary
+                      setContentOnMount
+                      value={apiKey || ''}
+                    />
                 }
-                monospace
-                onChange={e => setProjectAttributes(prev => ({
-                  ...prev,
-                  openai_api_key: e.target.value,
-                }))}
-                primary
-                setContentOnMount
-                value={projectAttributes?.openai_api_key || ''}
-              />
-          }
+              </Spacing>
+
+              <Spacing mt={2}>
+                <TextInput
+                  label={t('preferences.ai_base_url')}
+                  monospace
+                  onChange={e => setProjectAttributes(prev => {
+                    const prevAIConfig = getAIConfig(prev);
+                    return {
+                      ...prev,
+                      ai_config: {
+                        ...prevAIConfig,
+                        open_ai_config: {
+                          ...prevAIConfig.open_ai_config,
+                          base_url: e.target.value,
+                        },
+                      },
+                    };
+                  })}
+                  primary
+                  setContentOnMount
+                  value={openAIConfig?.base_url || ''}
+                />
+              </Spacing>
+
+              <Spacing mt={2}>
+                <TextInput
+                  label={t('preferences.ai_model')}
+                  monospace
+                  onChange={e => setProjectAttributes(prev => {
+                    const prevAIConfig = getAIConfig(prev);
+                    return {
+                      ...prev,
+                      ai_config: {
+                        ...prevAIConfig,
+                        open_ai_config: {
+                          ...prevAIConfig.open_ai_config,
+                          model: e.target.value,
+                        },
+                      },
+                    };
+                  })}
+                  primary
+                  setContentOnMount
+                  value={openAIConfig?.model || ''}
+                />
+              </Spacing>
+            </>
+          )}
+
+          {aiMode === AIProviderEnum.HUGGING_FACE && (
+            <>
+              <Spacing mt={2}>
+                <TextInput
+                  label={t('preferences.ai_hf_api_url')}
+                  monospace
+                  onChange={e => setProjectAttributes(prev => {
+                    const prevAIConfig = getAIConfig(prev);
+                    return {
+                      ...prev,
+                      ai_config: {
+                        ...prevAIConfig,
+                        hugging_face_config: {
+                          ...prevAIConfig.hugging_face_config,
+                          huggingface_api: e.target.value,
+                        },
+                      },
+                    };
+                  })}
+                  primary
+                  setContentOnMount
+                  value={huggingFaceConfig?.huggingface_api || ''}
+                />
+              </Spacing>
+
+              <Spacing mt={2}>
+                <TextInput
+                  label={t('preferences.ai_hf_api_token')}
+                  monospace
+                  onChange={e => setProjectAttributes(prev => {
+                    const prevAIConfig = getAIConfig(prev);
+                    return {
+                      ...prev,
+                      ai_config: {
+                        ...prevAIConfig,
+                        hugging_face_config: {
+                          ...prevAIConfig.hugging_face_config,
+                          huggingface_inference_api_token: e.target.value,
+                        },
+                      },
+                    };
+                  })}
+                  primary
+                  setContentOnMount
+                  value={huggingFaceConfig?.huggingface_inference_api_token || ''}
+                />
+              </Spacing>
+            </>
+          )}
         </Spacing>
       </Panel>
 
@@ -377,6 +600,7 @@ function Preferences({
           loading={isLoadingUpdateProject}
           onClick={() => {
             const updateProjectPayload: ProjectRequestPayloadType = {
+              ai_config: projectAttributes?.ai_config,
               features: projectAttributes?.features,
               help_improve_mage: projectAttributes?.help_improve_mage,
               openai_api_key: projectAttributes?.openai_api_key,

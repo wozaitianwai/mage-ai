@@ -93,6 +93,7 @@ import { get, set } from '@storage/localStorage';
 import { getNewPipelineButtonMenuItems } from '@components/Dashboard/utils';
 import { goToWithQuery } from '@utils/routing';
 import { isEmptyObject, selectEntriesWithValues } from '@utils/hash';
+import { isAIConfigured } from '@utils/models/project';
 import { pauseEvent } from '@utils/events';
 import { range, sortByKey } from '@utils/array';
 import { storeLocalTimezoneSetting } from '@components/settings/workspace/utils';
@@ -732,7 +733,7 @@ function PipelineListPage() {
     {
       t,
       showAIModal: () => {
-        if (!project?.openai_api_key) {
+        if (!isAIConfigured(project)) {
           showConfigureProjectModal({
             onSaveSuccess: () => {
               showAIModal();

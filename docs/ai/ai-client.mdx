@@ -10,8 +10,35 @@ icon: "brain-circuit"
 
 You now have the option to select from various AI clients to harness
 [the capabilities of Mage AI](https://docs.mage.ai/guides/ai/overview), as detailed in the
-Mage AI capabilities documentation. Currently, we offer support for OpenAI and Hugging Face,
-with the promise of additional AI clients being added in the future.
+Mage AI capabilities documentation. Currently, we offer support for OpenAI-compatible providers
+(OpenAI, DeepSeek, Grok, Qwen, or custom OpenAI-compatible endpoints) and Hugging Face.
+
+## Use OpenAI-compatible providers
+
+### Setup
+
+Within your Mage project's metadata YAML configuration, include an "ai_config" section
+and set the mode to one of: `open_ai`, `deepseek`, `grok`, `qwen`, or `openai_compatible`.
+The `open_ai_config` section accepts the API key, base URL, and model.
+
+Example (DeepSeek):
+
+```
+ai_config:
+  mode: 'deepseek'
+  open_ai_config:
+    openai_api_key: "{{ env_var('DEEPSEEK_API_KEY') }}"
+    base_url: "https://api.deepseek.com/v1"
+    model: "deepseek-chat"
+```
+
+For custom OpenAI-compatible providers, set `mode: 'openai_compatible'` and provide
+the appropriate `base_url` and `model`.
+
+Notes:
+- If `open_ai_config.openai_api_key` is not set, Mage will read environment variables
+  based on `mode`: `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `GROK_API_KEY`, or `QWEN_API_KEY`.
+- The legacy `openai_api_key` field in `metadata.yaml` is still supported for `open_ai`.
 
 ## Use Hugging Face Client
 
@@ -40,15 +67,14 @@ Within your Mage project's metadata YAML configuration, please include the subse
 ```
 ai_config:
   mode: 'hugging_face'
-  open_ai_config:
-    openai_api_key: key
   hugging_face_config:
     huggingface_api: api_url
     huggingface_inference_api_token: api_token
 ```
 
 The "mode" parameter determines your selection of the AI client to be employed.
-It can be specified as either "open_ai" or "hugging_face," with the default value being set to "open_ai."
+It can be specified as "open_ai", "deepseek", "grok", "qwen", "openai_compatible", or "hugging_face",
+with the default value being set to "open_ai."
 
 "hugging_face_config" as a mandatory configuration if you choose to use the hugging face client.
 This configuration includes the two essential elements obtained from the Hugging Face inference
